@@ -1,14 +1,106 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("NEXT_PUBLIC_DB_URL")
+}
+
+enum AchievementCategory {
+  COMPETITION
+  RESEARCH
+}
+
+enum EventType {
+  TECHNICAL
+  NON_TECHNICAL
+}
+
+enum TeamCategory {
+  OFFICE_BEARERS
+  DEV_TEAM
+}
+
+enum GalleryCategory {
+  TECHNICAL
+  CULTURAL
+  SPORTS
+  SOCIAL
+  ACADEMIC
+  WORKSHOP
+  SEMINAR
+  INDUSTRIAL_VISIT
+  PROJECT_EXHIBITION
+  OUTREACH
+  ORIENTATION
+}
+
+model User {
+  id    Int    @id @default(autoincrement())
+  name  String
+  email String @unique
+}
+
+model Achievement {
+  id           Int                 @id @default(autoincrement())
+  name         String
+  title        String
+  description  String
+  photoUrl     String
+  category     AchievementCategory
+  rank         Int? // Only for Competitions
+  githubUrl    String?
+  linkedinUrl  String?
+  instagramUrl String?
+  researchLink String? // Only for Research
+}
+
+model Event {
+  id          Int       @id @default(autoincrement())
+  type        EventType
+  venue       String
+  date        DateTime // Includes both date & time
+  image       String
+  description String
+}
+
+model TeamPage {
+  id           Int          @id @default(autoincrement())
+  name         String
+  role         String
+  category     TeamCategory
+  photoUrl     String
+  linkedinUrl  String?
+  githubUrl    String?
+  instagramUrl String?
+  year         String // Stores "2024-25"
+  quote        String?
+}
+
+model Faculty {
+  id          Int     @id @default(autoincrement())
+  name        String
+  designation String
+  photoUrl    String
+  linkedinUrl String?
+  quote       String?
+}
+
+model News {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  date        DateTime
+  photoUrl    String
+  link        String?
+}
+
+model Gallery {
+  id          Int             @id @default(autoincrement())
+  title       String
+  description String
+  photoUrl    String
+  category    GalleryCategory
+  carousel    Boolean
 }
