@@ -1,5 +1,6 @@
 'use client'
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import {
   Card,
   CardContent,
@@ -38,18 +39,27 @@ const Page = () => {
         {events.map((event) => (
           <Card key={event.id} className="w-[350px] bg-secondary text-primary shadow-md">
             <CardHeader>
-              <CardTitle className="">{event.image}</CardTitle>
+              <CardTitle className="">  
+              <div className="w-full h-90 relative">
+                      <img 
+                        src={event.image} 
+                        alt={event.name} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+              </CardTitle>
               <hr />
             </CardHeader>
-            {/*
             <CardContent>
-              <div className="text-xl">
-                <div className="flex flex-row w-full items-center gap-2">
+              <div className="text-xl flex justify-center flex-col">
+                <div className="flex w-full justify-center">
                   <div>{event.name}</div>
+                </div>
+                <div className="flex w-full justify-center mt-4">
+                  <Button>View Event</Button>
                 </div>
               </div>
             </CardContent>
-            */}
           </Card>
         ))}
       </div>

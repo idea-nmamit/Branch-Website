@@ -208,7 +208,7 @@ const AdminPage = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="TECHNICAL">TECHNICAL</SelectItem>
-                  <SelectItem value="NON-TECHNICAL">NON-TECHNICAL</SelectItem>
+                  <SelectItem value="NON_TECHNICAL">NON-TECHNICAL</SelectItem>
                 </SelectContent>
               </Select>
             </div>
