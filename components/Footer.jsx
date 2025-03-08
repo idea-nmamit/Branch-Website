@@ -65,9 +65,8 @@ const Footer = () => {
 
   return (
     <footer className="w-full relative overflow-hidden py-16">
-      {/* Background with gradient and mesh */}
+      {/* Background with gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-cyan-950 via-indigo-950 to-violet-950 dark:from-cyan-800 dark:via-indigo-700 dark:to-violet-800">
-        <div className="absolute inset-0 bg-[url('/mesh-pattern.png')] opacity-10"></div>
         <div className="absolute -bottom-16 left-0 right-0 h-36 bg-gradient-to-t from-black/10 to-transparent"></div>
         <motion.div 
           className="absolute top-0 right-0 w-96 h-96 bg-teal-500/20 rounded-full blur-3xl -z-10"
