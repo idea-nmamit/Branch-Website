@@ -63,6 +63,8 @@ model Event {
   date        DateTime // Includes both date & time
   image       String
   description String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model TeamPage {
