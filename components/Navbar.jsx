@@ -23,7 +23,7 @@ const Navbar = () => {
   };
   
   return (
-    <nav className="w-full bg-[#8617c0] dark:bg-[#340181] text-white py-3 px-4 md:px-6 shadow-lg sticky top-0 z-50 border-b border-[#8617c0]/30 dark:border-[#340181]/30">
+    <nav className="w-full bg-[#17003A] dark:bg-[#8617C0] text-white py-3 px-4 md:px-6 shadow-lg sticky top-0 z-50 border-b border-[#8617c0]/30 dark:border-[#340181]/30">
       <div className="container mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center">
           <div className="relative w-24 h-11 md:w-28 md:h-12">

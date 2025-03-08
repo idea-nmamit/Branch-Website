@@ -76,10 +76,10 @@ const Page = () => {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Admin Page</h1>
+    <div className="p-6 bg-[#17003A] dark:bg-[#8617C0]">
+      <h1 className="text-2xl font-bold mb-4 text-white">Admin Page</h1>
 
-      <form onSubmit={handleSubmit} className="bg-gray-300 p-6 rounded-lg w-full max-w-lg mx-auto">
+      <form onSubmit={handleSubmit} className="bg-gray-300 dark:bg-black p-6 rounded-lg w-full max-w-lg mx-auto">
         <div className="mb-4">
           <label className="block font-medium">Type:</label>
           <input 
