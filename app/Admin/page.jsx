@@ -21,7 +21,7 @@ import { CalendarIcon, Clock } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const AdminPage = () => {
-  const [eventType, setEventType] = useState('')
+  const [name, setName] = useState('')
   const [venue, setVenue] = useState('')
   const [date, setDate] = useState('')
   const [selectedDate, setSelectedDate] = useState(null)
@@ -98,7 +98,7 @@ const AdminPage = () => {
       }
 
       const eventData = {
-        eventType,
+        name,
         venue,
         date,
         time,
@@ -136,7 +136,7 @@ const AdminPage = () => {
         setEvents(updatedEvents)
       }
 
-      setEventType('')
+      setName('')
       setVenue('')
       setDate('')
       setSelectedDate(null)
@@ -185,11 +185,11 @@ const AdminPage = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="eventType">Event Type</Label>
+              <Label htmlFor="name">Event Name</Label>
               <Input 
-                id="eventType"
-                value={eventType} 
-                onChange={(e) => setEventType(e.target.value)} 
+                id="name"
+                value={name} 
+                onChange={(e) => setName(e.target.value)} 
                 required 
               />
             </div>
@@ -317,13 +317,13 @@ const AdminPage = () => {
                     <div className="w-full h-40 relative">
                       <img 
                         src={event.image} 
-                        alt={event.eventType} 
+                        alt={event.name} 
                         className="w-full h-full object-cover"
                       />
                     </div>
                   )}
                   <CardContent className="p-4">
-                    <h3 className="font-semibold text-lg mb-2">{event.eventType}</h3>
+                    <h3 className="font-semibold text-lg mb-2">{event.name}</h3>
                     {/* Display the event type */}
                     {event.type && (
                       <p className="text-sm mb-1">
