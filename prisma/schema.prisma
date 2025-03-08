@@ -58,6 +58,7 @@ model Achievement {
 
 model Event {
   id          Int       @id @default(autoincrement())
+  name        String
   type        EventType
   venue       String
   date        DateTime // Includes both date & time
