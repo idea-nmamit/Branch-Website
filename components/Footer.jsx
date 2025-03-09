@@ -64,12 +64,12 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="w-full relative overflow-hidden py-16">
-      {/* Background with gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-cyan-950 via-indigo-950 to-violet-950 dark:from-cyan-800 dark:via-indigo-700 dark:to-violet-800">
+    <footer className="w-full relative overflow-hidden py-16 bg-[#17003A] dark:bg-[#8617C0]">
+      {/* Background with gradient overlays */}
+      <div className="absolute inset-0">
         <div className="absolute -bottom-16 left-0 right-0 h-36 bg-gradient-to-t from-black/10 to-transparent"></div>
         <motion.div 
-          className="absolute top-0 right-0 w-96 h-96 bg-teal-500/20 rounded-full blur-3xl -z-10"
+          className="absolute top-0 right-0 w-96 h-96 bg-[#8617C0]/30 dark:bg-[#17003A]/30 rounded-full blur-3xl -z-10"
           animate={{ 
             x: [0, 10, 0], 
             opacity: [0.5, 0.7, 0.5] 
@@ -81,7 +81,7 @@ const Footer = () => {
           }}
         />
         <motion.div 
-          className="absolute bottom-0 left-0 w-96 h-96 bg-fuchsia-500/20 rounded-full blur-3xl -z-10"
+          className="absolute bottom-0 left-0 w-96 h-96 bg-[#f6014e]/20 rounded-full blur-3xl -z-10"
           animate={{ 
             x: [0, -10, 0], 
             opacity: [0.5, 0.7, 0.5] 
@@ -131,9 +131,9 @@ const Footer = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <Card className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border-white/10 shadow-xl hover:shadow-cyan-500/10 transition-all duration-500 w-full">
+              <Card className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border-[#8617c0]/30 dark:border-[#340181]/30 shadow-xl hover:shadow-[#f6014e]/10 transition-all duration-500 w-full">
                 <CardContent className="p-4">
-                  <p className="text-sm text-white/90 leading-relaxed text-center md:text-left">
+                  <p className="text-sm text-white leading-relaxed text-center md:text-left font-medium">
                     IDEA is a vibrant student community dedicated to fostering innovation and excellence through collaboration and creativity.
                   </p>
                 </CardContent>
@@ -147,7 +147,7 @@ const Footer = () => {
               <span className="inline-block">
                 Navigation
                 <motion.span 
-                  className="absolute -bottom-2 left-0 right-0 md:right-auto w-full md:w-16 h-1 bg-gradient-to-r from-cyan-500 to-fuchsia-500 rounded-full shadow-lg shadow-cyan-500/30"
+                  className="absolute -bottom-2 left-0 right-0 md:right-auto w-full md:w-16 h-1 bg-gradient-to-r from-[#340181] to-[#f6014e] rounded-full shadow-lg shadow-[#f6014e]/30"
                   initial={{ width: 0 }}
                   animate={{ width: "100%" }}
                   transition={{ delay: 0.3, duration: 0.5 }}
@@ -159,7 +159,7 @@ const Footer = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
             >
-              <Card className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border-white/10 shadow-xl hover:shadow-cyan-500/10 transition-all duration-500 w-full">
+              <Card className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border-[#8617c0]/30 dark:border-[#340181]/30 shadow-xl hover:shadow-[#f6014e]/10 transition-all duration-500 w-full">
                 <CardContent className="p-6">
                   <div className="grid grid-cols-2 gap-y-4 w-full">
                     {navigationLinks.map((link, index) => (
@@ -170,13 +170,13 @@ const Footer = () => {
                       >
                         <Link
                           href={link.href}
-                          className="text-sm font-medium text-white/85 hover:text-white group transition-all duration-300 flex items-center"
+                          className="text-sm font-medium text-white hover:text-white group transition-all duration-300 flex items-center"
                           aria-label={`Navigate to ${link.label}`}
                         >
                           <motion.span 
                             className="h-1.5 w-0 rounded-full mr-0 group-hover:w-2 group-hover:mr-2 transition-all duration-300"
                             style={{
-                              background: `linear-gradient(90deg, rgb(6, 182, 212) ${index * 16}%, rgb(192, 38, 211) 100%)`,
+                              background: `linear-gradient(90deg, rgb(52, 1, 129) ${index * 16}%, rgb(246, 1, 78) 100%)`,
                             }}
                             whileHover={{ width: "0.5rem" }}
                           />
@@ -196,7 +196,7 @@ const Footer = () => {
               <span className="inline-block">
                 Connect With Us
                 <motion.span 
-                  className="absolute -bottom-2 left-0 right-0 md:right-auto w-full md:w-16 h-1 bg-gradient-to-r from-cyan-500 to-fuchsia-500 rounded-full shadow-lg shadow-fuchsia-500/30"
+                  className="absolute -bottom-2 left-0 right-0 md:right-auto w-full md:w-16 h-1 bg-gradient-to-r from-[#340181] to-[#f6014e] rounded-full shadow-lg shadow-[#f6014e]/30"
                   initial={{ width: 0 }}
                   animate={{ width: "100%" }}
                   transition={{ delay: 0.5, duration: 0.5 }}
@@ -208,19 +208,19 @@ const Footer = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
-              <Card className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border-white/10 shadow-xl hover:shadow-fuchsia-500/10 transition-all duration-500 w-full">
+              <Card className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border-[#8617c0]/30 dark:border-[#340181]/30 shadow-xl hover:shadow-[#f6014e]/10 transition-all duration-500 w-full">
                 <CardContent className="p-6 space-y-4">
                   <motion.div 
                     className="flex items-center space-x-3 group"
                     whileHover={{ x: 5 }}
                     transition={{ type: "spring", stiffness: 400 }}
                   >
-                    <div className="bg-gradient-to-br from-cyan-500/20 to-fuchsia-500/20 p-2 rounded-full text-white group-hover:from-cyan-500/30 group-hover:to-fuchsia-500/30 transition-all duration-300">
+                    <div className="bg-gradient-to-br from-[#340181]/30 to-[#f6014e]/30 p-2 rounded-full text-white group-hover:from-[#340181]/40 group-hover:to-[#f6014e]/40 transition-all duration-300">
                       <Mail size={16} className="group-hover:scale-110 transition-transform" />
                     </div>
                     <a 
                       href="mailto:idea@nmamit.in" 
-                      className="text-sm hover:text-cyan-300 transition-colors flex items-center gap-1 group-hover:gap-2 duration-300"
+                      className="text-sm font-medium hover:text-[#f6014e] transition-colors flex items-center gap-1 group-hover:gap-2 duration-300"
                       aria-label="Send email to IDEA"
                     >
                       idea@nmamit.in
@@ -233,14 +233,14 @@ const Footer = () => {
                     whileHover={{ x: 5 }}
                     transition={{ type: "spring", stiffness: 400 }}
                   >
-                    <div className="bg-gradient-to-br from-cyan-500/20 to-fuchsia-500/20 p-2 rounded-full text-white group-hover:from-cyan-500/30 group-hover:to-fuchsia-500/30 transition-all duration-300">
+                    <div className="bg-gradient-to-br from-[#340181]/30 to-[#f6014e]/30 p-2 rounded-full text-white group-hover:from-[#340181]/40 group-hover:to-[#f6014e]/40 transition-all duration-300">
                       <MapPin size={16} className="group-hover:scale-110 transition-transform" />
                     </div>
                     <a 
                       href="https://maps.app.goo.gl/APEcEzXaX1SfQkVZ9" 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-sm hover:text-cyan-300 transition-colors flex items-center gap-1 group-hover:gap-2 duration-300"
+                      className="text-sm font-medium hover:text-[#f6014e] transition-colors flex items-center gap-1 group-hover:gap-2 duration-300"
                       aria-label="View NMAMIT location on map"
                     >
                       NMAM Institute of Technology, Nitte
@@ -261,7 +261,7 @@ const Footer = () => {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className={`${social.color} backdrop-blur-sm rounded-full p-2 transition-all duration-300 hover:shadow-lg ${social.hoverColor} border border-white/10`}
+                                className={`${social.color} backdrop-blur-sm rounded-full p-2 transition-all duration-300 hover:shadow-lg ${social.hoverColor} border border-white/20`}
                                 asChild
                               >
                                 <a
@@ -275,7 +275,7 @@ const Footer = () => {
                               </Button>
                             </motion.div>
                           </TooltipTrigger>
-                          <TooltipContent className="bg-gradient-to-r from-cyan-500 to-fuchsia-500 text-white border-none">
+                          <TooltipContent className="bg-gradient-to-r from-[#340181] to-[#f6014e] text-white border-none">
                             <p>{social.label}</p>
                           </TooltipContent>
                         </Tooltip>
@@ -290,14 +290,17 @@ const Footer = () => {
 
         {/* Copyright Bar */}
         <div className="mt-16 relative">
-          <Separator className="bg-gradient-to-r from-cyan-500/30 via-indigo-500/30 to-fuchsia-500/30 h-px" />
+          <Separator className="bg-gradient-to-r from-[#340181]/30 via-[#8617C0]/30 to-[#f6014e]/30 h-px" />
           <motion.div 
-            className="bg-gradient-to-r from-cyan-500 via-indigo-500 to-fuchsia-500 h-px w-2/3 mx-auto blur-sm absolute top-0 left-1/2 transform -translate-x-1/2"
+            className="bg-gradient-to-r from-[#340181] via-[#8617C0] to-[#f6014e] h-px w-2/3 mx-auto blur-sm absolute top-0 left-1/2 transform -translate-x-1/2"
             animate={{ opacity: [0.5, 1, 0.5] }}
             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
           />
-          <p className="text-sm text-white/70 tracking-wide text-center mt-6">
-            © {currentYear} IDEA | <span className="bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent font-medium">Innovate • Develop • Excel • Achieve</span>
+          <p className="text-sm text-white tracking-wide text-center mt-6 font-medium">
+            © {currentYear} IDEA | 
+            <span className="bg-gradient-to-r from-[#24a4cf] to-[#ed4747] bg-clip-text text-transparent font-bold ml-1">
+              Innovate • Develop • Excel • Achieve
+            </span>
           </p>
         </div>
       </div>
