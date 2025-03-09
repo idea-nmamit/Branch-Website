@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -14,68 +14,122 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Calendar } from "@/components/ui/calendar"
+import { CalendarIcon } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { format } from "date-fns";
+import { cn } from "@/lib/utils"
 
 const AchievementsForm = ({ onAchievementAdded }) => {
   const [name, setName] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [photoUrl, setPhotoUrl] = useState("");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState("COMPETITION");
   const [rank, setRank] = useState("");
-  const [githubUrl, setGithubUrl] = useState("");
-  const [linkedinUrl, setLinkedinUrl] = useState("");
-  const [instagramUrl, setInstagramUrl] = useState("");
-  const [researchLink, setResearchLink] = useState("");
+  const [date, setDate] = useState('')
+  const [selectedDate, setSelectedDate] = useState(null)
+  const [githubUrl, setGithubUrl] = useState(null);
+  const [linkedinUrl, setLinkedinUrl] = useState(null);
+  const [instagramUrl, setInstagramUrl] = useState(null);
+  const [researchLink, setResearchLink] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false)
   const [successMessage, setSuccessMessage] = useState("");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    setSuccessMessage("");
-
-    // Required fields check
-    if (!name || !title || !description || !photoUrl || !category) {
-      setError("Please fill in all required fields.");
-      setLoading(false);
-      return;
+  useEffect(() => {
+    if (selectedDate) {
+      setDate(format(selectedDate, 'yyyy-MM-dd'))
     }
+  }, [selectedDate])
+
+  const uploadToCloudinary = async (file) => {
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('upload_preset', process.env.NEXT_PUBLIC_UPLOAD_PRESET)
+
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUD_NAME}/image/upload`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      )
+
+      const data = await response.json()
+      return data.secure_url
+    } catch (error) {
+      console.error('Image upload failed:', error)
+      return null
+    }
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    setSuccessMessage('')
 
     try {
-      const achievementData = {
+      let uploadedImageURL = ''
+
+      if (photoUrl) {
+        uploadedImageURL = await uploadToCloudinary(photoUrl)
+        if (!uploadedImageURL) {
+          setError("Image upload failed. Please try again.")
+          setLoading(false)
+          return
+        }
+      }
+
+      const eventData = {
         name,
         title,
         description,
-        photoUrl,
+        photoUrl: uploadedImageURL,
         category,
-        rank: rank ? Number(rank) : null,
+        rank: rank ? parseInt(rank) : null,
         githubUrl: githubUrl || null,
         linkedinUrl: linkedinUrl || null,
         instagramUrl: instagramUrl || null,
         researchLink: researchLink || null,
-      };
-
-      const response = await fetch("/api/api-achievements-route", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(achievementData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to submit achievement. Status: ${response.status}`);
+        date: date || new Date().toISOString().split('T')[0],
       }
 
-      setSuccessMessage("Achievement Submitted Successfully!");
 
+      const response = await fetch('/api/achievements', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(eventData),
+      })
+
+      const responseText = await response.text()
+
+      let responseData
+      try {
+        responseData = JSON.parse(responseText)
+      } catch (e) {
+        throw new Error(`Invalid JSON response: ${responseText}`)
+      }
+
+      if (!response.ok) {
+        throw new Error(responseData.error || `Failed to save event. Status: ${response.status}`)
+      }
+
+      setSuccessMessage('Achievement Submitted Successfully!')
       // Reset form
       setName("");
       setTitle("");
       setDescription("");
       setPhotoUrl("");
-      setCategory("");
+      setCategory("COMPETITION");
       setRank("");
+      setDate("");
+      setSelectedDate(null);
       setGithubUrl("");
       setLinkedinUrl("");
       setInstagramUrl("");
@@ -109,7 +163,7 @@ const AchievementsForm = ({ onAchievementAdded }) => {
             <AlertDescription className="text-green-600 dark:text-green-400">{successMessage}</AlertDescription>
           </Alert>
         )}
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">Name *</Label>
@@ -128,7 +182,41 @@ const AchievementsForm = ({ onAchievementAdded }) => {
 
           <div className="space-y-2">
             <Label htmlFor="photoUrl">Photo URL *</Label>
-            <Input id="photoUrl" value={photoUrl} onChange={(e) => setPhotoUrl(e.target.value)} required />
+            <Input
+              id="photoUrl"
+              type="file"
+              accept="image/*"
+              onChange={(e) => setPhotoUrl(e.target.files[0])}
+              required={!photoUrl || typeof photoUrl === 'string'}
+            />          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="date">Date</Label>
+            <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !date && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {date ? format(new Date(date), "PPP") : "Select date"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={(date) => {
+                    setSelectedDate(date)
+                    setIsCalendarOpen(false)
+                  }}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
           </div>
 
           {/* Category Dropdown */}
@@ -145,7 +233,6 @@ const AchievementsForm = ({ onAchievementAdded }) => {
               <SelectContent>
                 <SelectItem value="competition">Competition</SelectItem>
                 <SelectItem value="research">Research</SelectItem>
-                <SelectItem value="personal">Personal</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -170,10 +257,13 @@ const AchievementsForm = ({ onAchievementAdded }) => {
             <Input id="instagramUrl" type="url" value={instagramUrl} onChange={(e) => setInstagramUrl(e.target.value)} />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="researchLink">Research Link (Optional)</Label>
-            <Input id="researchLink" type="url" value={researchLink} onChange={(e) => setResearchLink(e.target.value)} />
-          </div>
+          {category === "RESEARCH" && (
+            <div className="space-y-2">
+              <Label htmlFor="researchLink">Research Link</Label>
+              <Input id="researchLink" type="url" value={researchLink} onChange={(e) => setResearchLink(e.target.value)} />
+            </div>
+          )}
+
 
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Submitting..." : "Submit Achievement"}

@@ -2,11 +2,12 @@
 import React, { useState, useEffect } from 'react'
 import EventForm from '@/components/admin/Events/EventForm'
 import EventList from '@/components/admin/Events/EventList'
+import AchievementsForm from '@/components/admin/Achievements/achievements_form'
 
 const AdminPage = () => {
   const [events, setEvents] = useState([])
   const [activeTab, setActiveTab] = useState('events')
-  
+
   const fetchEvents = async () => {
     try {
       const response = await fetch('/api/events')
@@ -31,31 +32,28 @@ const AdminPage = () => {
     return (
       <div className="flex border-b mb-6">
         <button
-          className={`px-4 py-2 font-medium ${
-            activeTab === 'events'
-              ? 'border-b-2 border-blue-500 text-blue-500'
-              : 'text-gray-600 hover:text-blue-500'
-          }`}
+          className={`px-4 py-2 font-medium ${activeTab === 'events'
+            ? 'border-b-2 border-blue-500 text-blue-500'
+            : 'text-gray-600 hover:text-blue-500'
+            }`}
           onClick={() => setActiveTab('events')}
         >
           Events
         </button>
         <button
-          className={`px-4 py-2 font-medium ${
-            activeTab === 'achievements'
-              ? 'border-b-2 border-blue-500 text-blue-500'
-              : 'text-gray-600 hover:text-blue-500'
-          }`}
+          className={`px-4 py-2 font-medium ${activeTab === 'achievements'
+            ? 'border-b-2 border-blue-500 text-blue-500'
+            : 'text-gray-600 hover:text-blue-500'
+            }`}
           onClick={() => setActiveTab('achievements')}
         >
           Achievements
         </button>
         <button
-          className={`px-4 py-2 font-medium ${
-            activeTab === 'team'
-              ? 'border-b-2 border-blue-500 text-blue-500'
-              : 'text-gray-600 hover:text-blue-500'
-          }`}
+          className={`px-4 py-2 font-medium ${activeTab === 'team'
+            ? 'border-b-2 border-blue-500 text-blue-500'
+            : 'text-gray-600 hover:text-blue-500'
+            }`}
           onClick={() => setActiveTab('team')}
         >
           Team
@@ -74,7 +72,12 @@ const AdminPage = () => {
           </>
         )
       case 'achievements':
-        return <div className="p-4 bg-gray-100 rounded">Achievement Tab coming soon</div>
+        return (
+          <>
+            <AchievementsForm onAchievementAdded={handleEventAdded} />
+          </>
+        )
+
       case 'team':
         return <div className="p-4 bg-gray-100 rounded">Team Tab coming soon</div>
       default:
