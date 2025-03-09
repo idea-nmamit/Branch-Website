@@ -32,12 +32,12 @@ const Page = () => {
 
   return (
     <div className="bg-[#17003A] dark:bg-[#8617C0] p-10">
-      <div className="text-2xl text-white mb-5">Events</div>
+      <div className="text-3xl text-white mb-10">Events</div>
 
       {/* Branch Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 place-items-center gap-4 ">
         {events.map((event) => (
-          <Card key={event.id} className="w-[350px] bg-secondary text-primary shadow-md">
+          <Card key={event.id} className="w-[350px] bg-secondary text-primary shadow-md border-4 border-black">
             <CardHeader>
               <CardTitle className="">  
               <div className="w-full h-90 relative">
