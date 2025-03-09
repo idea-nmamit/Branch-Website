@@ -1,6 +1,7 @@
 import { ThemeProvider } from 'next-themes';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import SplashCursor from '@/components/SplashCursor';
 import { Inter, Montserrat, Poppins } from 'next/font/google';
 import './globals.css';
 
@@ -24,7 +25,7 @@ export const metadata = {
   description: 'IDEA is a student-run organization at the University of NMAMIT, Nitte that aims to foster a community of innovation and entrepreneurship.',
   image: '/Logo-Dark.png',
   url: '',
-}
+};
 
 export default function RootLayout({ children }) {
   return (
@@ -35,9 +36,10 @@ export default function RootLayout({ children }) {
           defaultTheme="light"
           enableSystem={true}
         >
+          <SplashCursor />
           <Navbar />
           <main>{children}</main>
-          <Footer /> 
+          <Footer />
         </ThemeProvider>
       </body>
     </html>
