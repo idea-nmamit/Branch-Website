@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -99,20 +99,20 @@ const EventForm = ({ onEventAdded }) => {
       })
 
       const responseText = await response.text()
-      
+
       let responseData
       try {
         responseData = JSON.parse(responseText)
       } catch (e) {
         throw new Error(`Invalid JSON response: ${responseText}`)
       }
-      
+
       if (!response.ok) {
         throw new Error(responseData.error || `Failed to save event. Status: ${response.status}`)
       }
 
       setSuccessMessage('Event Submitted Successfully!')
-      
+
       // Reset form fields
       setName('')
       setVenue('')
@@ -122,7 +122,7 @@ const EventForm = ({ onEventAdded }) => {
       setDescription('')
       setSelectedImage(null)
       setType('TECHNICAL')
-      
+
       // Notify parent component that an event was added
       if (onEventAdded) {
         onEventAdded()
@@ -152,15 +152,15 @@ const EventForm = ({ onEventAdded }) => {
             <AlertDescription className="text-green-600 dark:text-green-400">{successMessage}</AlertDescription>
           </Alert>
         )}
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">Event Name</Label>
-            <Input 
+            <Input
               id="name"
-              value={name} 
-              onChange={(e) => setName(e.target.value)} 
-              required 
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
             />
           </div>
 
@@ -185,11 +185,11 @@ const EventForm = ({ onEventAdded }) => {
 
           <div className="space-y-2">
             <Label htmlFor="venue">Venue</Label>
-            <Input 
+            <Input
               id="venue"
-              value={venue} 
-              onChange={(e) => setVenue(e.target.value)} 
-              required 
+              value={venue}
+              onChange={(e) => setVenue(e.target.value)}
+              required
             />
           </div>
 
@@ -226,23 +226,23 @@ const EventForm = ({ onEventAdded }) => {
             <Label htmlFor="time">Time</Label>
             <div className="relative">
               <Clock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input 
+              <Input
                 id="time"
-                type="time" 
-                value={time} 
-                onChange={(e) => setTime(e.target.value)} 
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
                 className="pl-10"
-                required 
+                required
               />
             </div>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="image">Event Image</Label>
-            <Input 
+            <Input
               id="image"
-              type="file" 
-              onChange={(e) => setSelectedImage(e.target.files[0])} 
+              type="file"
+              onChange={(e) => setSelectedImage(e.target.files[0])}
               required
             />
             {selectedImage && (
@@ -252,17 +252,17 @@ const EventForm = ({ onEventAdded }) => {
 
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
-            <Textarea 
+            <Textarea
               id="description"
-              value={description} 
-              onChange={(e) => setDescription(e.target.value)} 
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               rows={4}
-              required 
+              required
             />
           </div>
 
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             className="w-full"
             disabled={loading}
           >

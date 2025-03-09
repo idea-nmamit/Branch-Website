@@ -43,13 +43,15 @@ export async function POST(request) {
             );
         }
 
+        const validCategory = category.toUpperCase();
+
         const achievement = await prisma.achievement.create({
             data: {
                 name,
                 title,
                 description,
                 photoUrl,
-                category,
+                category: validCategory,
                 rank: rank || null,
                 githubUrl: githubUrl || null,
                 linkedinUrl: linkedinUrl || null,
