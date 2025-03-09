@@ -54,6 +54,7 @@ model Achievement {
   linkedinUrl  String?
   instagramUrl String?
   researchLink String? // Only for Research
+  date         DateTime
 }
 
 model Event {
