@@ -97,7 +97,7 @@ const HomePage = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-[#17003A] to-[#34006e] dark:from-[#8617C0] dark:to-[#6e11a0] text-white overflow-hidden">
       {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center justify-center text-center px-4 py-16 container mx-auto">
+      <main className="flex-1 flex flex-col items-center pt-16 md:pt-20 lg:pt-24 px-4 container mx-auto">
         {/* Logo and Title */}
         <div className="w-full max-w-4xl mx-auto">
           <div ref={logoRef} className="text-white flex items-center justify-center mb-6 md:mb-10">
