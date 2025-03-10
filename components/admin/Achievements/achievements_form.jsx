@@ -240,7 +240,19 @@ const AchievementsForm = ({ onAchievementAdded }) => {
 
           <div className="space-y-2">
             <Label htmlFor="rank">Rank (Optional)</Label>
-            <Input id="rank" type="number" value={rank} onChange={(e) => setRank(e.target.value)} />
+            <Select
+              value={rank}
+              onValueChange={setRank}
+            >
+              <SelectTrigger id="rank" className="w-full">
+                <SelectValue placeholder="Select rank" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">1</SelectItem>
+                <SelectItem value="2">2</SelectItem>
+                <SelectItem value="3">3</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">

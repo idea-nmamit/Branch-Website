@@ -38,15 +38,14 @@ const Page = () => {
     <div className="bg-gradient-to-br from-[#17003A] to-[#370069] dark:from-[#8617C0] dark:to-[#6012A4] min-h-screen p-8">
       <div className="max-w-6xl mx-auto text-center">
         <h1 className="text-5xl font-bold text-white mb-8 tracking-tight">Achievements</h1>
-        
+
         {/* Category Selection Tabs */}
         <div className="flex justify-center gap-8 mb-10">
           <button
-            className={`text-xl font-medium transition-all duration-300 relative px-4 py-2 ${
-              selectedCategory === 'COMPETITION' 
-                ? 'text-white' 
-                : 'text-gray-400 hover:text-gray-200'
-            }`}
+            className={`text-xl font-medium transition-all duration-300 relative px-4 py-2 ${selectedCategory === 'COMPETITION'
+              ? 'text-white'
+              : 'text-gray-400 hover:text-gray-200'
+              }`}
             onClick={() => setSelectedCategory('COMPETITION')}
           >
             Competition
@@ -54,13 +53,12 @@ const Page = () => {
               <span className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full"></span>
             )}
           </button>
-          
+
           <button
-            className={`text-xl font-medium transition-all duration-300 relative px-4 py-2 ${
-              selectedCategory === 'RESEARCH' 
-                ? 'text-white' 
-                : 'text-gray-400 hover:text-gray-200'
-            }`}
+            className={`text-xl font-medium transition-all duration-300 relative px-4 py-2 ${selectedCategory === 'RESEARCH'
+              ? 'text-white'
+              : 'text-gray-400 hover:text-gray-200'
+              }`}
             onClick={() => setSelectedCategory('RESEARCH')}
           >
             Research
@@ -69,7 +67,7 @@ const Page = () => {
             )}
           </button>
         </div>
-        
+
         {/* Cards Grid - Changed to 3 columns to make cards larger */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {loading ? (
@@ -102,9 +100,15 @@ const Page = () => {
                 <div className="absolute top-6 right-6 flex items-center">
                   <div className="bg-purple-900/50 p-2 rounded-full backdrop-blur-sm">
                     <Award className="text-yellow-400 animate-pulse" size={24} />
+                    {achievement.rank && selectedCategory === 'COMPETITION' && (
+                      <div className="absolute -bottom-4 -right-2 bg-yellow-500/80 px-2 py-0.5 rounded-full text-xs font-bold shadow-lg border border-yellow-300">
+                        <span className="text-yellow-100">#</span>
+                        <span className="text-yellow-300">{achievement.rank}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
-                
+
                 {/* Profile Section with Larger Image */}
                 <div className="flex flex-col items-center">
                   <div
@@ -113,11 +117,7 @@ const Page = () => {
                   />
                   <h3 className="text-2xl font-bold text-white mb-1">{achievement.name}</h3>
                   <p className="text-base text-gray-300 mb-2">{achievement.title}</p>
-                  {achievement.rank && selectedCategory === 'COMPETITION' && (
-                    <div className="bg-yellow-500/20 px-3 py-1 rounded-full text-yellow-300 text-sm font-medium mb-4">
-                      Rank: {achievement.rank}
-                    </div>
-                  )}
+
                 </div>
 
                 {/* Description Card with Improved Design */}
@@ -125,7 +125,7 @@ const Page = () => {
                   <p className="text-sm uppercase tracking-wider mb-2 text-purple-300">Description</p>
                   <p className="font-medium">{achievement.description}</p>
                 </div>
-                
+
                 {/* Research Link with Better Styling */}
                 {selectedCategory === 'RESEARCH' && achievement.researchLink && (
                   <div className="mt-4 text-center">
@@ -140,13 +140,13 @@ const Page = () => {
                     </a>
                   </div>
                 )}
-                
+
                 {/* Social Links with Enhanced Styling */}
                 <div className="flex justify-center gap-6 mt-6">
                   {achievement.linkedinUrl && (
-                    <a 
-                      href={achievement.linkedinUrl} 
-                      target="_blank" 
+                    <a
+                      href={achievement.linkedinUrl}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="bg-white/10 p-3 rounded-full hover:bg-blue-800/50 transition-all transform hover:scale-110"
                     >
@@ -154,9 +154,9 @@ const Page = () => {
                     </a>
                   )}
                   {achievement.githubUrl && (
-                    <a 
-                      href={achievement.githubUrl} 
-                      target="_blank" 
+                    <a
+                      href={achievement.githubUrl}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="bg-white/10 p-3 rounded-full hover:bg-gray-800/50 transition-all transform hover:scale-110"
                     >
@@ -164,9 +164,9 @@ const Page = () => {
                     </a>
                   )}
                   {achievement.instagramUrl && (
-                    <a 
-                      href={achievement.instagramUrl} 
-                      target="_blank" 
+                    <a
+                      href={achievement.instagramUrl}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="bg-white/10 p-3 rounded-full hover:bg-pink-800/50 transition-all transform hover:scale-110"
                     >
