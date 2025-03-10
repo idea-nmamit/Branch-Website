@@ -21,6 +21,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils"
 
 const AchievementsForm = ({ onAchievementAdded }) => {
+  // { onAchievementAdded }
   const [name, setName] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -166,22 +167,22 @@ const AchievementsForm = ({ onAchievementAdded }) => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Name *</Label>
+            <Label htmlFor="name">Name </Label>
             <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="title">Title *</Label>
+            <Label htmlFor="title">Title </Label>
             <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description *</Label>
+            <Label htmlFor="description">Description </Label>
             <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} rows={4} required />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="photoUrl">Photo URL *</Label>
+            <Label htmlFor="photoUrl">Photo URL </Label>
             <Input
               id="photoUrl"
               type="file"
@@ -221,7 +222,7 @@ const AchievementsForm = ({ onAchievementAdded }) => {
 
           {/* Category Dropdown */}
           <div className="space-y-2">
-            <Label htmlFor="category">Category *</Label>
+            <Label htmlFor="category">Category </Label>
             <Select
               value={category}
               onValueChange={setCategory}
@@ -231,8 +232,8 @@ const AchievementsForm = ({ onAchievementAdded }) => {
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="competition">Competition</SelectItem>
-                <SelectItem value="research">Research</SelectItem>
+                <SelectItem value="COMPETITION">Competition</SelectItem>
+                <SelectItem value="RESEARCH">Research</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -259,7 +260,7 @@ const AchievementsForm = ({ onAchievementAdded }) => {
 
           {category === "RESEARCH" && (
             <div className="space-y-2">
-              <Label htmlFor="researchLink">Research Link</Label>
+              <Label htmlFor="researchLink">Research Link(Optional)</Label>
               <Input id="researchLink" type="url" value={researchLink} onChange={(e) => setResearchLink(e.target.value)} />
             </div>
           )}

@@ -74,7 +74,8 @@ const AdminPage = () => {
       case 'achievements':
         return (
           <>
-            <AchievementsForm onAchievementAdded={handleEventAdded} />
+            <AchievementsForm />
+            {/* onAchievementAdded={handleEventAdded} */}
           </>
         )
 
