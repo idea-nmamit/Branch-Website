@@ -5,7 +5,7 @@ export async function GET() {
     try {
         const achievements = await prisma.achievement.findMany({
             orderBy: {
-                id: 'desc',
+                date: 'desc',
             },
         });
 
