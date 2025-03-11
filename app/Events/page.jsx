@@ -1,5 +1,6 @@
 'use client'
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -163,10 +164,11 @@ const EventCard = ({ event }) => (
       </CardContent>
 
       <CardFooter className="flex justify-end pt-0 pb-6">
+        <Link href={`/Events/${event.id}`}>
         <Button className="bg-purple-600 hover:bg-purple-500 text-white rounded-full px-6 transition-all duration-300 flex items-center group-hover:translate-y-0 group-hover:shadow-lg">
           <span className="mr-2">View Details</span>
           <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
-        </Button>
+        </Button></Link>
       </CardFooter>
     </div>
   </Card>
