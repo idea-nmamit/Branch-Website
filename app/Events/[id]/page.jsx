@@ -1,7 +1,6 @@
 "use client";
 
 import { useParams } from 'next/navigation';
-import { useRouter } from "next/router";
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 
@@ -30,12 +29,12 @@ export default function EventPage() {
     return (
       <div className="bg-gradient-to-br from-[#17003A] to-[#370069] dark:from-[#8617C0] dark:to-[#6012A4] min-h-screen p-8 font-roboto">
         <div className="mt-10">
-          {/* Title skeleton */}
+          {/* Event skeleton */}
           <div className="h-16 w-3/4 bg-gradient-to-r from-[#3b0086]/30 to-[#8e24aa]/30 rounded-lg animate-pulse border-l-8 border-[#E0AFFF]/40 pl-4"></div>
         </div>
 
         <div className="max-w-3xl mx-auto bg-gradient-to-br from-[#3b0086]/70 to-[#8e24aa]/70 text-white p-10 rounded-xl mt-10 shadow-[0px_0px_30px_5px_rgba(208,139,255,0.2)] border-2 border-[#E0AFFF]/40">
-          {/* Subtitle skeleton */}
+          {/* Title skeleton */}
           <div className="h-12 w-2/3 mx-auto bg-gradient-to-r from-[#E0AFFF]/30 to-[#FFC0CB]/30 rounded-lg animate-pulse mb-6"></div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -65,28 +64,24 @@ export default function EventPage() {
             </div>
           </div>
           
-          {/* Registration Button skeleton */}
-          <div className="mt-8 flex justify-center">
-            <div className="w-48 h-14 rounded-full bg-gradient-to-r from-[#6A00FF]/40 to-[#D400FF]/40 animate-pulse"></div>
-          </div>
+         
         </div>
       </div>
     );
   }
 
- 
   return (
     <div className="bg-gradient-to-br from-[#17003A] to-[#370069] dark:from-[#8617C0] dark:to-[#6012A4] min-h-screen p-8 font-roboto">
       <div className="mt-10">
-        <h2 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#6A00FF] to-[#D400FF] text-left uppercase tracking-widest border-l-8 border-[#E0AFFF] pl-4 shadow-md transition-all duration-300 hover:shadow-[0px_0px_30px_rgba(224,175,255,0.6)] hover:scale-105">
-            Event
+      <h2 className="h-16 w-3/4 bg-gradient-to-r from-[#3b0086]/30 to-[#8e24aa]/30 rounded-lg border-l-8 border-[#E0AFFF]/40 pl-4 text-5xl font-extrabold text-[#EDB7EA] text-left uppercase tracking-widest shadow-md transition-all duration-300 hover:shadow-[0px_0px_30px_rgba(224,175,255,0.6)] hover:scale-105">          Event
         </h2>
       </div>
 
       <div className="max-w-3xl mx-auto bg-gradient-to-br from-[#3b0086] to-[#8e24aa] text-white p-10 rounded-xl mt-10 shadow-[0px_0px_30px_5px_rgba(208,139,255,0.4)] border-2 border-[#E0AFFF] transform transition duration-500 hover:scale-105">
-         <h3 className="text-center text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-[#E0AFFF] to-[#FFC0CB] uppercase tracking-wide transition duration-300 hover:text-[#E0AFFF] hover:shadow-[0px_0px_25px_rgba(255,255,255,0.8)]">
-          {event.name}
-        </h3> 
+        <h3 className="text-center text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-[#E0AFFF] to-[#FFC0CB] uppercase tracking-wide transition duration-300 hover:text-[#E0AFFF] hover:shadow-[0px_0px_25px_rgba(255,255,255,0.8)] rounded-lg">
+           {event.name}
+        </h3>
+ 
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Event Info Box */}
@@ -94,17 +89,16 @@ export default function EventPage() {
             <p className="text-xl font-semibold"><strong>{event.type}</strong></p>
             <p><strong>Venue:</strong> {event.venue}</p>
             <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString('en-US', { 
-  weekday: 'long', 
-  year: 'numeric', 
-  month: 'long', 
-  day: 'numeric' 
-})}</p>
-<p><strong>Time:</strong> {new Date(event.date).toLocaleTimeString('en-US', {
-  hour: '2-digit',
-  minute: '2-digit',
-  hour12: true
-})}</p>
-        
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}</p>
+            <p><strong>Time:</strong> {new Date(event.date).toLocaleTimeString('en-US', {
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: true
+            })}</p>
           </div>
           
           {/* Event Image Box */}
@@ -124,9 +118,6 @@ export default function EventPage() {
           <h4 className="text-2xl font-bold mb-4 text-[#E0AFFF]">Event Details</h4>
           <div className="text-lg leading-relaxed" dangerouslySetInnerHTML={{ __html: event.description }} />
         </div>
-        
-       
-       
       </div>
     </div>
   );
