@@ -74,7 +74,7 @@ const Page = () => {
             Array(3).fill().map((_, index) => (
               <div key={index} className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-lg overflow-hidden h-96">
                 <div className="flex flex-col items-center">
-                  <Skeleton className="w-20 h-20 rounded-full mb-4" />
+                  <Skeleton className="w-full h-32 rounded-lg mb-4" />
                   <Skeleton className="h-6 w-32 mb-2" />
                   <Skeleton className="h-4 w-24 mb-6" />
                 </div>
@@ -96,11 +96,11 @@ const Page = () => {
                 key={achievement.id}
                 className="relative bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-xl transform transition-all duration-300 hover:scale-105 hover:shadow-purple-500/50 overflow-hidden border border-white/10 group"
               >
-                {/* Achievement Badge */}
-                <div className="absolute top-6 right-6 flex items-center">
-                  <div className="bg-purple-900/50 p-2 rounded-full backdrop-blur-sm">
+                {/* CHANGE: Achievement Badge - Modified to show rank for all achievements, not just competitions */}
+                <div className="absolute top-6 right-6">
+                  <div className="bg-purple-900/50 p-2 rounded-full backdrop-blur-sm relative">
                     <Award className="text-yellow-400 animate-pulse" size={24} />
-                    {achievement.rank && selectedCategory === 'COMPETITION' && (
+                    {achievement.rank && (
                       <div className="absolute -bottom-4 -right-2 bg-yellow-500/80 px-2 py-0.5 rounded-full text-xs font-bold shadow-lg border border-yellow-300">
                         <span className="text-yellow-100">#</span>
                         <span className="text-yellow-300">{achievement.rank}</span>
@@ -109,10 +109,10 @@ const Page = () => {
                   </div>
                 </div>
 
-                {/* Profile Section with Larger Image */}
-                <div className="flex flex-col items-center">
+                {/* CHANGE: Profile Section - Updated size and shape to be more square and take up 35% of card height */}
+                <div className="flex flex-col items-center pt-4">
                   <div
-                    className="w-24 h-24 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full mb-4 ring-4 ring-purple-600/30 shadow-lg group-hover:ring-purple-500/50 transition-all duration-300"
+                    className="w-36 h-36 bg-gradient-to-r from-purple-400 to-blue-400 rounded-lg mb-4 ring-4 ring-purple-600/30 shadow-lg group-hover:ring-purple-500/50 transition-all duration-300 mx-4"
                     style={achievement.photoUrl ? { backgroundImage: `url(${achievement.photoUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
                   />
                   <h3 className="text-2xl font-bold text-white mb-1">{achievement.name}</h3>
@@ -120,10 +120,10 @@ const Page = () => {
 
                 </div>
 
-                {/* Description Card with Improved Design */}
-                <div className="text-center bg-gradient-to-br from-white/20 to-white/10 p-4 rounded-xl text-white shadow-lg border border-white/10 mt-6">
+                {/* CHANGE: Description Card - Added text truncation with ellipsis */}
+                <div className="text-center bg-gradient-to-br from-white/20 to-white/10 p-4 rounded-xl text-white shadow-lg border border-white/10 mt-4">
                   <p className="text-sm uppercase tracking-wider mb-2 text-purple-300">Description</p>
-                  <p className="font-medium">{achievement.description}</p>
+                  <p className="font-medium line-clamp-3 overflow-hidden text-ellipsis">{achievement.description}</p>
                 </div>
 
                 {/* Research Link with Better Styling */}
@@ -141,8 +141,8 @@ const Page = () => {
                   </div>
                 )}
 
-                {/* Social Links with Enhanced Styling */}
-                <div className="flex justify-center gap-6 mt-6">
+                {/* CHANGE: Adjusted spacing for social links to fit with new layout */}
+                <div className="flex justify-center gap-6 mt-4">
                   {achievement.linkedinUrl && (
                     <a
                       href={achievement.linkedinUrl}
