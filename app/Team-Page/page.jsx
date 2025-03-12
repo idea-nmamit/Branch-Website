@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Card from '@/components/repcard'; // Adjust path if different
+import Card from '@/components/repcard';
+import TCard from '@/components/devcard';
 
 const Page = () => {
-  const [selectedCategory, setSelectedCategory] = useState('Branch_Representatives');
-  const [selectedYear, setSelectedYear] = useState('2024');
+  const [selectedCategory, setSelectedCategory] = useState('OFFICE_BEARERS');
+  const [selectedYear, setSelectedYear] = useState('2024-25');
   const [teamMembers, setTeamMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -108,25 +109,18 @@ const Page = () => {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {filteredMembers.map((member) => (
-              <div
-                key={member.id}
-                className="bg-white text-black rounded-xl shadow-lg p-4 text-left"
-              >
-                <h3 className="text-xl font-semibold">{member.name}</h3>
-                <p className="text-sm mb-2">{member.role}</p> {/* ✅ Fixed here too */}
-                {member.techTeamLink && (
-                  <a
-                    href={member.techTeamLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 underline text-sm"
-                  >
-                    View Project
-                  </a>
-                )}
-              </div>
+              <TCard
+              key={member.id}
+              name={member.name}
+              designation={member.role} 
+              bio={member.quote || ''} 
+              photoUrl={member.photoUrl}
+              linkedinUrl={member.linkedinUrl}
+              githubUrl={member.githubUrl}
+              instagramUrl={member.instagramUrl}
+            />
             ))}
           </div>
         )}
