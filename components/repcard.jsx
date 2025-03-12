@@ -15,14 +15,13 @@ const [isClient, setIsClient] = useState(false);
 
   return (
     <StyledWrapper>
-      <div className="card">
+      <div className="card  mb-4">
         <div className="profile-pic">
           {isClient && (
             <Image
               src={imageUrl}
               alt="profile"
-              width={60}
-              height={60}
+             fill
               style={{
                 objectFit: "cover",
               }}
