@@ -94,7 +94,8 @@ const Page = () => {
             No members found for this year and category.
           </p>
         ) : selectedCategory === 'OFFICE_BEARERS' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
+
             {filteredMembers.map((member) => (
              <Card
              key={member.id}
@@ -108,16 +109,17 @@ const Page = () => {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
             {filteredMembers.map((member) => (
               <Card
               key={member.id}
               name={member.name}
-              imageUrl={member.photoUrl} 
-              designation={member.role}
-              linkedin={member.linkedinUrl} 
-              github={member.githubUrl} 
-              instagram={member.instagramUrl} 
+              designation={member.role} 
+              bio={member.quote || ''} 
+              imageUrl={member.photoUrl}
+              linkedinUrl={member.linkedinUrl}
+              githubUrl={member.githubUrl}
+              instagramUrl={member.instagramUrl}
             />
             ))}
           </div>
