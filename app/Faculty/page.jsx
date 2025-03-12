@@ -39,22 +39,34 @@ const FacultyCardGrid = () => {
       imageUrl: "/facultyphotos/teach1.png"
     },
     {
-      name: "DR PATEL",
-      title: "Associate Professor",
+      name: "Dr. NAVANEETH BHASKAR",
+      title: "Assistant Professor Gd-III",
       linkedinUrl: "https://www.youtube.com/shorts/SXHMnicI6Pg",
-      imageUrl: "/faculty/patel.jpg"
+      imageUrl: "/facultyphotos/teach2.png"
     },
     {
-      name: "DR GUPTA",
-      title: "Assistant Professor",
+      name: "Mr. PRAJWAL HEGDE N",
+      title: "Assistant Professor Gd-II",
       linkedinUrl: "https://www.youtube.com/shorts/SXHMnicI6Pg",
-      imageUrl: "/faculty/gupta.jpg"
+      imageUrl: "/facultyphotos/teach3.png"
     },
     {
-      name: "DR SINGH",
-      title: "Professor",
+      name: "Dr. PRAVEEN M NAIK",
+      title: "Asst. Professor Gd.II",
       linkedinUrl: "https://www.youtube.com/shorts/SXHMnicI6Pg",
-      imageUrl: "/faculty/singh.jpg"
+      imageUrl: "/facultyphotos/teach4.png"
+    },
+    {
+      name: "Ms. ANKITHA SHETTY",
+      title: "Assistant Professor Gd-I",
+      linkedinUrl: "https://www.youtube.com/shorts/SXHMnicI6Pg",
+      imageUrl: "/facultyphotos/teach5.png"
+    },
+    {
+      name: "Mr. MURALI S IYER",
+      title: "Professor of Practice",
+      linkedinUrl: "https://www.youtube.com/shorts/SXHMnicI6Pg",
+      imageUrl: "/facultyphotos/teach6.png"
     },
   ];
 
