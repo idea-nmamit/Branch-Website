@@ -3,11 +3,11 @@ import React from 'react';
 import styled from 'styled-components';
 
 // Individual Card Component
-const Card = ({ name, title, linkedinUrl, imageUrl }) => {
+const Card = ({ name, title, linkedinUrl,margin, imageUrl }) => {
   return (
     <div className="card">
-      <div className="card-photo">
-        <img src={imageUrl} alt={`${name} profile`} />
+      <div className="card-photo ">
+        <img src={imageUrl} fill  alt={`${name} profile`} />
       </div>
       <div className="card-title">{name}<br />
         <span>{title}</span>
@@ -42,7 +42,8 @@ const FacultyCardGrid = () => {
       name: "Dr. NAVANEETH BHASKAR",
       title: "Assistant Professor Gd-III",
       linkedinUrl: "https://www.youtube.com/shorts/SXHMnicI6Pg",
-      imageUrl: "/facultyphotos/teach2.png"
+      imageUrl: "/facultyphotos/teach2.png",
+      margin: "m-2"
     },
     {
       name: "Mr. PRAJWAL HEGDE N",
@@ -82,6 +83,7 @@ const FacultyCardGrid = () => {
               title={member.title}
               linkedinUrl={member.linkedinUrl}
               imageUrl={member.imageUrl}
+              margin={member.margin}
             />
           ))}
         </div>
@@ -133,15 +135,28 @@ const StyledPageWrapper = styled.div`
     }
   }
 
-  .card-photo {
-    width: 120px;
-    height: 120px;
-    margin-bottom: 10px;
-    border-radius: 30%;
-    overflow: hidden;
-    border: 2px solid var(--main-color);
-    transition: transform 0.3s ease;
-  }
+.card-photo {
+  position: absolute;
+  top: 10px;
+  left: 25%;
+  transform: translatey(15%);
+  width: 120px;
+  height: 120px;
+  border-radius: 30%;
+  overflow: hidden;
+  border: 2px solid var(--main-color);
+  background: white;
+  transition: transform 0.3s ease;
+  z-index: 1;
+}
+.card {
+  position: relative;
+  padding-top: 80px; /* Leave space for fixed image */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* Start content from top */
+}
 
   .card-photo img {
     width: 100%;
@@ -154,7 +169,7 @@ const StyledPageWrapper = styled.div`
     color: var(--font-color);
     font-size: 24px; 
     font-weight: 400;
-    margin-top: 10px;
+    margin-top: 80px;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   }
 
@@ -167,7 +182,7 @@ const StyledPageWrapper = styled.div`
     display: flex;
     height: 0;
     opacity: 0;
-    margin-top: 25px;
+    margin-top: 15px;
     gap: 20px;
     transition: 0.5s;
   }
@@ -231,6 +246,14 @@ const StyledPageWrapper = styled.div`
       width: 90px;
       height: 90px;
     }
+      
+  .card-title {
+    text-align: center;
+    color: var(--font-color);
+    font-size: 24px; 
+    font-weight: 400;
+    margin-top: 40px;
+  }
   }
 `;
 
