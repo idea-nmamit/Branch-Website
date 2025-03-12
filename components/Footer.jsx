@@ -133,7 +133,7 @@ const Footer = () => {
             >
               <Card className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border-[#8617c0]/30 dark:border-[#340181]/30 shadow-xl hover:shadow-[#f6014e]/10 transition-all duration-500 w-full">
                 <CardContent className="p-4">
-                  <p className="text-sm text-white leading-relaxed text-center md:text-left font-medium">
+                  <p className="text-sm text-white/90 leading-relaxed text-center md:text-left font-medium tracking-wide">
                     IDEA is a vibrant student community dedicated to fostering innovation and excellence through collaboration and creativity.
                   </p>
                 </CardContent>
@@ -143,7 +143,7 @@ const Footer = () => {
 
           {/* Navigation Links */}
           <div className="flex flex-col text-white">
-            <h3 className="font-bold text-xl mb-6 relative text-center md:text-left">
+            <h3 className="font-bold text-xl mb-6 relative text-center md:text-left tracking-wide">
               <span className="inline-block">
                 Navigation
                 <motion.span 
@@ -170,7 +170,7 @@ const Footer = () => {
                       >
                         <Link
                           href={link.href}
-                          className="text-sm font-medium text-white hover:text-white group transition-all duration-300 flex items-center"
+                          className="text-sm font-medium text-white/90 hover:text-[#f6014e] group transition-all duration-300 flex items-center"
                           aria-label={`Navigate to ${link.label}`}
                         >
                           <motion.span 
@@ -180,7 +180,7 @@ const Footer = () => {
                             }}
                             whileHover={{ width: "0.5rem" }}
                           />
-                          {link.label}
+                          <span className="tracking-wide group-hover:translate-x-1 transition-transform duration-300">{link.label}</span>
                         </Link>
                       </motion.div>
                     ))}
@@ -192,7 +192,7 @@ const Footer = () => {
 
           {/* Contact Info */}
           <div className="flex flex-col text-white">
-            <h3 className="font-bold text-xl mb-6 relative text-center md:text-left">
+            <h3 className="font-bold text-xl mb-6 relative text-center md:text-left tracking-wide">
               <span className="inline-block">
                 Connect With Us
                 <motion.span 
@@ -220,10 +220,10 @@ const Footer = () => {
                     </div>
                     <a 
                       href="mailto:idea@nmamit.in" 
-                      className="text-sm font-medium hover:text-[#f6014e] transition-colors flex items-center gap-1 group-hover:gap-2 duration-300"
+                      className="text-sm font-medium text-white/90 hover:text-[#f6014e] transition-all flex items-center gap-1 group-hover:gap-2 duration-300"
                       aria-label="Send email to IDEA"
                     >
-                      idea@nmamit.in
+                      <span className="tracking-wide group-hover:translate-x-1 transition-transform duration-300">idea@nmamit.in</span>
                       <ExternalLink size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />
                     </a>
                   </motion.div>
@@ -240,10 +240,10 @@ const Footer = () => {
                       href="https://maps.app.goo.gl/APEcEzXaX1SfQkVZ9" 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-sm font-medium hover:text-[#f6014e] transition-colors flex items-center gap-1 group-hover:gap-2 duration-300"
+                      className="text-sm font-medium text-white/90 hover:text-[#f6014e] transition-all flex items-center gap-1 group-hover:gap-2 duration-300"
                       aria-label="View NMAMIT location on map"
                     >
-                      NMAM Institute of Technology, Nitte
+                      <span className="tracking-wide group-hover:translate-x-1 transition-transform duration-300">NMAM Institute of Technology, Nitte</span>
                       <ExternalLink size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />
                     </a>
                   </motion.div>
@@ -255,7 +255,7 @@ const Footer = () => {
                         <Tooltip key={social.href}>
                           <TooltipTrigger asChild>
                             <motion.div
-                              whileHover={{ scale: 1.15 }}
+                              whileHover={{ scale: 1.15, y: -2 }}
                               whileTap={{ scale: 0.95 }}
                             >
                               <Button
@@ -275,7 +275,7 @@ const Footer = () => {
                               </Button>
                             </motion.div>
                           </TooltipTrigger>
-                          <TooltipContent className="bg-gradient-to-r from-[#340181] to-[#f6014e] text-white border-none">
+                          <TooltipContent className="bg-gradient-to-r from-[#340181] to-[#f6014e] text-white border-none font-medium tracking-wide">
                             <p>{social.label}</p>
                           </TooltipContent>
                         </Tooltip>
@@ -296,9 +296,9 @@ const Footer = () => {
             animate={{ opacity: [0.5, 1, 0.5] }}
             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
           />
-          <p className="text-sm text-white tracking-wide text-center mt-6 font-medium">
+          <p className="text-sm text-white/90 tracking-wider text-center mt-6 font-medium">
             © {currentYear} IDEA | 
-            <span className="bg-gradient-to-r from-[#24a4cf] to-[#ed4747] bg-clip-text text-transparent font-bold ml-1">
+            <span className="bg-gradient-to-r from-[#24a4cf] to-[#ed4747] bg-clip-text text-transparent font-bold ml-1 tracking-wide">
               Innovate • Develop • Excel • Achieve
             </span>
           </p>
