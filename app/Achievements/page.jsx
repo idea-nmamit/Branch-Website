@@ -99,7 +99,7 @@ const Page = () => {
                   <div className="relative">
                     <Award className="text-yellow-400 animate-pulse" size={24} />
                     {achievement.rank && selectedCategory === 'COMPETITION' && (
-                      <span className="absolute -top-2 right-4 bg-yellow-500 text-black px-2 py-0.5 text-xs font-bold rounded-full">
+                      <span className="absolute -top-2 right-3 bg-yellow-500 text-black px-2 py-0.5 text-xs font-bold rounded-full">
                         #{achievement.rank}
                       </span>
                     )}
