@@ -1,9 +1,12 @@
-import React from 'react'
+import NeuralNetwork from "@/components/NeuralNetwork";
 
-const page = () => {
+export default function Page() {
   return (
-    <div>page</div>
-  )
+    <div className="relative">
+      <NeuralNetwork />
+      <div className="absolute inset-0 flex items-center justify-center text-white text-4xl font-bold">
+        Interactive Neural Network
+      </div>
+    </div>
+  );
 }
-
-export default page

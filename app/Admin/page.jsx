@@ -4,7 +4,6 @@ import EventForm from '@/components/admin/Events/EventForm'
 import EventList from '@/components/admin/Events/EventList'
 import AchievementsForm from '@/components/admin/Achievements/achievements_form'
 import TeamForm from '@/components/admin/Team/TeamForm'
-import TeamList from '@/components/admin/Team/TeamList'
 
 const AdminPage = () => {
   const [events, setEvents] = useState([])
@@ -135,12 +134,7 @@ const AdminPage = () => {
           </>
         )
       case 'team':
-        return (
-          <>
-            <TeamForm onTeamMemberAdded={handleTeamMemberAdded} />
-            <TeamList teamMembers={teamMembers} />
-          </>
-        )
+        return <TeamForm />
       default:
         return null
     }
