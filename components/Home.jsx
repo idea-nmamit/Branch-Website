@@ -1,20 +1,33 @@
 "use client"
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import gsap from 'gsap';
+import { useTheme } from 'next-themes';
 
 const HomePage = () => {
+  const { theme, resolvedTheme } = useTheme();
   const logoRef = useRef(null);
   const subtitleContainerRef = useRef(null);
   const badgeRef = useRef(null);
   const wordsRefs = useRef([]);
   const [lastClickTime, setLastClickTime] = useState(0);
+  const [mounted, setMounted] = useState(false);
   
   const titleText = "Intelligence and Data Science Engineers' Association";
   const titleWords = titleText.split(' ');
   
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const logoSrc = mounted && (theme === 'dark' || resolvedTheme === 'dark') 
+    ? "/Logo-Dark.png" 
+    : "/Logo-Light.png";
+
+  useEffect(() => {
+    if (!mounted) return;
+    
     gsap.killTweensOf([logoRef.current, badgeRef.current, ...wordsRefs.current]);
 
     gsap.set(logoRef.current, { opacity: 0, y: -50 });
@@ -66,9 +79,9 @@ const HomePage = () => {
     return () => {
       gsap.killTweensOf([logoRef.current, badgeRef.current, ...wordsRefs.current]);
     };
-  }, []);
+  }, [mounted]);
 
-  const handleWordClick = (index) => {
+  const handleWordClick = useCallback((index) => {
     const now = Date.now();
     if (now - lastClickTime < 500) return;
     
@@ -92,35 +105,42 @@ const HomePage = () => {
       duration: 0.6,
       ease: "back.out(1.5)"
     });
-  };
+  }, [lastClickTime]);
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-[#17003A] to-[#34006e] dark:from-[#8617C0] dark:to-[#6e11a0] text-white overflow-hidden">
       {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center pt-16 md:pt-20 lg:pt-24 px-4 container mx-auto">
+      <main className="flex-1 flex flex-col items-center justify-center transform -translate-y-16 px-4 container mx-auto">
         {/* Logo and Title */}
-        <div className="w-full max-w-4xl mx-auto">
-          <div ref={logoRef} className="text-white flex items-center justify-center mb-6 md:mb-10">
-            <div className="relative w-64 h-24 md:w-96 md:h-40 lg:w-[450px] lg:h-48">
-              <Image
-                src="/Logo-Dark.png"
-                alt="IDEA"
-                fill
-                className="object-contain"
-                priority
-              />
+        <div className="w-full max-w-4xl mx-auto text-center">
+          <div ref={logoRef} className="text-white flex items-center justify-center mb-4 md:mb-8">
+            <div className="relative w-52 h-20 sm:w-64 sm:h-24 md:w-96 md:h-40 lg:w-[450px] lg:h-48">
+              {mounted && (
+                <Image
+                  src={logoSrc}
+                  alt="IDEA"
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              )}
             </div>
           </div>
           
-          <div ref={subtitleContainerRef} className="mt-6 md:mt-8 flex flex-wrap justify-center gap-x-2 gap-y-2 relative">
+          <div 
+            ref={subtitleContainerRef} 
+            className="flex flex-wrap justify-center gap-x-2 gap-y-1 md:gap-y-2 max-w-[90%] mx-auto"
+          >
             {titleWords.map((word, index) => (
               <div
                 key={index}
                 ref={el => wordsRefs.current[index] = el}
-                className="relative select-none font-['Montserrat'] font-bold"
+                className="relative select-none font-sans tracking-tight"
                 style={{
-                  fontSize: 'clamp(1.5rem, 4vw, 2.8rem)',
-                  textShadow: '0px 2px 4px rgba(0,0,0,0.3)',
+                  fontSize: 'clamp(1.125rem, 5vw, 2.8rem)',
+                  fontWeight: index === 0 || index === 2 ? 800 : 600,
+                  textShadow: '0px 2px 4px rgba(0,0,0,0.4)',
+                  letterSpacing: index === 0 || index === 3 ? '-0.02em' : '-0.01em',
                   willChange: 'transform'
                 }}
                 onClick={() => handleWordClick(index)}
@@ -132,10 +152,10 @@ const HomePage = () => {
         </div>
       </main>
       
-      {/* News Badge - Fixed JSX structure */}
-      <div ref={badgeRef} className="fixed bottom-6 left-6 md:bottom-12 md:left-12 z-20">
+      {/* News Badge */}
+      <div ref={badgeRef} className="fixed bottom-4 left-4 sm:bottom-6 sm:left-6 md:bottom-12 md:left-12 z-20">
         <Link href="/news" className="inline-block transition-transform hover:scale-105">
-          <div className="bg-gradient-to-r from-pink-300 to-purple-300 text-[#17003A] px-4 py-2 md:px-6 md:py-3 rounded-full font-medium text-base md:text-lg shadow-lg">
+          <div className="bg-gradient-to-r from-pink-300 to-purple-300 text-[#17003A] px-3 py-1.5 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-full font-semibold text-sm sm:text-base md:text-lg shadow-lg tracking-wide">
             Latest News
           </div>
         </Link>
