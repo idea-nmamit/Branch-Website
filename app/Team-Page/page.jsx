@@ -94,20 +94,20 @@ const Page = () => {
             No members found for this year and category.
           </p>
         ) : selectedCategory === 'OFFICE_BEARERS' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredMembers.map((member) => (
-              <Card
-                key={member.id}
-                name={member.name}
-                designation={member.role} 
-                bio={member.quote || ''} 
-                photoUrl={member.photoUrl}
-                linkedinUrl={member.linkedinUrl}
-                githubUrl={member.githubUrl}
-                instagramUrl={member.instagramUrl}
-              />
-            ))}
-          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {filteredMembers.map((member) => (
+            <Card
+              key={member.id}
+              name={member.name}
+              designation={member.role}
+              bio={member.quote || ''}
+              photoUrl={member.photoUrl}
+              linkedinUrl={member.linkedinUrl}
+              githubUrl={member.githubUrl}
+              instagramUrl={member.instagramUrl}
+            />
+          ))}
+        </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {filteredMembers.map((member) => (
