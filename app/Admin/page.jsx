@@ -7,26 +7,68 @@ import TeamForm from '@/components/admin/Team/TeamForm'
 
 const AdminPage = () => {
   const [events, setEvents] = useState([])
+  const [teamMembers, setTeamMembers] = useState([])
   const [activeTab, setActiveTab] = useState('events')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const fetchEvents = async () => {
+    setLoading(true)
+    setError('')
     try {
       const response = await fetch('/api/events')
       if (response.ok) {
         const data = await response.json()
         setEvents(data)
+      } else {
+        const errorText = await response.text()
+        console.error('Error response:', errorText)
+        setError('Failed to fetch events')
       }
     } catch (error) {
       console.error('Error fetching events:', error)
+      setError('Failed to fetch events: ' + error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchTeamMembers = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const response = await fetch('/api/Team')
+      if (response.ok) {
+        const data = await response.json()
+        setTeamMembers(data)
+      } else {
+        const errorText = await response.text()
+        console.error('Error response:', errorText)
+        setError('Failed to fetch team members')
+      }
+    } catch (error) {
+      console.error('Error fetching team members:', error)
+      setError('Failed to fetch team members: ' + error.message)
+    } finally {
+      setLoading(false)
     }
   }
 
   useEffect(() => {
-    fetchEvents()
-  }, [])
+    // Fetch the appropriate data based on the active tab
+    if (activeTab === 'events') {
+      fetchEvents()
+    } else if (activeTab === 'team') {
+      fetchTeamMembers()
+    }
+  }, [activeTab])
 
   const handleEventAdded = () => {
     fetchEvents()
+  }
+
+  const handleTeamMemberAdded = () => {
+    fetchTeamMembers()
   }
 
   const renderNavigation = () => {
@@ -64,6 +106,18 @@ const AdminPage = () => {
   }
 
   const renderContent = () => {
+    if (loading) {
+      return <p className="text-center py-4">Loading...</p>
+    }
+
+    if (error) {
+      return (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <p>{error}</p>
+        </div>
+      )
+    }
+
     switch (activeTab) {
       case 'events':
         return (
@@ -79,7 +133,6 @@ const AdminPage = () => {
             {/* onAchievementAdded={handleEventAdded} */}
           </>
         )
-
       case 'team':
         return <TeamForm />
       default:
