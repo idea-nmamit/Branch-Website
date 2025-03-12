@@ -111,7 +111,7 @@ const Page = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
             {filteredMembers.map((member) => (
-              <Card
+              <TCard
               key={member.id}
               name={member.name}
               designation={member.role} 
