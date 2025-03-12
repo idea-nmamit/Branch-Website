@@ -45,5 +45,5 @@ const TeamList = ({ teamMembers }) => {
     </Card>
   )
 }
-
+//export
 export default TeamList

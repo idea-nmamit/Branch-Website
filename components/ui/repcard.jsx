@@ -31,13 +31,13 @@ const Card = ({ name, imageUrl, designation, linkedin, github, instagram }) => {
         </div>
 
         <div className="bottom">
-          <div className="mb-12 flex justify-center items-center  content">
-            <h1 className="name w-full ">{name}</h1>
-            <span className="w-full text-white">{designation}</span>
+          <div className="mb-12 mr-40 w-44 content">
+            <h1 className="name mr-32">{name}</h1>
+            <span className="text-white">{designation}</span>
           </div>
 
           <div className="bottom-bottom">
-            <div className="ml-16 social-links-container">
+            <div className="ml-14 social-links-container">
             
             <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="26" height="26" viewBox="0 0 192 192">
             <a href={linkedin} target="_blank" rel="noopener noreferrer">
@@ -75,7 +75,7 @@ const StyledWrapper = styled.div`
     background: white;
     /* Reversed default state (lifted/animated) */
     border-top-left-radius: 55px;
-    border-radius: 29px;
+    border-radius: 55px;
     
     padding: 3px;
     position: relative;
@@ -97,11 +97,11 @@ const StyledWrapper = styled.div`
    opacity: 0.9;
     /* Reversed default: previous hover values */
     top: 20%;
-    border-radius: 29px 29px 29px 29px;
+    border-radius: 80px 29px 29px 29px;
     z-index: 2;
     box-shadow: rgba(96, 75, 74, 0.1882352941) 0px 5px 5px 0px inset;
     overflow: hidden;
-    transition: all 1.5s cubic-bezier(0, 0.1, 0.01, 1);
+    transition: all 0.7s cubic-bezier(0.25, 0.8, 0.25, 1);
   }
   /* On hover, revert to original bottom style */
   .card:hover .bottom {
@@ -122,7 +122,7 @@ const StyledWrapper = styled.div`
     z-index: 3;
     box-shadow: rgba(96, 75, 74, 0.1882352941) 0px 5px 5px 0px;
     overflow: hidden;
-    transition: all 0.4s cubic-bezier(0.5, 1, 0.9, 1);
+    transition: all 0.7s cubic-bezier(0.25, 0.8, 0.25, 1);
   }
   /* On hover, revert profile pic to original default */
   .card:hover .profile-pic {
@@ -130,7 +130,7 @@ const StyledWrapper = styled.div`
     height: calc(100% - 6px);
     top: 3px;
     left: 3px;
-    border-radius: 50px;
+    border-radius: 29px;
     z-index: 1;
   
     box-shadow: none;
@@ -160,15 +160,15 @@ const StyledWrapper = styled.div`
     width: 100%;
     height: 100%;
     object-position: 0px 0px;
-    transition: all 0.7s cubic-bezier(9.25, 5.8, 0.75, 1);
+    transition: all 0.7s cubic-bezier(0.25, 0.8, 0.25, 1);
   }
   .card .profile-pic svg {
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: 0px 0px;
-    transform-origin: 20% 20%;
-    transition: all 0.7s cubic-bezier(9.25, 7.8, 0.75, 1);
+    transform-origin: 45% 20%;
+    transition: all 0.7s cubic-bezier(0.25, 0.8, 0.25, 1);
   }
 
   /* BOTTOM CONTENT */
