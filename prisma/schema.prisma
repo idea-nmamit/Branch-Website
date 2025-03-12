@@ -78,7 +78,7 @@ model TeamPage {
   linkedinUrl  String?
   githubUrl    String?
   instagramUrl String?
-  year         String
+  year         String // Stores "2024-25"
   quote        String?
 }
 
