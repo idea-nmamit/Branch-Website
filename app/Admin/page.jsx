@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react'
 import EventForm from '@/components/admin/Events/EventForm'
 import EventList from '@/components/admin/Events/EventList'
 import AchievementsForm from '@/components/admin/Achievements/achievements_form'
+import TeamForm from '@/components/admin/Team/TeamForm'
 
 const AdminPage = () => {
   const [events, setEvents] = useState([])
@@ -80,7 +81,7 @@ const AdminPage = () => {
         )
 
       case 'team':
-        return <div className="p-4 bg-gray-100 rounded">Team Tab coming soon</div>
+        return <TeamForm />
       default:
         return null
     }
