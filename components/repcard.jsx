@@ -95,7 +95,7 @@ const StyledWrapper = styled.div`
  
 
     background: white;
- 
+    
 
     /* Reversed default state (lifted/animated) */
  
@@ -131,7 +131,7 @@ const StyledWrapper = styled.div`
  
 
     border-top-left-radius: 32px;
- 
+    background: none;
 
   }
  
