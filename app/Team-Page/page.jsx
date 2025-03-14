@@ -150,7 +150,7 @@ const Page = () => {
         transition={{ duration: 0.5 }}
       >
         {/* Year Dropdown in Top Right */}
-        <div className="absolute top-0 right-0 z-10" ref={dropdownRef}>
+        <div className="absolute top-12 sm:top-0 right-1/4 sm:right-0 z-10" ref={dropdownRef}>
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -173,7 +173,7 @@ const Page = () => {
             <AnimatePresence>
               {dropdownOpen && years.length > 0 && (
                 <motion.div
-                  className="absolute right-0 mt-2 w-48 bg-purple-900/80 backdrop-blur-md rounded-lg shadow-xl overflow-hidden border border-purple-500/30"
+                  className="absolute right-0  mt-2 w-48 bg-purple-900/80 backdrop-blur-md rounded-lg shadow-xl overflow-hidden border border-purple-500/30"
                   variants={dropdownVariants}
                   initial="hidden"
                   animate="visible"
@@ -206,7 +206,7 @@ const Page = () => {
         </div>
 
         <motion.h1 
-          className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-8 md:mb-16 text-center tracking-tight"
+          className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-20 md:mb-16 text-center tracking-tight"
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
