@@ -73,7 +73,7 @@ const FacultyCardGrid = () => {
   return (
     <StyledPageWrapper className="bg-[#17003A] dark:bg-[#8617C0]">
       <div className="flex flex-col items-center">
-        <h1 className="text-5xl font-bold text-white mb-10 tracking-tight ">Faculty</h1>
+        <h1 className="text-5xl font-bold text-white mb-10 tracking-tight md:text-5xl sm:text-4xl">Faculty</h1>
         <div className="card-container">
           {facultyMembers.map((member, index) => (
             <Card
@@ -108,8 +108,6 @@ const StyledPageWrapper = styled.div`
     max-width: 1200px;
   }
 
-
-
   /* Card styling */
   .card {
     --font-color: #fefefe;
@@ -126,6 +124,8 @@ const StyledPageWrapper = styled.div`
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    position: relative;
+    padding-top: 80px; /* Leave space for fixed image */
     transition: transform 0.3s ease;
     
     &:hover {
@@ -134,13 +134,18 @@ const StyledPageWrapper = styled.div`
   }
 
   .card-photo {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%) translateY(15%);
     width: 120px;
     height: 120px;
-    margin-bottom: 10px;
     border-radius: 30%;
     overflow: hidden;
     border: 2px solid var(--main-color);
+    background: white;
     transition: transform 0.3s ease;
+    z-index: 1;
   }
 
   .card-photo img {
@@ -154,7 +159,7 @@ const StyledPageWrapper = styled.div`
     color: var(--font-color);
     font-size: 24px; 
     font-weight: 400;
-    margin-top: 10px;
+    margin-top: 80px;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   }
 
@@ -167,7 +172,7 @@ const StyledPageWrapper = styled.div`
     display: flex;
     height: 0;
     opacity: 0;
-    margin-top: 25px;
+    margin-top: 15px;
     gap: 20px;
     transition: 0.5s;
   }
@@ -197,7 +202,7 @@ const StyledPageWrapper = styled.div`
   }
 
   .card:hover .card-photo {
-    transform: scale(1.1);
+    transform: translateX(-50%) translateY(15%) scale(1.1);
   }
 
   /* Responsive adjustments */
@@ -215,21 +220,43 @@ const StyledPageWrapper = styled.div`
       width: 100px;
       height: 100px;
     }
+    
+    .card-title {
+      font-size: 20px;
+      margin-top: 60px;
+    }
+    
+    .card-title span {
+      font-size: 16px;
+    }
   }
   
   @media (max-width: 480px) {
+    padding: 40px 10px;
+    
     .card-container {
-      gap: 30px;
+      flex-direction: column;
+      align-items: center;
+      gap: 50px;
     }
     
     .card {
-      width: 200px;
-      height: 260px;
+      width: 240px; 
+      height: 290px;
     }
     
     .card-photo {
-      width: 90px;
-      height: 90px;
+      width: 110px;
+      height: 110px;
+    }
+    
+    .card-title {
+      font-size: 20px;
+      margin-top: 70px;
+    }
+    
+    .card-title span {
+      font-size: 16px;
     }
   }
 `;

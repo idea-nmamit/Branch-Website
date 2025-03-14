@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Image from 'next/image';
+import { Radius } from 'lucide-react';
 
 
 
@@ -17,13 +18,15 @@ const [isClient, setIsClient] = useState(false);
     <StyledWrapper>
     <div className="card mb-4">
       {/* Add margin-bottom to create space below the image */}
-      <div className="profile-pic mb-4 relative w-24 h-24 rounded-full overflow-hidden">
+      <div className="profile-pic mb-4 relative w-24 h-24 overflow-hidden">
         {isClient && (
           <Image
             src={imageUrl}
             alt="profile"
             fill
-            style={{ objectFit: 'cover' }}
+            style={{ objectFit: 'cover'
+              
+             }}
           />
         )}
       </div>
@@ -92,7 +95,7 @@ const StyledWrapper = styled.div`
  
 
     background: white;
- 
+    
 
     /* Reversed default state (lifted/animated) */
  
@@ -128,7 +131,7 @@ const StyledWrapper = styled.div`
  
 
     border-top-left-radius: 32px;
- 
+    background: none;
 
   }
  
@@ -157,7 +160,7 @@ const StyledWrapper = styled.div`
     background:rgb(68, 26, 110);
  
 
-   opacity: 0.9;
+
  
 
     /* Reversed default: previous hover values */
@@ -260,12 +263,10 @@ const StyledWrapper = styled.div`
  
 
     top: 3px;
- 
-
     left: 3px;
  
 
-    border-radius: 50px;
+    border-radius: 29px;
  
 
     z-index: 1;
