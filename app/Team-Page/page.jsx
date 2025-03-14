@@ -115,8 +115,8 @@ const Page = () => {
 
   const renderSkeletons = () => {
     return Array(6).fill(0).map((_, index) => (
-      selectedCategory === 'OFFICE_BEARERS' 
-        ? renderOfficeBearerSkeleton(index) 
+      selectedCategory === 'OFFICE_BEARERS'
+        ? renderOfficeBearerSkeleton(index)
         : renderDevTeamSkeleton(index)
     ));
   };
@@ -143,7 +143,7 @@ const Page = () => {
 
   return (
     <div className="bg-gradient-to-br from-[#17003A] to-[#370069] dark:from-[#8617C0] dark:to-[#6012A4] min-h-screen pt-20 pb-24 px-4 sm:px-8 font-sans">
-      <motion.div 
+      <motion.div
         className="max-w-6xl mx-auto relative"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -169,7 +169,7 @@ const Page = () => {
                 <ChevronDown size={18} className="text-purple-300" />
               </motion.div>
             </button>
-            
+
             <AnimatePresence>
               {dropdownOpen && years.length > 0 && (
                 <motion.div
@@ -186,11 +186,10 @@ const Page = () => {
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05, duration: 0.3 }}
-                      className={`w-full text-left px-4 py-3 ${
-                        selectedYear === year 
-                          ? 'bg-white/20 text-white font-medium' 
+                      className={`w-full text-left px-4 py-3 ${selectedYear === year
+                          ? 'bg-white/20 text-white font-medium'
                           : 'text-white/80 hover:bg-white/10'
-                      } transition-colors duration-200`}
+                        } transition-colors duration-200`}
                       onClick={() => {
                         setSelectedYear(year);
                         setDropdownOpen(false);
@@ -205,7 +204,7 @@ const Page = () => {
           </motion.div>
         </div>
 
-        <motion.h1 
+        <motion.h1
           className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-20 md:mb-16 text-center tracking-tight"
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -215,7 +214,7 @@ const Page = () => {
         </motion.h1>
 
         {/* Category Switch */}
-        <motion.div 
+        <motion.div
           className="flex justify-center mb-10 md:mb-14"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -223,11 +222,10 @@ const Page = () => {
         >
           <div className="bg-black/30 backdrop-blur-md rounded-full p-1.5 flex shadow-xl">
             <motion.button
-              className={`text-base md:text-lg font-medium px-5 md:px-8 py-2.5 rounded-full transition-all duration-300 ${
-                selectedCategory === 'OFFICE_BEARERS'
+              className={`text-base md:text-lg font-medium px-5 md:px-8 py-2.5 rounded-full transition-all duration-300 ${selectedCategory === 'OFFICE_BEARERS'
                   ? 'bg-white text-purple-900 shadow-lg'
                   : 'text-white/80 hover:text-white hover:bg-white/10'
-              }`}
+                }`}
               onClick={() => setSelectedCategory('OFFICE_BEARERS')}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -235,11 +233,10 @@ const Page = () => {
               OFFICE BEARERS
             </motion.button>
             <motion.button
-              className={`text-base md:text-lg font-medium px-5 md:px-8 py-2.5 rounded-full transition-all duration-300 ${
-                selectedCategory === 'DEV_TEAM'
+              className={`text-base md:text-lg font-medium px-5 md:px-8 py-2.5 rounded-full transition-all duration-300 ${selectedCategory === 'DEV_TEAM'
                   ? 'bg-white text-purple-900 shadow-lg'
                   : 'text-white/80 hover:text-white hover:bg-white/10'
-              }`}
+                }`}
               onClick={() => setSelectedCategory('DEV_TEAM')}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -252,7 +249,7 @@ const Page = () => {
         {/* Content */}
         <AnimatePresence mode="wait">
           {loading ? (
-            <motion.div 
+            <motion.div
               key="loading"
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center"
               variants={containerVariants}
@@ -263,7 +260,7 @@ const Page = () => {
               {renderSkeletons()}
             </motion.div>
           ) : error ? (
-            <motion.div 
+            <motion.div
               key="error"
               className="bg-red-500/20 border border-red-400 rounded-lg p-6 max-w-md mx-auto backdrop-blur-sm"
               initial={{ opacity: 0, y: 20 }}
@@ -274,7 +271,7 @@ const Page = () => {
               <p className="text-red-200 text-center font-medium text-lg">
                 {error}
               </p>
-              <motion.button 
+              <motion.button
                 onClick={() => window.location.reload()}
                 className="mt-4 bg-red-500/30 hover:bg-red-500/50 text-white py-2.5 px-6 rounded-lg text-base block mx-auto transition-colors font-medium"
                 whileHover={{ scale: 1.05 }}
@@ -284,7 +281,7 @@ const Page = () => {
               </motion.button>
             </motion.div>
           ) : filteredMembers.length === 0 ? (
-            <motion.div 
+            <motion.div
               key="empty"
               className="bg-purple-500/20 border border-purple-400 rounded-lg p-8 max-w-md mx-auto text-center backdrop-blur-sm"
               initial={{ opacity: 0, y: 20 }}
@@ -295,7 +292,7 @@ const Page = () => {
               <p className="text-white text-lg">No members found for this year and category.</p>
             </motion.div>
           ) : (
-            <motion.div 
+            <motion.div
               key={`${selectedCategory}-${selectedYear}`}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16"
               variants={containerVariants}
@@ -303,33 +300,33 @@ const Page = () => {
               animate="show"
               exit={{ opacity: 0 }}
             >
-              {selectedCategory === 'OFFICE_BEARERS' 
+              {selectedCategory === 'OFFICE_BEARERS'
                 ? filteredMembers.map((member) => (
-                  <motion.div 
-                    key={member.id} 
+                  <motion.div
+                    key={member.id}
                     variants={itemVariants}
                     className="w-full flex justify-center"
                   >
                     <Card
                       name={member.name}
-                      imageUrl={member.photoUrl} 
+                      imageUrl={member.photoUrl}
                       designation={member.role}
-                      linkedin={member.linkedinUrl} 
-                      github={member.githubUrl} 
-                      instagram={member.instagramUrl} 
+                      linkedin={member.linkedinUrl}
+                      github={member.githubUrl}
+                      instagram={member.instagramUrl}
                     />
                   </motion.div>
                 ))
                 : filteredMembers.map((member) => (
-                  <motion.div 
-                    key={member.id} 
+                  <motion.div
+                    key={member.id}
                     variants={itemVariants}
                     className="w-full flex justify-center"
                   >
                     <TCard
                       name={member.name}
-                      designation={member.role} 
-                      bio={member.quote || ''} 
+                      designation={member.role}
+                      bio={member.quote || ''}
                       imageUrl={member.photoUrl}
                       linkedinUrl={member.linkedinUrl}
                       githubUrl={member.githubUrl}
