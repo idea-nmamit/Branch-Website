@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/Carousel";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
+import { X } from "lucide-react";
 
 const categories = [
   "ALL", "TECHNICAL", "CULTURAL", "SPORTS", "SOCIAL", "ACADEMIC",
@@ -17,6 +18,7 @@ export default function GalleryPage() {
   const [categoryImages, setCategoryImages] = useState({});
   const [carouselLoading, setCarouselLoading] = useState(true);
   const [galleryLoading, setGalleryLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   // Fetch carousel images
   useEffect(() => {
@@ -71,45 +73,66 @@ export default function GalleryPage() {
     return category.replace(/_/g, ' ');
   };
 
+  // Function to open image modal
+  const openImageModal = (image) => {
+    setSelectedImage(image);
+    document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+  };
+
+  // Function to close image modal
+  const closeImageModal = () => {
+    setSelectedImage(null);
+    document.body.style.overflow = 'auto'; // Re-enable scrolling
+  };
+
   return (
-    <div className="w-full min-h-screen px-6 py-10 text-white bg-gradient-to-br from-[#17003A] to-[#370069] dark:from-[#8617C0] dark:to-[#6012A4]">
+    <div className="w-full min-h-screen px-3 sm:px-6 py-6 sm:py-10 text-white bg-gradient-to-br from-[#17003A] to-[#370069] dark:from-[#8617C0] dark:to-[#6012A4]">
       {/* Carousel Section */}
       <div className="mb-10 max-w-5xl mx-auto">
-        <motion.h2 className="text-5xl font-bold text-center mb-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+        <motion.h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
           Highlights
         </motion.h2>
         {carouselLoading ? (
-          <div className="w-full max-w-3xl mx-auto flex gap-4">
+          <div className="w-full max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4">
             {Array(3).fill(0).map((_, index) => (
-              <Skeleton key={index} className="w-full h-64 rounded-lg" />
+              <Skeleton key={index} className="w-full h-40 md:h-52 rounded-lg" />
             ))}
           </div>
         ) : (
-          <Carousel className="relative w-full max-w-3xl mx-auto">
-            <CarouselContent>
+          <Carousel 
+            className="w-full max-w-5xl mx-auto"
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+          >
+            <CarouselContent className="-ml-2 md:-ml-4">
               {carouselImages.map((image) => (
-                <CarouselItem key={image.id} className="relative w-full h-64">
-                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+                <CarouselItem key={image.id} className="pl-2 md:pl-4 basis-full sm:basis-1/2 md:basis-1/3 cursor-pointer" onClick={() => openImageModal(image)}>
+                  <div className="relative w-full h-40 md:h-52 rounded-lg overflow-hidden">
                     <Image
                       src={image.photoUrl}
                       alt={image.title}
                       layout="fill"
                       objectFit="cover"
-                      className="rounded-lg shadow-lg"
+                      className="rounded-lg shadow-lg hover:scale-105 transition-transform duration-300"
                     />
-                  </motion.div>
+                    <div className="absolute bottom-0 bg-black bg-opacity-50 text-white p-2 w-full text-center">
+                      {image.title}
+                    </div>
+                  </div>
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
+            <CarouselPrevious className="hidden sm:flex" />
+            <CarouselNext className="hidden sm:flex" />
           </Carousel>
         )}
       </div>
 
       {/* Category Sections */}
       <div className="max-w-6xl mx-auto">
-        <motion.h2 className="text-3xl font-bold text-center mb-10" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+        <motion.h2 className="text-2xl sm:text-3xl font-bold text-center mb-10" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
           Gallery Categories
         </motion.h2>
         
@@ -139,28 +162,29 @@ export default function GalleryPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                <h3 className="text-2xl font-bold mb-6 text-left border-b border-[#8617C0] pb-2">
+                <h3 className="text-xl sm:text-2xl font-bold mb-6 text-left border-b border-[#8617C0] pb-2">
                   {formatCategoryName(category)}
                 </h3>
                 
                 {categoryImages[category] && categoryImages[category].length > 0 ? (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
                     {categoryImages[category].map((image) => (
                       <motion.div 
                         key={image.id} 
-                        className="relative w-full h-48"
+                        className="relative w-full h-36 sm:h-48 cursor-pointer"
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.3 }}
+                        onClick={() => openImageModal(image)}
                       >
                         <Image 
                           src={image.photoUrl} 
                           alt={image.title} 
                           layout="fill" 
                           objectFit="cover" 
-                          className="rounded-lg shadow-md" 
+                          className="rounded-lg shadow-md hover:scale-105 transition-transform duration-300" 
                         />
-                        <div className="absolute bottom-0 bg-black bg-opacity-50 text-white p-2 w-full text-center">
+                        <div className="absolute bottom-0 bg-black bg-opacity-50 text-white p-1 sm:p-2 w-full text-center text-xs sm:text-sm truncate">
                           {image.title}
                         </div>
                       </motion.div>
@@ -174,6 +198,47 @@ export default function GalleryPage() {
           </div>
         )}
       </div>
+
+      {/* Image Modal */}
+      <AnimatePresence>
+        {selectedImage && (
+          <motion.div 
+            className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeImageModal}
+          >
+            <motion.div 
+              className="relative bg-[#17003A] rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="relative w-full h-[50vh] md:h-[60vh]">
+                <Image 
+                  src={selectedImage.photoUrl} 
+                  alt={selectedImage.title} 
+                  layout="fill" 
+                  objectFit="contain"
+                />
+              </div>
+              <div className="p-4 md:p-6 overflow-y-auto">
+                <h3 className="text-xl md:text-2xl font-bold mb-2">{selectedImage.title}</h3>
+                <p className="text-sm md:text-base">{selectedImage.description}</p>
+                <p className="text-xs mt-4 text-gray-400">Category: {formatCategoryName(selectedImage.category)}</p>
+              </div>
+              <button 
+                className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 rounded-full p-1 transition-colors duration-200"
+                onClick={closeImageModal}
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
