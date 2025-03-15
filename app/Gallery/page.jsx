@@ -287,7 +287,7 @@ export default function GalleryPage() {
                     {categoryImages[category].map((image) => (
                       <motion.div 
                         key={image.id} 
-                        className="relative w-full h-44 sm:h-56 md:h-60 cursor-pointer"
+                        className="relative w-full h-44 sm:h-56 md:h-60 cursor-pointer overflow-hidden rounded-lg shadow-md hover:scale-105 transition-transform duration-300"
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.3 }}
@@ -298,7 +298,7 @@ export default function GalleryPage() {
                           alt={image.title} 
                           layout="fill" 
                           objectFit="cover" 
-                          className="rounded-lg shadow-md hover:scale-105 transition-transform duration-300" 
+                          className="rounded-lg"
                         />
                         <div className="absolute bottom-0 bg-black bg-opacity-50 text-white p-1 sm:p-2 w-full text-center text-xs sm:text-sm truncate">
                           {image.title}
