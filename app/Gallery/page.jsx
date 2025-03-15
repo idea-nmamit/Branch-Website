@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/Carousel";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
-import { X } from "lucide-react";
+import { X, ChevronDown } from "lucide-react";
 
 const categories = [
   "TECHNICAL", "CULTURAL", "SPORTS", "SOCIAL", "ACADEMIC",
@@ -20,6 +20,8 @@ export default function GalleryPage() {
   const [galleryLoading, setGalleryLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(null);
   const [api, setApi] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   // Fetch carousel images
   useEffect(() => {
@@ -99,8 +101,47 @@ export default function GalleryPage() {
     document.body.style.overflow = 'auto'; // Re-enable scrolling
   };
 
+  // Handler for category selection
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(category);
+    setDropdownOpen(false);
+    
+    // Scroll to the selected category section
+    const element = document.getElementById(category.toLowerCase());
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <div className="w-full min-h-screen px-3 sm:px-6 py-6 sm:py-10 text-white bg-gradient-to-br from-[#17003A] to-[#370069] dark:from-[#8617C0] dark:to-[#6012A4]">
+      {/* Category dropdown */}
+      <div className="fixed top-20 right-4 z-30">
+        <div className="relative">
+          <button
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            className="bg-[#370069] hover:bg-[#4b008e] text-white py-2 px-4 rounded-lg flex items-center gap-2 shadow-lg"
+          >
+            {selectedCategory ? formatCategoryName(selectedCategory) : "Select Category"}
+            <ChevronDown className={`w-4 h-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+          </button>
+          
+          {dropdownOpen && (
+            <div className="absolute right-0 mt-2 w-48 bg-[#17003A] border border-[#8617C0] rounded-md shadow-lg z-40 max-h-[60vh] overflow-y-auto">
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  className="block w-full text-left px-4 py-2 hover:bg-[#370069] text-sm"
+                  onClick={() => handleCategorySelect(category)}
+                >
+                  {formatCategoryName(category)}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Carousel Section */}
       <div className="mb-10 max-w-5xl mx-auto">
         <motion.h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
