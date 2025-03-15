@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/Carousel";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { X, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import gsap from "gsap";
 
 const categories = [
   "TECHNICAL", "CULTURAL", "SPORTS",  "ACADEMIC",
@@ -23,8 +24,10 @@ export default function GalleryPage() {
   const [api, setApi] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isDropdownRendered, setIsDropdownRendered] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentCategory, setCurrentCategory] = useState("");
+  const dropdownRef = useRef(null);
 
   // Fetch carousel images
   useEffect(() => {
@@ -161,15 +164,75 @@ export default function GalleryPage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedImage, currentImageIndex, currentCategory]);
 
-  // Handler for category selection
-  const handleCategorySelect = (category) => {
-    setSelectedCategory(category);
-    setDropdownOpen(false);
+  // Handle dropdown toggle with animations
+  const toggleDropdown = () => {
+    if (!dropdownOpen) {
+      // Opening the dropdown
+      setDropdownOpen(true);
+      setIsDropdownRendered(true);
+    } else {
+      // Closing the dropdown - animate first, then remove from DOM
+      if (dropdownRef.current) {
+        gsap.to(dropdownRef.current, {
+          opacity: 0,
+          y: -10,
+          scale: 0.95,
+          duration: 0.2,
+          ease: "power2.in",
+          onComplete: () => {
+            setIsDropdownRendered(false);
+            setDropdownOpen(false);
+          }
+        });
+      }
+    }
+  };
+
+  // GSAP animation for dropdown opening
+  useEffect(() => {
+    if (!dropdownRef.current || !dropdownOpen) return;
     
-    // Scroll to the selected category section
-    const element = document.getElementById(category.toLowerCase());
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Animation for opening the dropdown
+    gsap.fromTo(
+      dropdownRef.current,
+      { 
+        opacity: 0, 
+        y: -10, 
+        scale: 0.95,
+        transformOrigin: "top right" 
+      },
+      { 
+        opacity: 1, 
+        y: 0, 
+        scale: 1, 
+        duration: 0.25, 
+        ease: "power2.out" 
+      }
+    );
+  }, [dropdownOpen]);
+
+  // Handler for category selection with animation
+  const handleCategorySelect = (category) => {
+    // Animate closing first
+    if (dropdownRef.current) {
+      gsap.to(dropdownRef.current, {
+        opacity: 0,
+        y: -10,
+        scale: 0.95,
+        duration: 0.2,
+        ease: "power2.in",
+        onComplete: () => {
+          setIsDropdownRendered(false);
+          setDropdownOpen(false);
+          setSelectedCategory(category);
+          
+          // Scroll to the selected category section
+          const element = document.getElementById(category.toLowerCase());
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+      });
     }
   };
 
@@ -179,15 +242,18 @@ export default function GalleryPage() {
       <div className="fixed top-20 sm:top-24 md:top-26 right-2 sm:right-6 md:right-10 z-30">
         <div className="relative">
           <button
-            onClick={() => setDropdownOpen(!dropdownOpen)}
+            onClick={toggleDropdown}
             className="bg-[#370069] hover:bg-[#4b008e] text-white py-1 px-2 sm:py-2 sm:px-4 rounded-lg flex items-center gap-1 sm:gap-2 shadow-lg text-xs sm:text-sm md:text-base"
           >
             {selectedCategory ? formatCategoryName(selectedCategory) : "Select Category"}
             <ChevronDown className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
           </button>
           
-          {dropdownOpen && (
-            <div className="absolute right-0 mt-1 sm:mt-2 w-44 sm:w-48 bg-[#17003A] border border-[#8617C0] rounded-md shadow-lg z-40 max-h-[40vh] sm:max-h-[60vh] overflow-y-auto">
+          {isDropdownRendered && (
+            <div 
+              ref={dropdownRef}
+              className="absolute right-0 mt-1 sm:mt-2 w-44 sm:w-48 bg-[#17003A] border border-[#8617C0] rounded-md shadow-lg z-40 max-h-[40vh] sm:max-h-[60vh] overflow-y-auto"
+            >
               {categories.map((category) => (
                 <button
                   key={category}
