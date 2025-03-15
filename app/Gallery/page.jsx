@@ -143,19 +143,19 @@ export default function GalleryPage() {
       </div>
 
       {/* Carousel Section */}
-      <div className="mb-10 max-w-5xl mx-auto">
+      <div className="mb-10 max-w-7xl mx-auto">
         <motion.h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
           Highlights
         </motion.h2>
         {carouselLoading ? (
-          <div className="w-full max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="w-full max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4">
             {Array(3).fill(0).map((_, index) => (
-              <Skeleton key={index} className="w-full h-40 md:h-52 rounded-lg" />
+              <Skeleton key={index} className="w-full h-52 md:h-72 rounded-lg" />
             ))}
           </div>
         ) : (
           <Carousel 
-            className="w-full max-w-5xl mx-auto"
+            className="w-full max-w-7xl mx-auto"
             opts={{
               align: "start",
               loop: true,
@@ -165,7 +165,7 @@ export default function GalleryPage() {
             <CarouselContent className="-ml-2 md:-ml-4">
               {carouselImages.map((image) => (
                 <CarouselItem key={image.id} className="pl-2 md:pl-4 basis-full sm:basis-1/2 md:basis-1/3 cursor-pointer" onClick={() => openImageModal(image)}>
-                  <div className="relative w-full h-40 md:h-52 rounded-lg overflow-hidden">
+                  <div className="relative w-full h-52 md:h-72 lg:h-80 rounded-lg overflow-hidden">
                     <Image
                       src={image.photoUrl}
                       alt={image.title}
