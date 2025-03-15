@@ -8,9 +8,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { X, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 
 const categories = [
-  "TECHNICAL", "CULTURAL", "SPORTS", "SOCIAL", "ACADEMIC",
-  "WORKSHOP", "SEMINAR", "INDUSTRIAL_VISIT", "PROJECT_EXHIBITION",
+  "TECHNICAL", "CULTURAL", "SPORTS",  "ACADEMIC",
+  "WORKSHOP", "SEMINAR", 
   "OUTREACH", "ORIENTATION","ALL_IMAGES"
+  // "INDUSTRIAL_VISIT","PROJECT_EXHIBITION","SOCIAL",
 ];
 
 export default function GalleryPage() {
@@ -88,7 +89,15 @@ export default function GalleryPage() {
 
   // Format category display name
   const formatCategoryName = (category) => {
-    return category.replace(/_/g, ' ');
+    // First replace underscores with spaces
+    const withSpaces = category.replace(/_/g, ' ');
+    
+    // Then convert to Pascal case (first letter of each word uppercase, rest lowercase)
+    return withSpaces
+      .toLowerCase()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   };
 
   // Function to open image modal
@@ -167,7 +176,7 @@ export default function GalleryPage() {
   return (
     <div className="w-full min-h-screen px-3 sm:px-6 py-6 sm:py-10 text-white bg-gradient-to-br from-[#17003A] to-[#370069] dark:from-[#8617C0] dark:to-[#6012A4]">
       {/* Category dropdown */}
-      <div className="fixed top-20 right-4 z-30">
+      <div className="fixed top-32 right-12 z-30">
         <div className="relative">
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -278,7 +287,7 @@ export default function GalleryPage() {
                     {categoryImages[category].map((image) => (
                       <motion.div 
                         key={image.id} 
-                        className="relative w-full h-36 sm:h-48 cursor-pointer"
+                        className="relative w-full h-44 sm:h-56 md:h-60 cursor-pointer"
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.3 }}
