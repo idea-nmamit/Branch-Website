@@ -176,22 +176,22 @@ export default function GalleryPage() {
   return (
     <div className="w-full min-h-screen px-2 sm:px-4 md:px-6 py-4 sm:py-6 md:py-10 text-white bg-gradient-to-br from-[#17003A] to-[#370069] dark:from-[#8617C0] dark:to-[#6012A4]">
       {/* Category dropdown - Adjusted for better mobile positioning */}
-      <div className="fixed top-20 sm:top-24 md:top-32 right-2 sm:right-6 md:right-12 z-30">
+      <div className="fixed top-20 sm:top-24 md:top-26 right-2 sm:right-6 md:right-10 z-30">
         <div className="relative">
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="bg-[#370069] hover:bg-[#4b008e] text-white py-1 sm:py-2 px-2 sm:px-4 rounded-lg flex items-center gap-1 sm:gap-2 shadow-lg text-xs sm:text-sm md:text-base"
+            className="bg-[#370069] hover:bg-[#4b008e] text-white py-1 px-2 sm:py-2 sm:px-4 rounded-lg flex items-center gap-1 sm:gap-2 shadow-lg text-xs sm:text-sm md:text-base"
           >
             {selectedCategory ? formatCategoryName(selectedCategory) : "Select Category"}
             <ChevronDown className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
           </button>
           
           {dropdownOpen && (
-            <div className="absolute right-0 mt-1 sm:mt-2 w-36 sm:w-48 bg-[#17003A] border border-[#8617C0] rounded-md shadow-lg z-40 max-h-[40vh] sm:max-h-[60vh] overflow-y-auto">
+            <div className="absolute right-0 mt-1 sm:mt-2 w-44 sm:w-48 bg-[#17003A] border border-[#8617C0] rounded-md shadow-lg z-40 max-h-[40vh] sm:max-h-[60vh] overflow-y-auto">
               {categories.map((category) => (
                 <button
                   key={category}
-                  className="block w-full text-left px-2 sm:px-4 py-1 sm:py-2 hover:bg-[#370069] text-xs sm:text-sm"
+                  className="block w-full text-left px-3 sm:px-4 py-2 sm:py-2 hover:bg-[#370069] text-sm sm:text-sm"
                   onClick={() => handleCategorySelect(category)}
                 >
                   {formatCategoryName(category)}
@@ -232,6 +232,7 @@ export default function GalleryPage() {
                       layout="fill"
                       objectFit="cover"
                       className="rounded-lg shadow-lg hover:scale-105 transition-transform duration-300"
+                      style={{ borderRadius: '0.5rem' }} /* Fixed rounded corners during animation */
                     />
                     <div className="absolute bottom-0 bg-black bg-opacity-50 text-white p-1 sm:p-2 w-full text-center text-xs sm:text-sm">
                       {image.title}
@@ -240,8 +241,8 @@ export default function GalleryPage() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="hidden sm:flex h-8 w-8 sm:h-10 sm:w-10 left-1 sm:left-2" />
-            <CarouselNext className="hidden sm:flex h-8 w-8 sm:h-10 sm:w-10 right-1 sm:right-2" />
+            <CarouselPrevious className="hidden sm:flex h-8 w-8 sm:h-10 sm:w-10 md:-left-5 lg:-left-14" />
+            <CarouselNext className="hidden sm:flex h-8 w-8 sm:h-10 sm:w-10 md:-right- lg:-right-14" />
           </Carousel>
         )}
       </div>
