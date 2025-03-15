@@ -8,9 +8,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { X } from "lucide-react";
 
 const categories = [
-  "ALL", "TECHNICAL", "CULTURAL", "SPORTS", "SOCIAL", "ACADEMIC",
+  "TECHNICAL", "CULTURAL", "SPORTS", "SOCIAL", "ACADEMIC",
   "WORKSHOP", "SEMINAR", "INDUSTRIAL_VISIT", "PROJECT_EXHIBITION",
-  "OUTREACH", "ORIENTATION"
+  "OUTREACH", "ORIENTATION","ALL_IMAGES"
 ];
 
 export default function GalleryPage() {
@@ -19,6 +19,7 @@ export default function GalleryPage() {
   const [carouselLoading, setCarouselLoading] = useState(true);
   const [galleryLoading, setGalleryLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [api, setApi] = useState(null);
 
   // Fetch carousel images
   useEffect(() => {
@@ -50,7 +51,7 @@ export default function GalleryPage() {
         const groupedImages = {...initialCategories};
         
         // Add all images to the ALL category
-        groupedImages["ALL"] = [...data];
+        groupedImages["ALL_IMAGES"] = [...data];
         
         // Sort images into their respective categories
         data.forEach(image => {
@@ -67,6 +68,19 @@ export default function GalleryPage() {
         setGalleryLoading(false);
       });
   }, []);
+
+  // Autoplay carousel effect
+  useEffect(() => {
+    if (!api || carouselLoading) return;
+
+    // Set up autoplay interval
+    const autoplayInterval = setInterval(() => {
+      api.scrollNext();
+    }, 5000);
+
+    // Clean up interval on component unmount
+    return () => clearInterval(autoplayInterval);
+  }, [api, carouselLoading]);
 
   // Format category display name
   const formatCategoryName = (category) => {
@@ -105,6 +119,7 @@ export default function GalleryPage() {
               align: "start",
               loop: true,
             }}
+            setApi={setApi}
           >
             <CarouselContent className="-ml-2 md:-ml-4">
               {carouselImages.map((image) => (
