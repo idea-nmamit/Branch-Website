@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/Carousel";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
-import { X, ChevronDown } from "lucide-react";
+import { X, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 
 const categories = [
   "TECHNICAL", "CULTURAL", "SPORTS", "SOCIAL", "ACADEMIC",
@@ -22,6 +22,8 @@ export default function GalleryPage() {
   const [api, setApi] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentCategory, setCurrentCategory] = useState("");
 
   // Fetch carousel images
   useEffect(() => {
@@ -93,6 +95,13 @@ export default function GalleryPage() {
   const openImageModal = (image) => {
     setSelectedImage(image);
     document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+    
+    // Set the current category and find the image index
+    const category = image.category || "ALL_IMAGES";
+    setCurrentCategory(category);
+    
+    const imageIndex = categoryImages[category].findIndex(img => img.id === image.id);
+    setCurrentImageIndex(imageIndex);
   };
 
   // Function to close image modal
@@ -100,6 +109,48 @@ export default function GalleryPage() {
     setSelectedImage(null);
     document.body.style.overflow = 'auto'; // Re-enable scrolling
   };
+
+  // Function to navigate to previous image
+  const navigateToPrevImage = (e) => {
+    e.stopPropagation();
+    if (!currentCategory || currentImageIndex <= 0) return;
+    
+    const newIndex = currentImageIndex - 1;
+    setCurrentImageIndex(newIndex);
+    setSelectedImage(categoryImages[currentCategory][newIndex]);
+  };
+
+  // Function to navigate to next image
+  const navigateToNextImage = (e) => {
+    e.stopPropagation();
+    if (!currentCategory || currentImageIndex >= categoryImages[currentCategory].length - 1) return;
+    
+    const newIndex = currentImageIndex + 1;
+    setCurrentImageIndex(newIndex);
+    setSelectedImage(categoryImages[currentCategory][newIndex]);
+  };
+  
+  // Add keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!selectedImage) return;
+      
+      if (e.key === 'ArrowLeft') {
+        if (currentImageIndex > 0) {
+          navigateToPrevImage(e);
+        }
+      } else if (e.key === 'ArrowRight') {
+        if (currentImageIndex < categoryImages[currentCategory].length - 1) {
+          navigateToNextImage(e);
+        }
+      } else if (e.key === 'Escape') {
+        closeImageModal();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedImage, currentImageIndex, currentCategory]);
 
   // Handler for category selection
   const handleCategorySelect = (category) => {
@@ -272,6 +323,27 @@ export default function GalleryPage() {
               exit={{ scale: 0.9 }}
               onClick={(e) => e.stopPropagation()}
             >
+              {/* Navigation Arrows */}
+              {currentImageIndex > 0 && (
+                <button 
+                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 rounded-full p-2 text-white z-10 transition-colors duration-200"
+                  onClick={navigateToPrevImage}
+                  aria-label="Previous image"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+              )}
+              
+              {currentCategory && currentImageIndex < categoryImages[currentCategory].length - 1 && (
+                <button 
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 rounded-full p-2 text-white z-10 transition-colors duration-200"
+                  onClick={navigateToNextImage}
+                  aria-label="Next image"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+              )}
+              
               <div className="relative w-full h-[50vh] md:h-[60vh]">
                 <Image 
                   src={selectedImage.photoUrl} 
@@ -283,7 +355,10 @@ export default function GalleryPage() {
               <div className="p-4 md:p-6 overflow-y-auto">
                 <h3 className="text-xl md:text-2xl font-bold mb-2">{selectedImage.title}</h3>
                 <p className="text-sm md:text-base">{selectedImage.description}</p>
-                <p className="text-xs mt-4 text-gray-400">Category: {formatCategoryName(selectedImage.category)}</p>
+                <p className="text-xs mt-4 text-gray-400">
+                  Category: {formatCategoryName(selectedImage.category)}
+                  {currentCategory && <span> | Image {currentImageIndex + 1} of {categoryImages[currentCategory].length}</span>}
+                </p>
               </div>
               <button 
                 className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 rounded-full p-1 transition-colors duration-200"
