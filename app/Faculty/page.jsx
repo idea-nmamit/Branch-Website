@@ -10,7 +10,7 @@ const Card = ({ name, title, linkedinUrl, imageUrl }) => {
         <img src={imageUrl} alt={`${name} profile`} />
       </div>
       <div className="card-title">{name}<br />
-        <span>{title}</span>
+        <span className="font-semibold">{title}</span>
       </div>
       <div className="card-socials">
         {linkedinUrl && (
@@ -75,7 +75,7 @@ const FacultyCardGrid = () => {
   ];
 
   return (
-    <StyledPageWrapper className="bg-[#17003A] dark:bg-[#8617C0]">
+    <StyledPageWrapper className="bg-gradient-to-br from-[#17003A] to-[#370069] dark:from-[#8617C0] dark:to-[#6012A4]">
       <div className="flex flex-col items-center">
         <h1 className="text-5xl font-bold text-white mb-10 tracking-tight md:text-5xl sm:text-4xl">Faculty</h1>
         <div className="card-container">
