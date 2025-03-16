@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/Carousel";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
-import { X, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, ChevronDown, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import gsap from "gsap";
 
 const categories = [
@@ -28,6 +28,13 @@ export default function GalleryPage() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentCategory, setCurrentCategory] = useState("");
   const dropdownRef = useRef(null);
+  
+  // New state for search functionality
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const searchInputRef = useRef(null);
 
   // Fetch carousel images
   useEffect(() => {
@@ -236,8 +243,131 @@ export default function GalleryPage() {
     }
   };
 
+  // Search function to call the API with search term
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    
+    if (!searchTerm.trim()) {
+      setShowSearchResults(false);
+      return;
+    }
+    
+    setIsSearching(true);
+    setShowSearchResults(true);
+    
+    try {
+      const response = await fetch(`/api/gallery?search=${encodeURIComponent(searchTerm.trim())}`);
+      if (!response.ok) throw new Error('Search request failed');
+      
+      const data = await response.json();
+      setSearchResults(data);
+    } catch (error) {
+      console.error("Error searching images:", error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Clear search results
+  const clearSearch = () => {
+    setSearchTerm("");
+    setShowSearchResults(false);
+    setSearchResults([]);
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  };
+
   return (
     <div className="w-full min-h-screen px-2 sm:px-4 md:px-6 py-4 sm:py-6 md:py-10 text-white bg-gradient-to-br from-[#17003A] to-[#370069] dark:from-[#8617C0] dark:to-[#6012A4]">
+      {/* Search bar - Added at the top of the page */}
+      <div className="max-w-4xl mx-auto mb-6 sm:mb-8 md:mb-10 pt-8 sm:pt-4">
+        <form onSubmit={handleSearch} className="relative flex items-center">
+          <input
+            ref={searchInputRef}
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search images by title or description..."
+            className="w-full bg-black/30 border border-[#8617C0] rounded-full py-2 px-4 pr-10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8617C0]"
+          />
+          {searchTerm && (
+            <button 
+              type="button"
+              onClick={clearSearch}
+              className="absolute right-10 text-gray-400 hover:text-white"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+          <button 
+            type="submit" 
+            className="absolute right-2 bg-[#370069] hover:bg-[#4b008e] text-white p-1 rounded-full"
+          >
+            <Search className="w-5 h-5" />
+          </button>
+        </form>
+      </div>
+
+      {/* Search Results Section */}
+      {showSearchResults && (
+        <div className="max-w-6xl mx-auto mb-8">
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }} 
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-[#17003A]/80 border border-[#8617C0] rounded-lg p-4"
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">
+                Search Results for "{searchTerm}"
+              </h2>
+              <button 
+                onClick={clearSearch}
+                className="bg-[#370069] hover:bg-[#4b008e] text-white py-1 px-3 rounded-md text-sm flex items-center gap-1"
+              >
+                <X className="w-3 h-3" /> Clear
+              </button>
+            </div>
+            
+            {isSearching ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-4">
+                {Array(4).fill(0).map((_, index) => (
+                  <Skeleton key={index} className="w-full h-32 sm:h-40 md:h-48 rounded-lg" />
+                ))}
+              </div>
+            ) : searchResults.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-4">
+                {searchResults.map((image) => (
+                  <motion.div 
+                    key={image.id} 
+                    className="relative w-full h-32 sm:h-40 md:h-48 cursor-pointer rounded-lg overflow-hidden shadow-md hover:scale-105 transition-transform duration-300"
+                    onClick={() => openImageModal(image)}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Image 
+                      src={image.photoUrl} 
+                      alt={image.title} 
+                      layout="fill" 
+                      objectFit="cover" 
+                      className="rounded-lg"
+                    />
+                    <div className="absolute bottom-0 bg-black bg-opacity-50 text-white p-1 sm:p-2 w-full">
+                      <div className="text-xs sm:text-sm font-medium truncate">{image.title}</div>
+                      <div className="text-xs opacity-75 truncate">{formatCategoryName(image.category)}</div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center py-8 text-gray-400">No images found matching your search.</p>
+            )}
+          </motion.div>
+        </div>
+      )}
+
       {/* Category dropdown - Adjusted for better mobile positioning */}
       <div className="fixed top-20 sm:top-24 md:top-26 right-2 sm:right-6 md:right-10 z-30">
         <div className="relative">
@@ -268,119 +398,124 @@ export default function GalleryPage() {
         </div>
       </div>
 
-      {/* Carousel Section */}
-      <div className="mb-6 sm:mb-8 md:mb-10 max-w-7xl mx-auto">
-        <motion.h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-4 sm:mb-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-          Highlights
-        </motion.h2>
-        {carouselLoading ? (
-          <div className="w-full max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4">
-            {Array(3).fill(0).map((_, index) => (
-              <Skeleton key={index} className="w-full h-40 sm:h-48 md:h-52 lg:h-72 rounded-lg" />
-            ))}
-          </div>
-        ) : (
-          <Carousel 
-            className="w-full max-w-7xl mx-auto"
-            opts={{
-              align: "start",
-              loop: true,
-            }}
-            setApi={setApi}
-          >
-            <CarouselContent className="-ml-1 sm:-ml-2 md:-ml-4">
-              {carouselImages.map((image) => (
-                <CarouselItem key={image.id} className="pl-1 sm:pl-2 md:pl-4 basis-full sm:basis-1/2 md:basis-1/3 cursor-pointer" onClick={() => openImageModal(image)}>
-                  <div className="relative w-full h-40 sm:h-52 md:h-72 lg:h-80 rounded-lg overflow-hidden">
-                    <Image
-                      src={image.photoUrl}
-                      alt={image.title}
-                      layout="fill"
-                      objectFit="cover"
-                      className="rounded-lg shadow-lg hover:scale-105 transition-transform duration-300"
-                      style={{ borderRadius: '0.5rem' }} /* Fixed rounded corners during animation */
-                    />
-                    <div className="absolute bottom-0 bg-black bg-opacity-50 text-white p-1 sm:p-2 w-full text-center text-xs sm:text-sm">
-                      {image.title}
-                    </div>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="hidden sm:flex h-8 w-8 sm:h-10 sm:w-10 md:-left-5 lg:-left-14" />
-            <CarouselNext className="hidden sm:flex h-8 w-8 sm:h-10 sm:w-10 md:-right- lg:-right-14" />
-          </Carousel>
-        )}
-      </div>
-
-      {/* Category Sections */}
-      <div className="max-w-6xl mx-auto">
-        <motion.h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 sm:mb-8 md:mb-10" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-          Gallery Categories
-        </motion.h2>
-        
-        {galleryLoading ? (
-          // Loading skeleton for categories
-          <div className="space-y-6 sm:space-y-8 md:space-y-10">
-            {Array(3).fill(0).map((_, index) => (
-              <div key={index} className="space-y-3 sm:space-y-4">
-                <Skeleton className="h-8 sm:h-10 w-32 sm:w-64" />
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
-                  {Array(4).fill(0).map((_, imgIndex) => (
-                    <Skeleton key={imgIndex} className="w-full h-36 sm:h-40 md:h-48 rounded-lg" />
-                  ))}
-                </div>
+      {/* Only show regular content if not showing search results */}
+      {!showSearchResults && (
+        <>
+          {/* Carousel Section */}
+          <div className="mb-6 sm:mb-8 md:mb-10 max-w-7xl mx-auto">
+            <motion.h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-4 sm:mb-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+              Highlights
+            </motion.h2>
+            {carouselLoading ? (
+              <div className="w-full max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4">
+                {Array(3).fill(0).map((_, index) => (
+                  <Skeleton key={index} className="w-full h-40 sm:h-48 md:h-52 lg:h-72 rounded-lg" />
+                ))}
               </div>
-            ))}
-          </div>
-        ) : (
-          // Display each category with its images
-          <div className="space-y-8 sm:space-y-12 md:space-y-16">
-            {categories.map((category) => (
-              <motion.div 
-                key={category} 
-                className="scroll-mt-16 sm:scroll-mt-20 md:scroll-mt-24"
-                id={category.toLowerCase()}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
+            ) : (
+              <Carousel 
+                className="w-full max-w-7xl mx-auto"
+                opts={{
+                  align: "start",
+                  loop: true,
+                }}
+                setApi={setApi}
               >
-                <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6 text-left border-b border-[#8617C0] pb-1 sm:pb-2">
-                  {formatCategoryName(category)}
-                </h3>
-                
-                {categoryImages[category] && categoryImages[category].length > 0 ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-6">
-                    {categoryImages[category].map((image) => (
-                      <motion.div 
-                        key={image.id} 
-                        className="relative w-full h-32 xs:h-40 sm:h-48 md:h-56 lg:h-60 cursor-pointer overflow-hidden rounded-lg shadow-md hover:scale-105 transition-transform duration-300"
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.3 }}
-                        onClick={() => openImageModal(image)}
-                      >
-                        <Image 
-                          src={image.photoUrl} 
-                          alt={image.title} 
-                          layout="fill" 
-                          objectFit="cover" 
-                          className="rounded-lg"
+                <CarouselContent className="-ml-1 sm:-ml-2 md:-ml-4">
+                  {carouselImages.map((image) => (
+                    <CarouselItem key={image.id} className="pl-1 sm:pl-2 md:pl-4 basis-full sm:basis-1/2 md:basis-1/3 cursor-pointer" onClick={() => openImageModal(image)}>
+                      <div className="relative w-full h-40 sm:h-52 md:h-72 lg:h-80 rounded-lg overflow-hidden">
+                        <Image
+                          src={image.photoUrl}
+                          alt={image.title}
+                          layout="fill"
+                          objectFit="cover"
+                          className="rounded-lg shadow-lg hover:scale-105 transition-transform duration-300"
+                          style={{ borderRadius: '0.5rem' }} /* Fixed rounded corners during animation */
                         />
-                        <div className="absolute bottom-0 bg-black bg-opacity-50 text-white p-1 sm:p-2 w-full text-center text-xs sm:text-sm truncate">
+                        <div className="absolute bottom-0 bg-black bg-opacity-50 text-white p-1 sm:p-2 w-full text-center text-xs sm:text-sm">
                           {image.title}
                         </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-center text-sm sm:text-base md:text-lg italic opacity-70">No images available for this category</p>
-                )}
-              </motion.div>
-            ))}
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="hidden sm:flex h-8 w-8 sm:h-10 sm:w-10 md:-left-5 lg:-left-14" />
+                <CarouselNext className="hidden sm:flex h-8 w-8 sm:h-10 sm:w-10 md:-right- lg:-right-14" />
+              </Carousel>
+            )}
           </div>
-        )}
-      </div>
+
+          {/* Category Sections */}
+          <div className="max-w-6xl mx-auto">
+            <motion.h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 sm:mb-8 md:mb-10" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+              Gallery Categories
+            </motion.h2>
+            
+            {galleryLoading ? (
+              // Loading skeleton for categories
+              <div className="space-y-6 sm:space-y-8 md:space-y-10">
+                {Array(3).fill(0).map((_, index) => (
+                  <div key={index} className="space-y-3 sm:space-y-4">
+                    <Skeleton className="h-8 sm:h-10 w-32 sm:w-64" />
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
+                      {Array(4).fill(0).map((_, imgIndex) => (
+                        <Skeleton key={imgIndex} className="w-full h-36 sm:h-40 md:h-48 rounded-lg" />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              // Display each category with its images
+              <div className="space-y-8 sm:space-y-12 md:space-y-16">
+                {categories.map((category) => (
+                  <motion.div 
+                    key={category} 
+                    className="scroll-mt-16 sm:scroll-mt-20 md:scroll-mt-24"
+                    id={category.toLowerCase()}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6 text-left border-b border-[#8617C0] pb-1 sm:pb-2">
+                      {formatCategoryName(category)}
+                    </h3>
+                    
+                    {categoryImages[category] && categoryImages[category].length > 0 ? (
+                      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-6">
+                        {categoryImages[category].map((image) => (
+                          <motion.div 
+                            key={image.id} 
+                            className="relative w-full h-32 xs:h-40 sm:h-48 md:h-56 lg:h-60 cursor-pointer overflow-hidden rounded-lg shadow-md hover:scale-105 transition-transform duration-300"
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.3 }}
+                            onClick={() => openImageModal(image)}
+                          >
+                            <Image 
+                              src={image.photoUrl} 
+                              alt={image.title} 
+                              layout="fill" 
+                              objectFit="cover" 
+                              className="rounded-lg"
+                            />
+                            <div className="absolute bottom-0 bg-black bg-opacity-50 text-white p-1 sm:p-2 w-full text-center text-xs sm:text-sm truncate">
+                              {image.title}
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-center text-sm sm:text-base md:text-lg italic opacity-70">No images available for this category</p>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      )}
 
       {/* Image Modal - Improved responsiveness */}
       <AnimatePresence>
