@@ -325,8 +325,8 @@ const Page = () => {
                   >
                     <TCard
                       name={member.name}
-                      designation={member.role}
-                      bio={member.quote || ''}
+                      role={member.role}
+                      quote={member.quote || ''}
                       imageUrl={member.photoUrl}
                       linkedinUrl={member.linkedinUrl}
                       githubUrl={member.githubUrl}
