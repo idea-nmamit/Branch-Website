@@ -4,6 +4,7 @@ import EventForm from '@/components/admin/Events/EventForm'
 import EventList from '@/components/admin/Events/EventList'
 import AchievementsForm from '@/components/admin/Achievements/achievements_form'
 import TeamForm from '@/components/admin/Team/TeamForm'
+import GalleryAdmin from '@/components/admin/Gallery/GalleryAdmin' // Import the GalleryAdmin component
 
 const AdminPage = () => {
   const [events, setEvents] = useState([])
@@ -55,7 +56,6 @@ const AdminPage = () => {
   }
 
   useEffect(() => {
-    // Fetch the appropriate data based on the active tab
     if (activeTab === 'events') {
       fetchEvents()
     } else if (activeTab === 'team') {
@@ -75,31 +75,36 @@ const AdminPage = () => {
     return (
       <div className="flex border-b mb-6">
         <button
-          className={`px-4 py-2 font-medium ${activeTab === 'events'
-            ? 'border-b-2 border-blue-500 text-blue-500'
-            : 'text-gray-600 hover:text-blue-500'
-            }`}
+          className={`px-4 py-2 font-medium ${
+            activeTab === 'events' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-600 hover:text-blue-500'
+          }`}
           onClick={() => setActiveTab('events')}
         >
           Events
         </button>
         <button
-          className={`px-4 py-2 font-medium ${activeTab === 'achievements'
-            ? 'border-b-2 border-blue-500 text-blue-500'
-            : 'text-gray-600 hover:text-blue-500'
-            }`}
+          className={`px-4 py-2 font-medium ${
+            activeTab === 'achievements' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-600 hover:text-blue-500'
+          }`}
           onClick={() => setActiveTab('achievements')}
         >
           Achievements
         </button>
         <button
-          className={`px-4 py-2 font-medium ${activeTab === 'team'
-            ? 'border-b-2 border-blue-500 text-blue-500'
-            : 'text-gray-600 hover:text-blue-500'
-            }`}
+          className={`px-4 py-2 font-medium ${
+            activeTab === 'team' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-600 hover:text-blue-500'
+          }`}
           onClick={() => setActiveTab('team')}
         >
           Team
+        </button>
+        <button
+          className={`px-4 py-2 font-medium ${
+            activeTab === 'gallery' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-600 hover:text-blue-500'
+          }`}
+          onClick={() => setActiveTab('gallery')}
+        >
+          Gallery
         </button>
       </div>
     )
@@ -127,14 +132,11 @@ const AdminPage = () => {
           </>
         )
       case 'achievements':
-        return (
-          <>
-            <AchievementsForm />
-            {/* onAchievementAdded={handleEventAdded} */}
-          </>
-        )
+        return <AchievementsForm />
       case 'team':
         return <TeamForm />
+      case 'gallery':
+        return <GalleryAdmin /> // Render the GalleryAdmin component
       default:
         return null
     }

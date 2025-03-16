@@ -14,7 +14,24 @@ export async function GET(request) {
         const { searchParams } = new URL(request.url);
         const category = searchParams.get('category'); // Get category filter
         const all = searchParams.get('all'); // Check if we need all images
+        const search = searchParams.get('search'); // Get search query
 
+        // Case 0: Search for images by title or description
+        if (search) {
+            const searchResults = await prisma.gallery.findMany({
+                where: {
+                    OR: [
+                        { title: { contains: search, mode: 'insensitive' } },
+                        { description: { contains: search, mode: 'insensitive' } }
+                    ]
+                },
+                orderBy: { id: 'desc' },
+            });
+            
+            console.log(`Found ${searchResults.length} images matching search: "${search}"`);
+            return NextResponse.json(searchResults);
+        }
+        
         // Case 1: Fetch all images for the full gallery display
         if (all === 'true') {
             const allImages = await prisma.gallery.findMany({
