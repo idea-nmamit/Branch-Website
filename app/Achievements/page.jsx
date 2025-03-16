@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { LinkedinIcon, GithubIcon, InstagramIcon, Award, NotebookText, ExternalLink } from 'lucide-react';
-import { LinkedinIcon, GithubIcon, InstagramIcon, Award, NotebookText, ExternalLink } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const rankBadges = {
