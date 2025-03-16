@@ -2,11 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Image from 'next/image';
-import { Radius } from 'lucide-react';
+import { Quote, Radius } from 'lucide-react';
 
 
 
-const Card = ({ name, imageUrl, designation,role, linkedin, github, instagram }) => {
+const Card = ({ name, imageUrl,role, linkedin,quote, github, instagram }) => {
 const [isClient, setIsClient] = useState(false);
 
 
@@ -33,8 +33,8 @@ const [isClient, setIsClient] = useState(false);
       <div className="bottom">
         <div className="mb-12 flex flex-col justify-center items-center content">
           <h1 className="name w-full">{name}</h1>
-          <h1 className="name w-full">{role}</h1>
-          <span className="w-full text-white">{designation}</span>
+          <span className="text-white font-bold w-full">{role}</span>
+          <span className="w-full italic  text-white">{quote}</span>
         </div>
         <div className="bottom-bottom">
           {/* Use flex with gap for equal spacing between icons */}
@@ -88,7 +88,7 @@ const StyledWrapper = styled.div`
     width: 280px;
  
 
-    height: 280px;
+    height: 320px;
  
 
     background: white;
