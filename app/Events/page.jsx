@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 
 const Page = () => {
+  const [selectedCategory, setSelectedCategory] = useState('Upcoming');
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [upcoming, setUpcoming] = useState(true);
@@ -37,12 +38,42 @@ const Page = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-bold text-white">Events</h1>
-          <Badge className="px-3 py-1 bg-purple-500 text-white">
-            {loading ? "Loading..." : `${events.length} Events`}
-          </Badge>
         </div>
 
-        {/* Toggle Buttons for Upcoming & Completed */}
+        {/* Category Selection Tabs */}
+                <motion.div
+                  className="flex justify-center mb-10 md:mb-14"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                >
+                  <div className="bg-black/30 backdrop-blur-md rounded-full p-1.5 flex shadow-xl">
+                    <motion.button
+                      className={`text-base md:text-lg font-medium px-5 md:px-8 py-2.5 rounded-full transition-all duration-300 ${selectedCategory === 'Upcoming'
+                        ? 'bg-white text-purple-900 shadow-lg'
+                        : 'text-white/80 hover:text-white hover:bg-white/10'
+                        }`}
+                      onClick={() => {setUpcoming(true); setComplete(false); setSelectedCategory('Upcoming')}}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      Upcoming
+                    </motion.button>
+                    <motion.button
+                      className={`text-base md:text-lg font-medium px-5 md:px-8 py-2.5 rounded-full transition-all duration-300 ${selectedCategory === 'Completed'
+                        ? 'bg-white text-purple-900 shadow-lg'
+                        : 'text-white/80 hover:text-white hover:bg-white/10'
+                        }`}
+                      onClick={() => {setComplete(true); setUpcoming(false); setSelectedCategory('Completed')}}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      Completed
+                    </motion.button>
+                  </div>
+                </motion.div>
+
+        {/* Toggle Buttons for Upcoming & Completed
         <div className="flex flex-row gap-2 sm:gap-5 justify-center text-white mb-6 sm:mb-10">
           <Button
             variant="ghost"
@@ -62,7 +93,7 @@ const Page = () => {
           >
             Completed ({completedEvents.length})
           </Button>
-        </div>
+        </div>*/}
 
         {/* Events Section */}
         {loading ? (
