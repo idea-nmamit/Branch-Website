@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { LinkedinIcon, GithubIcon, InstagramIcon, Award, NotebookText, ExternalLink } from 'lucide-react';
+import { LinkedinIcon, GithubIcon, InstagramIcon, Award, NotebookText, ExternalLink } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const rankBadges = {
@@ -97,7 +98,7 @@ const Page = () => {
             filteredAchievements.map((achievement) => (
               <div
                 key={achievement.id}
-                className="relative bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-xl transform transition-all duration-300 hover:scale-105 hover:shadow-purple-500/50 overflow-hidden border border-white/10 group"
+                className="relative bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-xl transform transition-all duration-300 hover:scale-105 hover:shadow-purple-500/50 overflow-hidden border border-white/10 group h-auto"
               >
                 {/* Rank Badge */}
                 {rankBadges[achievement.rank] && (

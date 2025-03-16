@@ -1,7 +1,7 @@
 import { ThemeProvider } from 'next-themes';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import SplashCursor from '@/components/SplashCursor';
+
 import { Inter, Montserrat, Poppins } from 'next/font/google';
 import './globals.css';
 
@@ -36,9 +36,9 @@ export default function RootLayout({ children }) {
           defaultTheme="light"
           enableSystem={true}
         >
-          <SplashCursor />
+          
           <Navbar />
-          <main>{children}</main>
+          <main>{children} </main>
           <Footer />
         </ThemeProvider>
       </body>
