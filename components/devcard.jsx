@@ -6,7 +6,7 @@ import { Radius } from 'lucide-react';
 
 
 
-const Card = ({ name, imageUrl, designation, linkedin, github, instagram }) => {
+const Card = ({ name, imageUrl, designation,role, linkedin, github, instagram }) => {
 const [isClient, setIsClient] = useState(false);
 
 
@@ -33,6 +33,7 @@ const [isClient, setIsClient] = useState(false);
       <div className="bottom">
         <div className="mb-12 flex flex-col justify-center items-center content">
           <h1 className="name w-full">{name}</h1>
+          <h1 className="name w-full">{role}</h1>
           <span className="w-full text-white">{designation}</span>
         </div>
         <div className="bottom-bottom">
