@@ -36,8 +36,9 @@ const Page = () => {
     <div className="bg-gradient-to-br from-[#17003A] to-[#370069] dark:from-[#8617C0] dark:to-[#6012A4] p-8 min-h-screen">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-4xl font-bold text-white">Events</h1>
+        <div className="flex items-center justify-center mb-8">
+          <h2 className="pl-4 text-5xl font-extrabold text-white justify-center flex items-center">
+          Events</h2>
         </div>
 
         {/* Category Selection Tabs */}

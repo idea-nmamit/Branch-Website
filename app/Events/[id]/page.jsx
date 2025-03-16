@@ -73,14 +73,6 @@ export default function EventPage() {
 
   return (
     <div className="bg-gradient-to-br from-[#17003A] to-[#370069] dark:from-[#8617C0] dark:to-[#6012A4] min-h-screen p-8 font-roboto">
-   <div className="flex items-center justify-between mb-8 pl-20">
-          <h1 className="text-5xl font-bold text-white">Events</h1>
-        </div>
-
-
-
-
-
       <div className="max-w-3xl mx-auto bg-gradient-to-br from-[#3b0086] to-[#8e24aa] text-white p-10 rounded-xl shadow-[0px_0px_30px_5px_rgba(208,139,255,0.4)] border-2 border-[#E0AFFF] transform transition duration-500 hover:scale-105">
         <h3 className="text-center text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-[#E0AFFF] to-[#FFC0CB] uppercase tracking-wide transition duration-300 hover:text-[#E0AFFF]  rounded-lg">
          {event.name}
