@@ -78,41 +78,39 @@ const StyledWrapper = styled.div`
   .cards {
     width: 280px;
     border-radius: 20px;
-    background: #1b233d;
+    background: linear-gradient(to bottom right, #321a52, #3a1a60);
     padding: 5px;
     overflow: hidden;
     box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 20px 0px;
     transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 0 0 20px rgba(173, 70, 255, 0.6);
-    
-  }
+}
 
-  .cards:hover {
+.cards:hover {
     transform: scale(1.05);
-  }
+}
 
-  .cards .top-section {
+.cards .top-section {
     height: 180px;
     border-radius: 15px;
     display: flex;
     flex-direction: column;
     background: linear-gradient(45deg, rgb(4, 159, 187) 0%, rgb(80, 246, 255) 100%);
     position: relative;
-  }
+}
 
-  .cards .top-section .border {
+.cards .top-section .border {
     border-bottom-right-radius: 10px;
     height: 30px;
     width: 130px;
-    background: white;
-    background: #1b233d;
+    background: #321a52;
     position: relative;
     transform: skew(-40deg);
-    box-shadow: -10px -10px 0 0 #1b233d;
-  }
+    box-shadow: -10px -10px 0 0 #321a52;
+}
 
-  .cards .top-section .border::before {
-    
+.cards .top-section .border::before {
+    content: "";
     position: absolute;
     width: 15px;
     height: 15px;
@@ -120,11 +118,11 @@ const StyledWrapper = styled.div`
     right: -15px;
     background: rgba(255, 255, 255, 0);
     border-top-left-radius: 10px;
-    box-shadow: -5px -5px 0 2px #1b233d;
-  }
+    box-shadow: -5px -5px 0 2px #321a52;
+}
 
-  .cards .top-section::before {
-    
+.cards .top-section::before {
+    content: "";
     position: absolute;
     top: 30px;
     left: 0;
@@ -132,83 +130,83 @@ const StyledWrapper = styled.div`
     height: 15px;
     width: 15px;
     border-top-left-radius: 15px;
-    box-shadow: -5px -5px 0 2px #1b233d;
-  }
+    box-shadow: -5px -5px 0 2px #321a52;
+}
 
-  .cards .top-section .icons {
+.cards .top-section .icons {
     position: absolute;
     top: 0;
     width: 100%;
     height: 30px;
     display: flex;
     justify-content: space-between;
-  }
+}
 
-  .cards .top-section .icons .logo {
+.cards .top-section .icons .logo {
     height: 100%;
     aspect-ratio: 1;
     padding: 7px 0 7px 15px;
-  }
+}
 
-  .cards .top-section .icons .logo .top-section {
+.cards .top-section .icons .logo .top-section {
     height: 100%;
-  }
+}
 
-  .cards .top-section .icons .social-media {
+.cards .top-section .icons .social-media {
     height: 100%;
-    padding: 8px 15px;
+    padding: 5px 30px;
     display: flex;
     gap: 7px;
-  }
+}
 
-  .cards .top-section .icons .social-media .svg {
+.cards .top-section .icons .social-media .svg {
     height: 100%;
-    fill: #1b233d;
-  }
+    fill: #321a52;
+}
 
-  .cards .top-section .icons .social-media .svg:hover {
+.cards .top-section .icons .social-media .svg:hover {
     fill: white;
-  }
+}
 
-  .cards .bottom-section {
+.cards .bottom-section {
     margin-top: 15px;
     padding: 10px 5px;
-  }
+}
 
-  .cards .bottom-section .title {
+.cards .bottom-section .title {
     display: block;
     font-size: 17px;
     font-weight: bolder;
     color: white;
     text-align: center;
     letter-spacing: 2px;
-  }
+}
 
-  .cards .bottom-section .row {
+.cards .bottom-section .row {
     display: flex;
     justify-content: space-between;
     margin-top: 20px;
-  }
+}
 
-  .cards .bottom-section .row .item {
+.cards .bottom-section .row .item {
     flex: 30%;
     text-align: center;
     padding: 5px;
     color: rgba(170, 222, 243, 0.721);
-  }
+}
 
-  .cards .bottom-section .row .item .big-text {
+.cards .bottom-section .row .item .big-text {
     font-size: 12px;
     display: block;
-  }
+}
 
-  .cards .bottom-section .row .item .regular-text {
+.cards .bottom-section .row .item .regular-text {
     font-size: 9px;
-  }
+}
 
-  .cards .bottom-section .row .item:nth-child(2) {
+.cards .bottom-section .row .item:nth-child(2) {
     border-left: 1px solid rgba(255, 255, 255, 0.126);
     border-right: 1px solid rgba(255, 255, 255, 0.126);
-  }`;
+}`;
 
 export default cards;
