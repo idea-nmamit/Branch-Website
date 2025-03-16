@@ -8,12 +8,43 @@ const validCategories = [
     "OUTREACH", "ORIENTATION"
 ];
 
-// Fetch carousel (recent) gallery items or filtered by category
+// Fetch gallery items based on query parameters
 export async function GET(request) {
     try {
         const { searchParams } = new URL(request.url);
         const category = searchParams.get('category'); // Get category filter
+        const all = searchParams.get('all'); // Check if we need all images
+        const search = searchParams.get('search'); // Get search query
 
+        // Case 0: Search for images by title or description
+        if (search) {
+            const searchResults = await prisma.gallery.findMany({
+                where: {
+                    OR: [
+                        { title: { contains: search, mode: 'insensitive' } },
+                        { description: { contains: search, mode: 'insensitive' } }
+                    ]
+                },
+                orderBy: { id: 'desc' },
+            });
+            
+            console.log(`Found ${searchResults.length} images matching search: "${search}"`);
+            return NextResponse.json(searchResults);
+        }
+        
+        // Case 1: Fetch all images for the full gallery display
+        if (all === 'true') {
+            const allImages = await prisma.gallery.findMany({
+                orderBy: { id: 'desc' },
+            });
+            
+            // Log the number of images found for debugging
+            console.log(`Fetched ${allImages.length} total images for gallery display`);
+            
+            return NextResponse.json(allImages);
+        }
+        
+        // Case 2: Fetch images by specific category
         if (category) {
             // Validate category
             if (!validCategories.includes(category.toUpperCase())) {
@@ -29,7 +60,10 @@ export async function GET(request) {
                 orderBy: { id: 'desc' },
             });
             return NextResponse.json(filteredGallery);
-        } else {
+        } 
+        
+        // Case 3: Default - fetch carousel images
+        else {
             // Fetch recent images for the carousel (limit to 5)
             const carouselItems = await prisma.gallery.findMany({
                 where: { carousel: true },

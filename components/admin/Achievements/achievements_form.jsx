@@ -20,7 +20,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns";
 import { cn } from "@/lib/utils"
 
-const AchievementsForm = ({ onAchievementAdded }) => {
+const AchievementsForm = () => {
   // { onAchievementAdded }
   const [name, setName] = useState("");
   const [title, setTitle] = useState("");
@@ -136,9 +136,7 @@ const AchievementsForm = ({ onAchievementAdded }) => {
       setInstagramUrl("");
       setResearchLink("");
 
-      if (onAchievementAdded) {
-        onAchievementAdded();
-      }
+  
     } catch (error) {
       console.error("Error submitting achievement:", error);
       setError(error.message || "Failed to submit achievement. Please try again.");
