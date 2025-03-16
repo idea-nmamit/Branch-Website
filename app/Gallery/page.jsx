@@ -440,8 +440,8 @@ export default function GalleryPage() {
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                <CarouselPrevious className="hidden sm:flex h-8 w-8 sm:h-10 sm:w-10 md:-left-5 lg:-left-14" />
-                <CarouselNext className="hidden sm:flex h-8 w-8 sm:h-10 sm:w-10 md:-right- lg:-right-14" />
+                <CarouselPrevious className="hidden sm:flex h-8 w-8 sm:h-10 sm:w-10 md:-left-5 lg:-left-14 bg-black hover:bg-black/20 text-white hover:text-white/70 shadow-md" />
+                <CarouselNext className="hidden sm:flex h-8 w-8 sm:h-10 sm:w-10 md:-right-5 lg:-right-14 bg-black hover:bg-black/20 text-white hover:text-white/70 shadow-md" />
               </Carousel>
             )}
           </div>
@@ -487,7 +487,9 @@ export default function GalleryPage() {
                         {categoryImages[category].map((image) => (
                           <motion.div 
                             key={image.id} 
-                            className="relative w-full h-32 xs:h-40 sm:h-48 md:h-56 lg:h-60 cursor-pointer overflow-hidden rounded-lg shadow-md hover:scale-105 transition-transform duration-300"
+                            className="relative w-full h-32 xs:h-40 sm:h-48 md:h-56 lg:h-60 cursor-pointer overflow-hidden rounded-lg shadow-md hover:scale-105 transition-all duration-300 
+                                       box-border border-2 border-transparent hover:border-[#8617C0]/50 hover:shadow-[0_0_20px_rgba(134,23,192,0.6)]"
+                                        
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.3 }}
