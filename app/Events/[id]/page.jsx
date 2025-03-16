@@ -74,16 +74,17 @@ export default function EventPage() {
 
   return (
     <div className="bg-gradient-to-br from-[#17003A] to-[#370069] dark:from-[#8617C0] dark:to-[#6012A4] min-h-screen p-8 font-roboto">
-     <div className="mt-10 flex justify-center">
+     <div className="mt-10 flex justify-center pb-7">
   <h2 className="h-16 w-3/4 bg-gradient-to-r from-[#3b0086]/30 to-[#8e24aa]/30 rounded-lg border-l-8 border-[#E0AFFF]/40 pl-4 text-5xl font-extrabold text-[#EDB7EA] text-left uppercase tracking-widest shadow-md transition-all duration-300 hover:shadow-[0px_0px_30px_rgba(224,175,255,0.6)] hover:scale-105 flex items-center">
     Event
   </h2>
 </div>
 
       <div className="max-w-3xl mx-auto bg-gradient-to-br from-[#3b0086] to-[#8e24aa] text-white p-10 rounded-xl shadow-[0px_0px_30px_5px_rgba(208,139,255,0.4)] border-2 border-[#E0AFFF] transform transition duration-500 hover:scale-105">
-        <h3 className="text-center text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-[#E0AFFF] to-[#FFC0CB] uppercase tracking-wide transition duration-300 hover:text-[#E0AFFF] hover:shadow-[0px_0px_25px_rgba(255,255,255,0.8)] rounded-lg">
-           {event.name}
-        </h3>
+      <h3 className="text-center text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-[#E0AFFF] to-[#FFC0CB] uppercase tracking-wide transition duration-300 hover:text-[#E0AFFF] hover:[text-shadow:_0px_0px_15px_rgba(255,255,255,0.8)] rounded-lg">
+  {event.name}
+</h3>
+
  
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -105,13 +106,13 @@ export default function EventPage() {
           </div>
           
           {/* Event Image Box */}
-          <div className="transition-transform duration-300 hover:scale-110 hover:shadow-[0px_0px_50px_5px_rgba(255,255,255,0.4)] flex justify-center">
-            <Image
-              alt={event.title}
-              src={event.image}
-              width={350}
-              height={240}
-              className="rounded-lg border-2 border-[#E0AFFF] shadow-md"
+          <div className="flex justify-center">
+            <Image 
+              src={event?.image || "/placeholder-image.jpg"} 
+              width={350} 
+              height={240} 
+              alt={event?.title ? `Image of ${event.title}` : "Event Image"} 
+              className="rounded-lg border-2 border-[#E0AFFF] shadow-md transition-transform duration-300 hover:scale-110 hover:shadow-[0px_0px_50px_5px_rgba(226,196,63,0.5)]"
             />
           </div>
         </div>

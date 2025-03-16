@@ -1,37 +1,32 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export async function GET(req, { params }) {
+export async function GET(req, context) {
   try {
-    const { id } = params;
-
-    const eventId = parseInt(id, 10);
+    // Await the params object
+    const params = await context.params;
     
-    // Check if the conversion resulted in a valid number
+    if (!params || !params.id) {
+      return NextResponse.json({ error: "Missing ID" }, { status: 400 });
+    }
+
+    const eventId = parseInt(params.id, 10);
+
     if (isNaN(eventId)) {
-      return NextResponse.json(
-        { error: "Invalid ID format" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid ID format" }, { status: 400 });
     }
 
     const event = await prisma.event.findUnique({
-      where: { id:eventId },
+      where: { id: eventId },
     });
 
     if (!event) {
-      return NextResponse.json(
-        { error: "Event not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
 
     return NextResponse.json(event);
   } catch (error) {
     console.error("Error fetching event:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch event" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch event" }, { status: 500 });
   }
 }
