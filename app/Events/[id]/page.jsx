@@ -28,6 +28,12 @@ export default function EventPage() {
   if (loading) {
     return (
       <div className="bg-gradient-to-br from-[#17003A] to-[#370069] dark:from-[#8617C0] dark:to-[#6012A4] min-h-screen p-8 font-roboto">
+        <div className="mt-10">
+          {/* Event skeleton */}
+          <div className="mt-10 flex justify-center">
+             <div className="h-16 w-3/4 bg-gradient-to-r from-[#3b0086]/30 to-[#8e24aa]/30 rounded-lg border-l-8 border-[#E0AFFF]/40 pl-4 flex items-center animate-pulse"></div>
+          </div>
+        </div>
 
         <div className="max-w-3xl mx-auto bg-gradient-to-br from-[#3b0086]/70 to-[#8e24aa]/70 text-white p-10 rounded-xl mt-10 shadow-[0px_0px_30px_5px_rgba(208,139,255,0.2)] border-2 border-[#E0AFFF]/40">
           {/* Title skeleton */}
@@ -68,10 +74,11 @@ export default function EventPage() {
 
   return (
     <div className="bg-gradient-to-br from-[#17003A] to-[#370069] dark:from-[#8617C0] dark:to-[#6012A4] min-h-screen p-8 font-roboto">
-      <div className="mt-2 flex ">
-      {/*<h2 className="flex items-center h-16 w-3/4 bg-gradient-to-r from-[#3b0086]/30 to-[#8e24aa]/30 rounded-lg border-l-8 border-[#E0AFFF]/40 pl-4 text-5xl font-extrabold text-[#EDB7EA] text-left uppercase tracking-widest shadow-md transition-all duration-300 hover:shadow-[0px_0px_30px_rgba(224,175,255,0.6)] hover:scale-105">          Event
-        </h2>*/}
-      </div>
+     <div className="mt-10 flex justify-center">
+  <h2 className="h-16 w-3/4 bg-gradient-to-r from-[#3b0086]/30 to-[#8e24aa]/30 rounded-lg border-l-8 border-[#E0AFFF]/40 pl-4 text-5xl font-extrabold text-[#EDB7EA] text-left uppercase tracking-widest shadow-md transition-all duration-300 hover:shadow-[0px_0px_30px_rgba(224,175,255,0.6)] hover:scale-105 flex items-center">
+    Event
+  </h2>
+</div>
 
       <div className="max-w-3xl mx-auto bg-gradient-to-br from-[#3b0086] to-[#8e24aa] text-white p-10 rounded-xl shadow-[0px_0px_30px_5px_rgba(208,139,255,0.4)] border-2 border-[#E0AFFF] transform transition duration-500 hover:scale-105">
         <h3 className="text-center text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-[#E0AFFF] to-[#FFC0CB] uppercase tracking-wide transition duration-300 hover:text-[#E0AFFF] hover:shadow-[0px_0px_25px_rgba(255,255,255,0.8)] rounded-lg">
@@ -81,8 +88,8 @@ export default function EventPage() {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Event Info Box */}
-          <div className="p-6 pt-20 min-h-[200px] rounded-lg border-2 border-[#E0AFFF] backdrop-blur-md bg-white/20 shadow-md flex flex-col justify-between pb-20 text-2xl transition-all duration-300 hover:scale-105 hover:shadow-[0px_0px_50px_5px_rgba(226,196,63,0.5)]">
-            <p className="text-3xl font-semibold"><strong>{event.type}</strong></p>
+          <div className="p-6 min-h-[200px] rounded-lg border-2 border-[#E0AFFF] backdrop-blur-md bg-white/20 shadow-md flex flex-col justify-center text-lg transition-all duration-300 hover:scale-105 hover:shadow-[0px_0px_50px_5px_rgba(226,196,63,0.5)]">
+          <p className="text-xl font-semibold"><strong>{event.type.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase())}</strong></p>
             <p><strong>Venue:</strong> {event.venue}</p>
             <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString('en-US', { 
               weekday: 'long',
