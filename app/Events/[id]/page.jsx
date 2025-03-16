@@ -28,10 +28,6 @@ export default function EventPage() {
   if (loading) {
     return (
       <div className="bg-gradient-to-br from-[#17003A] to-[#370069] dark:from-[#8617C0] dark:to-[#6012A4] min-h-screen p-8 font-roboto">
-        <div className="mt-10">
-          {/* Event skeleton */}
-          <div className="h-16 w-3/4 bg-gradient-to-r from-[#3b0086]/30 to-[#8e24aa]/30 rounded-lg animate-pulse border-l-8 border-[#E0AFFF]/40 pl-4"></div>
-        </div>
 
         <div className="max-w-3xl mx-auto bg-gradient-to-br from-[#3b0086]/70 to-[#8e24aa]/70 text-white p-10 rounded-xl mt-10 shadow-[0px_0px_30px_5px_rgba(208,139,255,0.2)] border-2 border-[#E0AFFF]/40">
           {/* Title skeleton */}
@@ -89,10 +85,10 @@ export default function EventPage() {
             <p className="text-3xl font-semibold"><strong>{event.type}</strong></p>
             <p><strong>Venue:</strong> {event.venue}</p>
             <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString('en-US', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
             })}</p>
             <p><strong>Time:</strong> {new Date(event.date).toLocaleTimeString('en-US', {
               hour: '2-digit',
@@ -103,11 +99,11 @@ export default function EventPage() {
           
           {/* Event Image Box */}
           <div className="transition-transform duration-300 hover:scale-110 hover:shadow-[0px_0px_50px_5px_rgba(255,255,255,0.4)] flex justify-center">
-            <Image 
-              src={event.image} 
-              width={350} 
-              height={240} 
-              alt={event.title} 
+            <Image
+              alt={event.title}
+              src={event.image}
+              width={350}
+              height={240}
               className="rounded-lg border-2 border-[#E0AFFF] shadow-md"
             />
           </div>
