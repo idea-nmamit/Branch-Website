@@ -56,7 +56,7 @@ const FacultyCardGrid = () => {
     },
     {
       name: "Dr. PRAVEEN M NAIK",
-      title: "Asst. Professor Gd.II",
+      title: "Asst. Professor Gd-II",
       linkedinUrl: "https://www.linkedin.com/in/praveen-m-naik/",
       imageUrl: "/facultyphotos/teach4.png"
     },
@@ -77,7 +77,7 @@ const FacultyCardGrid = () => {
   return (
     <StyledPageWrapper className="bg-gradient-to-br from-[#17003A] to-[#370069] dark:from-[#8617C0] dark:to-[#6012A4]">
       <div className="flex flex-col items-center">
-        <h1 className="text-5xl font-bold text-white mb-10 tracking-tight md:text-5xl sm:text-4xl">Faculty</h1>
+        <h1 className="text-5xl font-bold text-white mb-14 tracking-tight md:text-5xl sm:text-3xl">Faculty</h1>
         <div className="card-container">
           {facultyMembers.map((member, index) => (
             <Card
