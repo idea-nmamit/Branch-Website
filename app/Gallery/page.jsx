@@ -36,6 +36,9 @@ export default function GalleryPage() {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const searchInputRef = useRef(null);
 
+  // Add this to your state declarations at the top of your component
+  const [downloading, setDownloading] = useState(false);
+
   // Fetch carousel images
   useEffect(() => {
     fetch("/api/gallery")
@@ -279,6 +282,40 @@ export default function GalleryPage() {
     }
   };
 
+  // Update the download function to handle cross-origin images
+  const downloadImage = async (imageUrl, imageName) => {
+    try {
+      // Show loading state
+      setDownloading(true);
+      
+      // Fetch the image as a blob
+      const response = await fetch(imageUrl);
+      if (!response.ok) throw new Error('Failed to fetch image');
+      
+      const blob = await response.blob();
+      
+      // Create a local blob URL
+      const blobUrl = URL.createObjectURL(blob);
+      
+      // Create a temporary link element
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = imageName || 'gallery-image';
+      document.body.appendChild(link);
+      link.click();
+      
+      // Clean up
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+    } catch (error) {
+      console.error('Error downloading image:', error);
+      alert('Failed to download image. Please try again.');
+    } finally {
+      // Hide loading state
+      setDownloading(false);
+    }
+  };
+
   return (
     <div className="w-full min-h-screen px-2 sm:px-4 md:px-6 py-4 sm:py-6 md:py-10 text-white bg-gradient-to-br from-[#17003A] to-[#370069] dark:from-[#8617C0] dark:to-[#6012A4]">
       {/* Search bar - Added at the top of the page */}
@@ -338,10 +375,11 @@ export default function GalleryPage() {
               </div>
             ) : searchResults.length > 0 ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-4">
+                {/* Search Results Image Container - Add hover description */}
                 {searchResults.map((image) => (
                   <motion.div 
                     key={image.id} 
-                    className="relative w-full h-32 sm:h-40 md:h-48 cursor-pointer rounded-lg overflow-hidden shadow-md hover:scale-105 transition-transform duration-300"
+                    className="relative w-full h-32 sm:h-40 md:h-48 cursor-pointer rounded-lg overflow-hidden shadow-md hover:scale-105 transition-transform duration-300 group"
                     onClick={() => openImageModal(image)}
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -354,9 +392,19 @@ export default function GalleryPage() {
                       objectFit="cover" 
                       className="rounded-lg"
                     />
-                    <div className="absolute bottom-0 bg-black bg-opacity-50 text-white p-1 sm:p-2 w-full">
+                    {/* Black tint overlay (appears on hover) */}
+                    <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-80 transition-opacity duration-300"></div>
+                    {/* Title overlay (visible by default) */}
+                    <div className="absolute bottom-0 bg-black bg-opacity-50 text-white p-1 sm:p-2 w-full transition-opacity duration-300 group-hover:opacity-0">
                       <div className="text-xs sm:text-sm font-medium truncate">{image.title}</div>
                       <div className="text-xs opacity-75 truncate">{formatCategoryName(image.category)}</div>
+                    </div>
+                    {/* Description overlay (visible on hover) */}
+                    <div className="absolute inset-0 bg-black/15 backdrop-blur-[2px] flex flex-col justify-center items-center p-2 sm:p-3 text-white opacity-0 group-hover:opacity-70 transition-opacity duration-300">
+                      <h4 className="text-sm sm:text-base font-semibold mb-1 sm:mb-2 text-center text-shadow-lg drop-shadow-lg">{image.title}</h4>
+                      <p className="text-xs sm:text-sm text-center overflow-y-auto max-h-[80%] text-white text-shadow-lg drop-shadow-lg">
+                        {image.description || "No description available"}
+                      </p>
                     </div>
                   </motion.div>
                 ))}
@@ -484,12 +532,12 @@ export default function GalleryPage() {
                     
                     {categoryImages[category] && categoryImages[category].length > 0 ? (
                       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-6">
+                        {/* Category Images - Make description overlay more translucent */}
                         {categoryImages[category].map((image) => (
                           <motion.div 
                             key={image.id} 
                             className="relative w-full h-32 xs:h-40 sm:h-48 md:h-56 lg:h-60 cursor-pointer overflow-hidden rounded-lg shadow-md hover:scale-105 transition-all duration-300 
-                                       box-border border-2 border-transparent hover:border-[#8617C0]/50 hover:shadow-[0_0_20px_rgba(134,23,192,0.6)]"
-                                        
+                                       box-border border-2 border-transparent hover:border-[#8617C0]/50 hover:shadow-[0_0_20px_rgba(134,23,192,0.6)] group"
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.3 }}
@@ -502,8 +550,18 @@ export default function GalleryPage() {
                               objectFit="cover" 
                               className="rounded-lg"
                             />
-                            <div className="absolute bottom-0 bg-black bg-opacity-50 text-white p-1 sm:p-2 w-full text-center text-xs sm:text-sm truncate">
+                            {/* Black tint overlay (appears on hover) */}
+                            <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-80 transition-opacity duration-300"></div>
+                            {/* Title overlay (visible by default) */}
+                            <div className="absolute bottom-0 bg-black bg-opacity-50 text-white p-1 sm:p-2 w-full text-center text-xs sm:text-sm truncate transition-opacity duration-300 group-hover:opacity-0">
                               {image.title}
+                            </div>
+                            {/* Description overlay - reduce opacity to match search results */}
+                            <div className="absolute inset-0 bg-black/15 backdrop-blur-[2px] flex flex-col justify-center items-center p-2 sm:p-3 text-white opacity-0 group-hover:opacity-70 transition-opacity duration-300">
+                              <h4 className="text-sm sm:text-base font-semibold mb-1 sm:mb-2 text-center text-shadow-lg drop-shadow-lg">{image.title}</h4>
+                              <p className="text-xs sm:text-sm text-center overflow-y-auto max-h-[80%] text-white text-shadow-lg drop-shadow-lg">
+                                {image.description || "No description available"}
+                              </p>
                             </div>
                           </motion.div>
                         ))}
@@ -568,10 +626,31 @@ export default function GalleryPage() {
               <div className="p-2 sm:p-4 md:p-6 overflow-y-auto">
                 <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-1 sm:mb-2">{selectedImage.title}</h3>
                 <p className="text-xs sm:text-sm md:text-base">{selectedImage.description}</p>
-                <p className="text-xs mt-2 sm:mt-4 text-gray-400">
-                  Category: {formatCategoryName(selectedImage.category)}
-                  {currentCategory && <span> | Image {currentImageIndex + 1} of {categoryImages[currentCategory].length}</span>}
-                </p>
+                <div className="flex items-center justify-between mt-2 sm:mt-4">
+                  <p className="text-xs text-gray-400">
+                    Category: {formatCategoryName(selectedImage.category)}
+                    {currentCategory && <span> | Image {currentImageIndex + 1} of {categoryImages[currentCategory].length}</span>}
+                  </p>
+                  <button 
+                    onClick={() => downloadImage(selectedImage.photoUrl, selectedImage.title.replace(/\s+/g, '_'))}
+                    disabled={downloading}
+                    className="bg-[#370069] hover:bg-[#4b008e] transition-colors duration-200 text-white text-xs sm:text-sm rounded-md py-1 px-2 sm:px-3 flex items-center gap-1"
+                  >
+                    {downloading ? (
+                      <>
+                        <span className="animate-spin h-3 w-3 sm:h-4 sm:w-4 border-2 border-white border-t-transparent rounded-full mr-1"></span>
+                        Downloading...
+                      </>
+                    ) : (
+                      <>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Download
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
               <button 
                 className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-black/50 hover:bg-black/70 rounded-full p-1 transition-colors duration-200"
