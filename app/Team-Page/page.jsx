@@ -295,6 +295,9 @@ const Page = () => {
             <motion.div
               key={`${selectedCategory}-${selectedYear}`}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16"
+              style={{
+                gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+              }}
               variants={containerVariants}
               initial="hidden"
               animate="show"
