@@ -39,11 +39,57 @@ export default function GalleryPage() {
   // Add this to your state declarations at the top of your component
   const [downloading, setDownloading] = useState(false);
 
+  // Add state to track loaded images
+  const [loadedImages, setLoadedImages] = useState({});
+
+  // Add this new state to track skeleton placeholders
+  const [placeholderLoaded, setPlaceholderLoaded] = useState(false);
+
+  // Function to mark an image as loaded
+  const handleImageLoad = (imageId) => {
+    setLoadedImages(prev => ({
+      ...prev,
+      [imageId]: true
+    }));
+  };
+
+  // Create placeholder skeletons immediately on component mount
+  useEffect(() => {
+    // Pre-generate placeholder IDs for skeleton UI
+    const initialLoadStates = {};
+    
+    // Generate placeholders for carousel (typically shows 3-5 images)
+    for (let i = 0; i < 5; i++) {
+      initialLoadStates[`placeholder-carousel-${i}`] = false;
+    }
+    
+    // Generate placeholders for each category (4-8 images per category)
+    categories.forEach(category => {
+      for (let i = 0; i < 8; i++) {
+        initialLoadStates[`placeholder-${category}-${i}`] = false;
+      }
+    });
+    
+    // Set initial load states to false to force skeleton display
+    setLoadedImages(initialLoadStates);
+    setPlaceholderLoaded(true);
+  }, []);
+
   // Fetch carousel images
   useEffect(() => {
+    // Don't wait for API to show skeletons
+    if (!placeholderLoaded) return;
+    
     fetch("/api/gallery")
       .then(res => res.json())
       .then(data => {
+        // Update loaded images map with real image IDs
+        const updatedLoadStates = { ...loadedImages };
+        data.forEach(image => {
+          updatedLoadStates[image.id] = false;
+        });
+        
+        setLoadedImages(updatedLoadStates);
         setCarouselImages(data);
         setCarouselLoading(false);
       })
@@ -51,10 +97,13 @@ export default function GalleryPage() {
         console.error("Error fetching carousel images:", err);
         setCarouselLoading(false);
       });
-  }, []);
+  }, [placeholderLoaded]); // Depend on placeholderLoaded
 
   // Fetch all images and organize by category
   useEffect(() => {
+    // Don't wait for API to show skeletons
+    if (!placeholderLoaded) return;
+    
     // Initialize empty object with all categories
     const initialCategories = {};
     categories.forEach(cat => {
@@ -85,7 +134,7 @@ export default function GalleryPage() {
         console.error("Error fetching all images:", err);
         setGalleryLoading(false);
       });
-  }, []);
+  }, [placeholderLoaded]); // Depend on placeholderLoaded
 
   // Autoplay carousel effect
   useEffect(() => {
@@ -385,13 +434,24 @@ export default function GalleryPage() {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.3 }}
                   >
+                    {/* Skeleton shown while image is loading */}
+                    {!loadedImages[image.id] && (
+                      <div className="absolute inset-0 bg-gray-800 animate-pulse rounded-lg flex items-center justify-center">
+                        <svg className="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    )}
+                    
                     <Image 
                       src={image.photoUrl} 
                       alt={image.title} 
                       layout="fill" 
                       objectFit="cover" 
-                      className="rounded-lg"
+                      className={`rounded-lg ${!loadedImages[image.id] ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}
+                      onLoadingComplete={() => handleImageLoad(image.id)}
                     />
+                    
                     {/* Black tint overlay (appears on hover) */}
                     <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-80 transition-opacity duration-300"></div>
                     {/* Title overlay (visible by default) */}
@@ -454,10 +514,14 @@ export default function GalleryPage() {
             <motion.h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-4 sm:mb-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
               Highlights
             </motion.h2>
-            {carouselLoading ? (
+            {carouselLoading || !placeholderLoaded ? (
               <div className="w-full max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4">
                 {Array(3).fill(0).map((_, index) => (
-                  <Skeleton key={index} className="w-full h-40 sm:h-48 md:h-52 lg:h-72 rounded-lg" />
+                  <div key={index} className="relative w-full h-40 sm:h-52 md:h-72 lg:h-80 bg-gray-800 animate-pulse rounded-lg flex items-center justify-center">
+                    <svg className="w-12 h-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
                 ))}
               </div>
             ) : (
@@ -473,13 +537,23 @@ export default function GalleryPage() {
                   {carouselImages.map((image) => (
                     <CarouselItem key={image.id} className="pl-1 sm:pl-2 md:pl-4 basis-full sm:basis-1/2 md:basis-1/3 cursor-pointer" onClick={() => openImageModal(image)}>
                       <div className="relative w-full h-40 sm:h-52 md:h-72 lg:h-80 rounded-lg overflow-hidden">
+                        {/* Skeleton shown while image is loading */}
+                        {!loadedImages[image.id] && (
+                          <div className="absolute inset-0 bg-gray-800 animate-pulse rounded-lg flex items-center justify-center">
+                            <svg className="w-12 h-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                          </div>
+                        )}
+                        
                         <Image
                           src={image.photoUrl}
                           alt={image.title}
                           layout="fill"
                           objectFit="cover"
-                          className="rounded-lg shadow-lg hover:scale-105 transition-transform duration-300"
+                          className={`rounded-lg shadow-lg hover:scale-105 transition-transform duration-300 ${!loadedImages[image.id] ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}
                           style={{ borderRadius: '0.5rem' }} /* Fixed rounded corners during animation */
+                          onLoadingComplete={() => handleImageLoad(image.id)}
                         />
                         <div className="absolute bottom-0 bg-black bg-opacity-50 text-white p-1 sm:p-2 w-full text-center text-xs sm:text-sm">
                           {image.title}
@@ -500,7 +574,7 @@ export default function GalleryPage() {
               Gallery Categories
             </motion.h2>
             
-            {galleryLoading ? (
+            {galleryLoading || !placeholderLoaded ? (
               // Loading skeleton for categories
               <div className="space-y-6 sm:space-y-8 md:space-y-10">
                 {Array(3).fill(0).map((_, index) => (
@@ -543,12 +617,22 @@ export default function GalleryPage() {
                             transition={{ duration: 0.3 }}
                             onClick={() => openImageModal(image)}
                           >
+                            {/* Skeleton shown while image is loading */}
+                            {!loadedImages[image.id] && (
+                              <div className="absolute inset-0 bg-gray-800 animate-pulse rounded-lg flex items-center justify-center">
+                                <svg className="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                              </div>
+                            )}
+                            
                             <Image 
                               src={image.photoUrl} 
                               alt={image.title} 
                               layout="fill" 
                               objectFit="cover" 
-                              className="rounded-lg"
+                              className={`rounded-lg ${!loadedImages[image.id] ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}
+                              onLoadingComplete={() => handleImageLoad(image.id)}
                             />
                             {/* Black tint overlay (appears on hover) */}
                             <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-80 transition-opacity duration-300"></div>
@@ -616,11 +700,21 @@ export default function GalleryPage() {
               )}
               
               <div className="relative w-full h-[40vh] sm:h-[50vh] md:h-[60vh]">
+                {!loadedImages[`modal-${selectedImage.id}`] && (
+                  <div className="absolute inset-0 bg-gray-800 animate-pulse rounded-lg flex items-center justify-center">
+                    <svg className="w-16 h-16 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                )}
+                
                 <Image 
                   src={selectedImage.photoUrl} 
                   alt={selectedImage.title} 
                   layout="fill" 
                   objectFit="contain"
+                  className={`${!loadedImages[`modal-${selectedImage.id}`] ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}
+                  onLoadingComplete={() => handleImageLoad(`modal-${selectedImage.id}`)}
                 />
               </div>
               <div className="p-2 sm:p-4 md:p-6 overflow-y-auto">
