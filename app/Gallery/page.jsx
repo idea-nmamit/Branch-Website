@@ -6,7 +6,6 @@ import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { X, ChevronDown, ChevronLeft, ChevronRight, Search } from "lucide-react";
-import gsap from "gsap";
 
 const categories = [
   "TECHNICAL", "CULTURAL", "SPORTS",  "ACADEMIC",
@@ -223,15 +222,47 @@ export default function GalleryPage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedImage, currentImageIndex, currentCategory]);
 
-  // Handle dropdown toggle with animations
+  // Handle dropdown toggle with animations using dynamic import for gsap
   const toggleDropdown = () => {
     if (!dropdownOpen) {
-      // Opening the dropdown
       setDropdownOpen(true);
       setIsDropdownRendered(true);
     } else {
-      // Closing the dropdown - animate first, then remove from DOM
       if (dropdownRef.current) {
+        import("gsap").then(({ default: gsap }) => { // dynamic import
+          gsap.to(dropdownRef.current, {
+            opacity: 0,
+            y: -10,
+            scale: 0.95,
+            duration: 0.2,
+            ease: "power2.in",
+            onComplete: () => {
+              setIsDropdownRendered(false);
+              setDropdownOpen(false);
+            }
+          });
+        });
+      }
+    }
+  };
+
+  // GSAP animation for dropdown opening using dynamic import
+  useEffect(() => {
+    if (!dropdownRef.current || !dropdownOpen) return;
+    import("gsap").then(({ default: gsap }) => { // dynamic import
+      gsap.fromTo(
+        dropdownRef.current,
+        { opacity: 0, y: -10, scale: 0.95, transformOrigin: "top right" },
+        { opacity: 1, y: 0, scale: 1, duration: 0.25, ease: "power2.out" }
+      );
+    });
+  }, [dropdownOpen]);
+
+  // Handler for category selection with animation
+  const handleCategorySelect = (category) => {
+    // Animate closing first
+    if (dropdownRef.current) {
+      import("gsap").then(({ default: gsap }) => { // dynamic import
         gsap.to(dropdownRef.current, {
           opacity: 0,
           y: -10,
@@ -241,56 +272,15 @@ export default function GalleryPage() {
           onComplete: () => {
             setIsDropdownRendered(false);
             setDropdownOpen(false);
+            setSelectedCategory(category);
+            
+            // Scroll to the selected category section
+            const element = document.getElementById(category.toLowerCase());
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
           }
         });
-      }
-    }
-  };
-
-  // GSAP animation for dropdown opening
-  useEffect(() => {
-    if (!dropdownRef.current || !dropdownOpen) return;
-    
-    // Animation for opening the dropdown
-    gsap.fromTo(
-      dropdownRef.current,
-      { 
-        opacity: 0, 
-        y: -10, 
-        scale: 0.95,
-        transformOrigin: "top right" 
-      },
-      { 
-        opacity: 1, 
-        y: 0, 
-        scale: 1, 
-        duration: 0.25, 
-        ease: "power2.out" 
-      }
-    );
-  }, [dropdownOpen]);
-
-  // Handler for category selection with animation
-  const handleCategorySelect = (category) => {
-    // Animate closing first
-    if (dropdownRef.current) {
-      gsap.to(dropdownRef.current, {
-        opacity: 0,
-        y: -10,
-        scale: 0.95,
-        duration: 0.2,
-        ease: "power2.in",
-        onComplete: () => {
-          setIsDropdownRendered(false);
-          setDropdownOpen(false);
-          setSelectedCategory(category);
-          
-          // Scroll to the selected category section
-          const element = document.getElementById(category.toLowerCase());
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        }
       });
     }
   };

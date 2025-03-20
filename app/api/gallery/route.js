@@ -14,11 +14,15 @@ const validCategories = [
 
 // Fetch gallery items based on query parameters
 export async function GET(request) {
+    const startTime = Date.now(); // start timer
     try {
         const cacheKey = request.url;
         // Return cached response if available and not expired
         if (cache[cacheKey] && (Date.now() - cache[cacheKey].timestamp < CACHE_DURATION)) {
-            return NextResponse.json(cache[cacheKey].data);
+            const cachedResp = NextResponse.json(cache[cacheKey].data);
+            cachedResp.headers.set("Cache-Control", "public, s-maxage=60, stale-while-revalidate=59");
+            console.log(`Cache hit. Processed in ${Date.now()-startTime}ms`);
+            return cachedResp;
         }
         const { searchParams } = new URL(request.url);
         const category = searchParams.get('category'); // Get category filter
@@ -81,7 +85,10 @@ export async function GET(request) {
         }
         // Cache and return the result
         cache[cacheKey] = { data: result, timestamp: Date.now() };
-        return NextResponse.json(result);
+        const response = NextResponse.json(result);
+        response.headers.set("Cache-Control", "public, s-maxage=60, stale-while-revalidate=59");
+        console.log(`Response processed in ${Date.now()-startTime}ms`);
+        return response;
     } catch (error) {
         console.error('Error fetching gallery items:', error);
         return NextResponse.json(
