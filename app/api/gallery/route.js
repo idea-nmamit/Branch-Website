@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
+// Global in-memory cache and expiration duration (1 minute)
+const cache = {};
+const CACHE_DURATION = 60000;
+
 // Define valid ENUM categories
 const validCategories = [
     "TECHNICAL", "CULTURAL", "SPORTS", "SOCIAL", "ACADEMIC",
@@ -11,11 +15,17 @@ const validCategories = [
 // Fetch gallery items based on query parameters
 export async function GET(request) {
     try {
+        const cacheKey = request.url;
+        // Return cached response if available and not expired
+        if (cache[cacheKey] && (Date.now() - cache[cacheKey].timestamp < CACHE_DURATION)) {
+            return NextResponse.json(cache[cacheKey].data);
+        }
         const { searchParams } = new URL(request.url);
         const category = searchParams.get('category'); // Get category filter
         const all = searchParams.get('all'); // Check if we need all images
         const search = searchParams.get('search'); // Get search query
 
+        let result;
         // Case 0: Search for images by title or description
         if (search) {
             const searchResults = await prisma.gallery.findMany({
@@ -29,11 +39,10 @@ export async function GET(request) {
             });
             
             console.log(`Found ${searchResults.length} images matching search: "${search}"`);
-            return NextResponse.json(searchResults);
-        }
-        
+            result = searchResults;
+        } 
         // Case 1: Fetch all images for the full gallery display
-        if (all === 'true') {
+        else if (all === 'true') {
             const allImages = await prisma.gallery.findMany({
                 orderBy: { id: 'desc' },
             });
@@ -41,11 +50,10 @@ export async function GET(request) {
             // Log the number of images found for debugging
             console.log(`Fetched ${allImages.length} total images for gallery display`);
             
-            return NextResponse.json(allImages);
-        }
-        
+            result = allImages;
+        } 
         // Case 2: Fetch images by specific category
-        if (category) {
+        else if (category) {
             // Validate category
             if (!validCategories.includes(category.toUpperCase())) {
                 return NextResponse.json(
@@ -59,9 +67,8 @@ export async function GET(request) {
                 where: { category: category.toUpperCase() },
                 orderBy: { id: 'desc' },
             });
-            return NextResponse.json(filteredGallery);
+            result = filteredGallery;
         } 
-        
         // Case 3: Default - fetch carousel images
         else {
             // Fetch recent images for the carousel (limit to 5)
@@ -70,8 +77,11 @@ export async function GET(request) {
                 orderBy: { id: 'desc' },
                 take: 5,
             });
-            return NextResponse.json(carouselItems);
+            result = carouselItems;
         }
+        // Cache and return the result
+        cache[cacheKey] = { data: result, timestamp: Date.now() };
+        return NextResponse.json(result);
     } catch (error) {
         console.error('Error fetching gallery items:', error);
         return NextResponse.json(

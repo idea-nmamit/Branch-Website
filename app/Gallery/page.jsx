@@ -448,6 +448,7 @@ export default function GalleryPage() {
                       alt={image.title} 
                       layout="fill" 
                       objectFit="cover" 
+                      loading="lazy" // <<-- added lazy loading
                       className={`rounded-lg ${!loadedImages[image.id] ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}
                       onLoadingComplete={() => handleImageLoad(image.id)}
                     />
@@ -551,6 +552,7 @@ export default function GalleryPage() {
                           alt={image.title}
                           layout="fill"
                           objectFit="cover"
+                          loading="lazy" // <<-- added lazy loading
                           className={`rounded-lg shadow-lg hover:scale-105 transition-transform duration-300 ${!loadedImages[image.id] ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}
                           style={{ borderRadius: '0.5rem' }} /* Fixed rounded corners during animation */
                           onLoadingComplete={() => handleImageLoad(image.id)}
@@ -631,6 +633,7 @@ export default function GalleryPage() {
                               alt={image.title} 
                               layout="fill" 
                               objectFit="cover" 
+                              loading="lazy" // <<-- added lazy loading
                               className={`rounded-lg ${!loadedImages[image.id] ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}
                               onLoadingComplete={() => handleImageLoad(image.id)}
                             />
@@ -713,6 +716,7 @@ export default function GalleryPage() {
                   alt={selectedImage.title} 
                   layout="fill" 
                   objectFit="contain"
+                  loading="lazy" // <<-- added lazy loading
                   className={`${!loadedImages[`modal-${selectedImage.id}`] ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}
                   onLoadingComplete={() => handleImageLoad(`modal-${selectedImage.id}`)}
                 />
