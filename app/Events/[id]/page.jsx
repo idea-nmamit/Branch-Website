@@ -82,37 +82,40 @@ export default function EventPage() {
         
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Event Info Box */}
-        <div className="flex flex-col gap-4 justify-between">
-          <div className="p-2.5 sm:p-3.5 rounded-lg border-2 border-[#E0AFFF] backdrop-blur-md bg-white/20 shadow-md flex flex-col justify-center text-base sm:text-lg transition-all duration-300 hover:scale-105 hover:shadow-[0px_0px_50px_5px_rgba(226,196,63,0.5)]">
-            <p className="text-lg sm:text-xl font-semibold">
-              <strong>{event.type.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase())}</strong>
-            </p>
-          </div>
-          
-          <div className="p-2.5 sm:p-3.5 rounded-lg border-2 border-[#E0AFFF] backdrop-blur-md bg-white/20 shadow-md flex flex-col justify-center text-base sm:text-lg transition-all duration-300 hover:scale-105 hover:shadow-[0px_0px_50px_5px_rgba(226,196,63,0.5)]">
-            <p><strong>Venue:</strong> {event.venue}</p>
-          </div>
-          
-          <div className="p-2.5 sm:p-3.5 rounded-lg border-2 border-[#E0AFFF] backdrop-blur-md bg-white/20 shadow-md flex flex-col justify-center text-base sm:text-lg transition-all duration-300 hover:scale-105 hover:shadow-[0px_0px_50px_5px_rgba(226,196,63,0.5)]">
-            <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString('en-US', { 
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric'
-            })}</p>
-          </div>
-          
-          <div className="p-2.5 sm:p-3.5 rounded-lg border-2 border-[#E0AFFF] backdrop-blur-md bg-white/20 shadow-md flex flex-col justify-center text-base sm:text-lg transition-all duration-300 hover:scale-105 hover:shadow-[0px_0px_50px_5px_rgba(226,196,63,0.5)]">
-            <p><strong>Time:</strong> {new Date(event.date).toLocaleTimeString('en-US', {
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: true
-            })}</p>
-          </div>
-        </div>
-        
+<div className="w-full aspect-square rounded-lg border-2 border-[#E0AFFF] backdrop-blur-md bg-white/20 shadow-md p-6 transition-all duration-300 hover:scale-105 hover:shadow-[0px_0px_10px_5px_rgba(226,196,63,0.5)] flex flex-col justify-center items-start gap-4 text-left overflow-hidden">
+  <p className="text-2xl sm:text-3xl font-bold leading-snug pl-3">
+    {event.type
+      .replace(/_/g, " ")
+      .toLowerCase()
+      .replace(/\b\w/g, (char) => char.toUpperCase())}
+  </p>
+
+  <p className="text-lg sm:text-xl leading-snug pl-3">
+    <strong>Venue:</strong> {event.venue}
+  </p>
+
+  <p className="text-lg sm:text-xl leading-snug pl-3">
+    <strong>Date:</strong>{" "}
+    {new Date(event.date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    })}
+  </p>
+
+  <p className="text-lg sm:text-xl leading-snug pl-3">
+    <strong>Time:</strong>{" "}
+    {new Date(event.date).toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    })}
+  </p>
+</div>
+
         {/* Event Image Box */}
         <div className="w-full h-full flex items-center justify-center">
-          <div className="w-full aspect-square rounded-lg border-2 border-[#E0AFFF] backdrop-blur-md bg-white/20 shadow-md transition-all duration-300 hover:scale-105 hover:shadow-[0px_0px_50px_5px_rgba(226,196,63,0.5)]">
+          <div className="w-full aspect-square rounded-lg border-2 border-[#E0AFFF] backdrop-blur-md bg-white/20 shadow-md transition-all duration-300 hover:scale-105 hover:shadow-[0px_0px_10px_5px_rgba(226,196,63,0.5)]">
             <div className="w-full h-full relative">
               <Image
                 src={event?.image || "/placeholder-image.jpg"}
@@ -127,7 +130,7 @@ export default function EventPage() {
       </div>
         
         {/* Event Description Box */}
-        <div className="border-2 border-[#E0AFFF] p-6 rounded-lg mt-8 backdrop-blur-md bg-white/20 shadow-md transition-all duration-300 hover:scale-105 hover:shadow-[0px_0px_50px_5px_rgba(226,196,63,0.5)]">
+        <div className="border-2 border-[#E0AFFF] p-6 rounded-lg mt-8 backdrop-blur-md bg-white/20 shadow-md transition-all duration-300 hover:scale-105 hover:shadow-[0px_0px_10px_5px_rgba(226,196,63,0.5)]">
           <h4 className="text-2xl font-bold mb-4 text-[#E0AFFF]">Event Details</h4>
           <div className="text-lg leading-relaxed" dangerouslySetInnerHTML={{ __html: event.description }} />
         </div>
