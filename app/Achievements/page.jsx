@@ -1,33 +1,27 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { LinkedinIcon, GithubIcon, InstagramIcon, Award, NotebookText, ExternalLink } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-
-const rankBadges = {
-  1: '/First.png',
-  2: '/Second.png',
-  3: '/Third.png',
-};
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  GithubIcon,
+  InstagramIcon,
+  LinkedinIcon,
+  NotebookText,
+} from 'lucide-react';
 
 const Page = () => {
   const [selectedCategory, setSelectedCategory] = useState('COMPETITION');
   const [achievements, setAchievements] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchAchievements = async () => {
       try {
         const response = await fetch('/api/achievements');
-        if (!response.ok) {
-          throw new Error('Failed to fetch achievements');
-        }
         const data = await response.json();
         setAchievements(data);
       } catch (err) {
-        setError(err.message);
         console.error('Error fetching achievements:', err);
       } finally {
         setLoading(false);
@@ -37,189 +31,163 @@ const Page = () => {
     fetchAchievements();
   }, []);
 
-  const filteredAchievements = achievements.filter(
+  const filtered = achievements.filter(
     (achievement) => achievement.category === selectedCategory
   );
 
+  const rankBadges = {
+    1: '/First.png',
+    2: '/Second.png',
+    3: '/Third.png',
+  };
+
   return (
-    <div className="bg-gradient-to-br from-[#17003A] to-[#370069] dark:from-[#8617C0] dark:to-[#6012A4] min-h-screen p-8">
-      <div className="max-w-6xl mx-auto text-center">
-        <h1 className="text-5xl font-bold text-white mb-8 tracking-tight">Achievements</h1>
+    <div className="min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] px-6 py-12">
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-4xl font-bold text-white text-center mb-10">
+          Achievements
+        </h1>
 
-        {/* Category Selection Tabs */}
-        <motion.div 
-      className="flex justify-center mb-10 md:mb-14"
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, delay: 0.3 }}
-    >
-      <div className="bg-black/30 backdrop-blur-md rounded-full p-1.5 flex shadow-xl">
-        <motion.button
-          className={`text-base md:text-lg font-medium px-5 md:px-8 py-2.5 rounded-full transition-all duration-300 ${
-            selectedCategory === 'COMPETITION'
-              ? 'bg-white text-purple-900 shadow-lg'
-              : 'text-white/80 hover:text-white hover:bg-white/10'
-          }`}
-          onClick={() => setSelectedCategory('COMPETITION')}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          Competition
-        </motion.button>
-        <motion.button
-          className={`text-base md:text-lg font-medium px-5 md:px-8 py-2.5 rounded-full transition-all duration-300 ${
-            selectedCategory === 'RESEARCH'
-              ? 'bg-white text-purple-900 shadow-lg'
-              : 'text-white/80 hover:text-white hover:bg-white/10'
-          }`}
-          onClick={() => setSelectedCategory('RESEARCH')}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          Research
-        </motion.button>
-      </div>
-    </motion.div>
+        {/* Category Tabs */}
+        <div className="flex justify-center gap-4 mb-10">
+          {['COMPETITION', 'RESEARCH'].map((category) => (
+            <button
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
+                selectedCategory === category
+                  ? 'bg-white text-black shadow-lg'
+                  : 'bg-white/10 text-white hover:bg-white/20'
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
 
-        {/* Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {loading ? (
-            Array(3)
-              .fill()
-              .map((_, index) => (
-                <div key={index} className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-lg overflow-hidden h-96">
-                  <Skeleton className="w-20 h-20 rounded-full mb-4" />
-                  <Skeleton className="h-6 w-32 mb-2" />
-                  <Skeleton className="h-4 w-24 mb-6" />
-                  <Skeleton className="h-32 w-full rounded-md mb-6" />
-                </div>
-              ))
-          ) : error ? (
-            <div className="col-span-full text-center p-8">
-              <p className="text-white text-xl">Error: {error}</p>
-            </div>
-          ) : (
-            filteredAchievements.map((achievement) => (
-              <div
-                key={achievement.id}
-                className="relative bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-xl transform transition-all duration-300 hover:scale-105 hover:shadow-purple-500/50 overflow-hidden border border-white/10 group h-auto"
-              >
-                {/* Rank Badge */}
-                {rankBadges[achievement.rank] && (
-                  <img
-                    src={rankBadges[achievement.rank]}
-                    alt={`Rank ${achievement.rank}`}
-                    className="absolute top-2 right-2 w-20 h-20"
+        {/* Achievement Cards */}
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {loading
+            ? Array(6)
+                .fill(null)
+                .map((_, index) => (
+                  <Skeleton
+                    key={index}
+                    className="h-72 rounded-xl bg-white/10 backdrop-blur"
                   />
-                )}
-
-                {/* Profile Section with Larger Image */}
-                <div
-                  className="w-full h-40 bg-gradient-to-r from-purple-400 to-blue-400 rounded-t-2xl overflow-hidden"
-                  style={
-                    achievement.photoUrl
-                      ? { backgroundImage: `url(${achievement.photoUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }
-                      : {}
-                  }
-                ></div>
-
-                {/* Achievement Badge in Front of Name */}
-                <div className="flex items-center justify-center gap-2 mt-6">
-                  <h3 className="text-2xl font-bold text-white">{achievement.title}</h3>
-                </div>
-                <p className="text-base text-gray-300 text-center mb-2">{achievement.name}</p>
-
-                {/* Description Card */}
-                <div className="text-center bg-gradient-to-br from-white/20 to-white/10 p-4 rounded-xl text-white shadow-lg border border-white/10 mt-6">
-                  <p className="text-sm uppercase tracking-wider mb-2 text-purple-300">Description</p>
-                    <div className="description-scrollbar">
-                      <p>{achievement.description}</p>
-                    </div>
-                      <style jsx>{scrollbarStyles}</style>
-                </div>
-
-                
-                {/* Social Media and Research Links */}
-                {(achievement.linkedinUrl || achievement.githubUrl || achievement.instagramUrl || achievement.researchLink) && (
-                  <div className="flex justify-center items-center gap-4 mt-4 pt-4 border-t border-white/10">
-                    {achievement.linkedinUrl && (
-                      <a
-                        href={achievement.linkedinUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-all duration-300"
-                        aria-label="LinkedIn Profile"
-                      >
-                        <LinkedinIcon size={20} className="text-blue-300" />
-                      </a>
-                    )}
-
-                    {achievement.githubUrl && (
-                      <a
-                        href={achievement.githubUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-all duration-300"
-                        aria-label="GitHub Repository"
-                      >
-                        <GithubIcon size={20} className="text-gray-300" />
-                      </a>
-                    )}
-
-                    {achievement.instagramUrl && (
-                      <a
-                        href={achievement.instagramUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-all duration-300"
-                        aria-label="Instagram Profile"
-                      >
-                        <InstagramIcon size={20} className="text-pink-300" />
-                      </a>
-                    )}
-
-                    {achievement.researchLink && (
-                      <a
-                        href={achievement.researchLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-all duration-300"
-                        aria-label="Research Paper"
-                      >
-                        <NotebookText size={20} className="text-green-300" />
-                      </a>
-                    )}
+                ))
+            : filtered.map((achievement) => (
+                <motion.div
+                  key={achievement.id}
+                  whileHover={{
+                    scale: 1.02,
+                    background:
+                      'linear-gradient(135deg, rgba(139,92,246,0.1), rgba(255,255,255,0.05))',
+                  }}
+                  transition={{ duration: 0.3 }}
+                  className="rounded-xl overflow-hidden relative group border border-white/10 bg-white/10 backdrop-blur-md shadow-lg transition-all"
+                >
+                  {/* Image Background */}
+                  <div
+                    className="h-48 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+                    style={{
+                      backgroundImage: `url(${achievement.photoUrl || '/default.jpg'})`,
+                    }}
+                  >
+                    <div className="h-full w-full bg-gradient-to-t from-black/70 to-transparent" />
                   </div>
-                )}
-              </div>
-            ))
-          )}
+
+                  {/* Animated Rank Badge */}
+                  {rankBadges[achievement.rank] && (
+                    <motion.img
+                      src={rankBadges[achievement.rank]}
+                      alt={`Rank ${achievement.rank}`}
+                      className="absolute top-2 right-2 w-12 h-12"
+                      animate={{
+                        y: [0, -5, 0],
+                      }}
+                      transition={{
+                        duration: 1,
+                        repeat: Infinity,
+                        repeatType: 'loop',
+                        ease: 'easeInOut',
+                      }}
+                    />
+                  )}
+
+                  {/* Content */}
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold text-white mb-1">
+                      {achievement.title}
+                    </h3>
+                    <p className="text-sm text-purple-300 mb-1">
+                      {achievement.name}
+                    </p>
+                    <p className="text-sm text-white/80 line-clamp-3">
+                      {achievement.description}
+                    </p>
+                  </div>
+
+                  {/* Social / External Links */}
+                  {(achievement.linkedinUrl ||
+                    achievement.githubUrl ||
+                    achievement.instagramUrl ||
+                    achievement.researchLink) && (
+                    <div className="flex justify-center gap-4 px-4 pb-4 pt-2 border-t border-white/10">
+                      {achievement.linkedinUrl && (
+                        <a
+                          href={achievement.linkedinUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-all"
+                        >
+                          <LinkedinIcon size={18} className="text-blue-400" />
+                        </a>
+                      )}
+                      {achievement.githubUrl && (
+                        <a
+                          href={achievement.githubUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-all"
+                        >
+                          <GithubIcon size={18} className="text-white" />
+                        </a>
+                      )}
+                      {achievement.instagramUrl && (
+                        <a
+                          href={achievement.instagramUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-all"
+                        >
+                          <InstagramIcon
+                            size={18}
+                            className="text-pink-400"
+                          />
+                        </a>
+                      )}
+                      {achievement.researchLink && (
+                        <a
+                          href={achievement.researchLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-all"
+                        >
+                          <NotebookText
+                            size={18}
+                            className="text-green-400"
+                          />
+                        </a>
+                      )}
+                    </div>
+                  )}
+                </motion.div>
+              ))}
         </div>
       </div>
     </div>
   );
 };
-
-const scrollbarStyles = `
-  .description-scrollbar {
-    max-height: 6rem;
-    overflow-y: auto;
-    padding-right: 4px;
-    font-medium;
-  }
-
-  .description-scrollbar::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  .description-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .description-scrollbar::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.3);
-    border-radius: 20px;
-  }
-`;
 
 export default Page;
