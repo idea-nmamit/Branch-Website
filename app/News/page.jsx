@@ -87,7 +87,7 @@ const NewsPage = () => {
                         href={item.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-purple-300 hover:text-green-100 transition-all text-sm"
+                        className="flex items-center gap-2 text-purple-300 hover:text-purple-100 transition-all text-sm"
                       >
                         Read More <ExternalLink size={16} />
                       </a>
