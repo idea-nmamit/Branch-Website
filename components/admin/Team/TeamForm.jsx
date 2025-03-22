@@ -20,7 +20,7 @@ const TeamForm = ({ onTeamMemberAdded }) => {
   const [name, setName] = useState('')
   const [role, setRole] = useState('')
   const [category, setCategory] = useState('OFFICE_BEARERS')
-  const [index, setIndex] = useState('')
+  const [index, setIndex] = useState(null)
   const [selectedPhoto, setSelectedPhoto] = useState(null)
   const [linkedinUrl, setLinkedinUrl] = useState('')
   const [githubUrl, setGithubUrl] = useState('')
@@ -124,7 +124,7 @@ const TeamForm = ({ onTeamMemberAdded }) => {
       // Reset form fields
       setName('')
       setRole('')
-      setIndex('')
+      setIndex(null)
       setCategory('OFFICE_BEARERS')
       setSelectedPhoto(null)
       setLinkedinUrl('')
