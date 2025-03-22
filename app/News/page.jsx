@@ -26,7 +26,7 @@ const NewsPage = () => {
 
 
       if (needsFreshData) {
-        console.log('new');
+        console.log('refresh data');
 
         localStorage.removeItem('newsCache');
         localStorage.removeItem('newsCacheTimestamp');
@@ -55,7 +55,6 @@ const NewsPage = () => {
         }
 
         const data = await response.json();
-
         console.log('Full API Response:', data);
 
         if (!data.articles) {
@@ -71,7 +70,7 @@ const NewsPage = () => {
           link: item.url,
           date: item.publishedAt
         }));
-        console.log('mappedResults are:', mappedResults);
+        console.log('mappedResults:', mappedResults);
 
 
         const savedItems = await Promise.all(mappedResults.map(async (newsItem) => {
@@ -180,9 +179,11 @@ const NewsPage = () => {
       fetchNewsFromAPI(true)
     }, REFRESH_INTERVAL);
 
-
+    // Clean up on component unmount
     return () => clearInterval(interval);
   }, []);
+
+
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -196,7 +197,7 @@ const NewsPage = () => {
   return (
     <div className="bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] min-h-screen p-8">
       <div className="max-w-6xl mx-auto text-center">
-        <h1 className="text-5xl font-bold text-white mb-6 tracking-tight">Latest Education News</h1>
+        <h1 className="text-5xl font-bold text-white mb-16 tracking-tight">Latest Education News</h1>
 
         {error && (
           <div className="bg-red-500/20 text-red-100 p-4 rounded-lg mb-8">
@@ -228,7 +229,7 @@ const NewsPage = () => {
                     alt={item.title}
                     className="w-full h-40 object-cover rounded-xl transform transition-transform duration-500 group-hover:scale-110"
                     onError={(e) => {
-                      e.target.src = '/placeholder-news.jpg'; // Fallback image on error
+                      e.target.src = '/placeholder-news.jpg';
                     }}
                   />
                 </div>
