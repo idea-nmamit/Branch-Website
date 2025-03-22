@@ -20,6 +20,7 @@ const TeamForm = ({ onTeamMemberAdded }) => {
   const [name, setName] = useState('')
   const [role, setRole] = useState('')
   const [category, setCategory] = useState('OFFICE_BEARERS')
+  const [index, setIndex] = useState('')
   const [selectedPhoto, setSelectedPhoto] = useState(null)
   const [linkedinUrl, setLinkedinUrl] = useState('')
   const [githubUrl, setGithubUrl] = useState('')
@@ -78,6 +79,7 @@ const TeamForm = ({ onTeamMemberAdded }) => {
         name,
         role,
         category,
+        index,
         photoUrl: uploadedPhotoURL,
         linkedinUrl: linkedinUrl || null,
         githubUrl: githubUrl || null,
@@ -122,6 +124,7 @@ const TeamForm = ({ onTeamMemberAdded }) => {
       // Reset form fields
       setName('')
       setRole('')
+      setIndex('')
       setCategory('OFFICE_BEARERS')
       setSelectedPhoto(null)
       setLinkedinUrl('')
@@ -182,6 +185,18 @@ const TeamForm = ({ onTeamMemberAdded }) => {
             />
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="role">Index</Label>
+            <Input
+              id="index"
+              value={index}
+              onChange={(e) => setIndex(e.target.value)}
+              placeholder="e.g. 1, 2, 3, etc."
+              type="number"
+              required
+            />
+          </div>
+
           {/* Category Dropdown */}
           <div className="space-y-2">
             <Label htmlFor="category">Category</Label>
@@ -191,6 +206,7 @@ const TeamForm = ({ onTeamMemberAdded }) => {
               required
               defaultValue="OFFICE_BEARERS"
             >
+          
               <SelectTrigger id="category" className="w-full">
                 <SelectValue placeholder="Select team category" />
               </SelectTrigger>

@@ -72,6 +72,7 @@ model Event {
 model TeamPage {
   id           Int          @id @default(autoincrement())
   name         String
+  index        Int
   role         String
   category     TeamCategory
   photoUrl     String

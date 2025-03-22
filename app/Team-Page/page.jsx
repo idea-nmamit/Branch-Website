@@ -52,10 +52,9 @@ const Page = () => {
 
   const years = [...new Set(teamMembers.map((member) => member.year))].sort().reverse();
 
-  const filteredMembers = teamMembers.filter(
-    (member) =>
-      member.category === selectedCategory && member.year === selectedYear
-  );
+  const filteredMembers = teamMembers
+  .filter((member) => member.category === selectedCategory && member.year === selectedYear)
+  .sort((a, b) => a.index - b.index);
 
   // Direct skeleton rendering functions
   const renderOfficeBearerSkeleton = (index) => (
