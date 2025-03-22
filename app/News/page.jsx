@@ -255,46 +255,6 @@ const NewsPage = () => {
     ? newsItems 
     : newsItems.filter(item => item.category === activeCategory);
 
-  const handleSaveArticle = (e, id) => {
-    e.preventDefault();
-    e.stopPropagation();
-    // Display a notification
-    const toast = document.createElement('div');
-    toast.className = 'save-toast';
-    toast.textContent = 'Article saved to bookmarks';
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-      toast.classList.add('show');
-      setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => {
-          document.body.removeChild(toast);
-        }, 300);
-      }, 2000);
-    }, 10);
-  };
-
-  const handleShareArticle = (e, id) => {
-    e.preventDefault();
-    e.stopPropagation();
-    // Display a notification
-    const toast = document.createElement('div');
-    toast.className = 'save-toast';
-    toast.textContent = 'Share link copied to clipboard';
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-      toast.classList.add('show');
-      setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => {
-          document.body.removeChild(toast);
-        }, 300);
-      }, 2000);
-    }, 10);
-  };
-
   return (
     <div className="bg-[#050415] min-h-screen pb-16 overflow-x-hidden">
       {/* Animated Background Elements */}
@@ -463,22 +423,7 @@ const NewsPage = () => {
                         e.target.src = '/placeholder-news.jpg';
                       }}
                     />
-                    
-                    {/* Interactive Actions on Image */}
-                    <div className="absolute top-4 right-4 z-20 flex gap-2">
-                      <button 
-                        onClick={(e) => handleSaveArticle(e, filteredNews[0].id)}
-                        className="p-2 rounded-full bg-black/50 backdrop-blur-sm text-white/80 hover:text-white hover:bg-black/70 transition-all"
-                      >
-                        <Bookmark size={16} />
-                      </button>
-                      <button 
-                        onClick={(e) => handleShareArticle(e, filteredNews[0].id)}
-                        className="p-2 rounded-full bg-black/50 backdrop-blur-sm text-white/80 hover:text-white hover:bg-black/70 transition-all"
-                      >
-                        <Share2 size={16} />
-                      </button>
-                    </div>
+                  
                     
                     {/* Time badge in absolute position */}
                     <div className="absolute bottom-4 left-4 z-20">
