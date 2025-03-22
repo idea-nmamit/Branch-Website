@@ -65,6 +65,7 @@ model Event {
   date        DateTime // Includes both date & time
   image       String
   description String
+  attendees   Int
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
