@@ -11,7 +11,7 @@ const NewsPage = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [activeCategory, setActiveCategory] = useState('all');
 
-  const REFRESH_INTERVAL = 100000; // 1000 seconds
+  const REFRESH_INTERVAL = 1000 * 60 * 60 * 2; // 1 hours
 
   const fetchNewsFromAPI = async (forceRefresh = false) => {
     try {
