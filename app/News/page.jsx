@@ -9,130 +9,145 @@ const NewsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-
-  const REFRESH_INTERVAL = 30 * 60 * 1000;
+  const REFRESH_INTERVAL = 60 * 60 * 1000;
 
   const fetchNewsFromAPI = async (forceRefresh = false) => {
     try {
       setLoading(true);
 
-      const cachedData = localStorage.getItem('newsCache');
-      const cachedTimestamp = localStorage.getItem('newsCacheTimestamp');
 
-      if (
-        !forceRefresh &&
-        cachedData &&
-        cachedTimestamp &&
-        (Date.now() - parseInt(cachedTimestamp)) < REFRESH_INTERVAL
-      ) {
-        console.log('Using cached news data');
-        setNewsItems(JSON.parse(cachedData));
-        setError(null);
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const dbResponse = await fetch('/api/news');
-
-        if (dbResponse.ok) {
-          const dbNews = await dbResponse.json();
+      const currentTime = Date.now();
+      const lastDbFetchTimestamp = localStorage.getItem('lastDbFetchTimestamp');
 
 
-          if (dbNews.length > 0 && dbNews[0].date) {
-
-            const newestArticleDate = new Date(Math.max(...dbNews.map(item => new Date(item.date))));
-
-            if ((Date.now() - newestArticleDate.getTime()) < REFRESH_INTERVAL && !forceRefresh) {
-              console.log('Using database news data');
-              setNewsItems(dbNews);
-
-              localStorage.setItem('newsCache', JSON.stringify(dbNews));
-              localStorage.setItem('newsCacheTimestamp', Date.now().toString());
-
-              setError(null);
-              setLoading(false);
-              return;
-            }
-          }
-        }
-      } catch (dbErr) {
-        console.error('Error checking database for news:', dbErr);
-      }
+      const needsFreshData = !lastDbFetchTimestamp ||
+        (currentTime - parseInt(lastDbFetchTimestamp)) >= REFRESH_INTERVAL ||
+        forceRefresh;
 
 
-      console.log('Fetching fresh news data');
+      if (needsFreshData) {
+        console.log('new');
 
-      // Step 1: Fetch new data from GNews API
-      const apiKey = process.env.NEXT_PUBLIC_NEWS_API_KEY;
-      const response = await fetch(`https://gnews.io/api/v4/search?q=education&lang=en&country=in&max=10&apikey=${apiKey}`);
+        localStorage.removeItem('newsCache');
+        localStorage.removeItem('newsCacheTimestamp');
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch news data');
-      }
-
-      const data = await response.json();
-
-      if (!data.articles) {
-        throw new Error('API returned an error or invalid data format');
-      }
-
-      // Map the GNews data structure to our format
-      const mappedResults = data.articles.map(item => ({
-        title: item.title,
-        description: item.description,
-        photoUrl: item.image,
-        link: item.url,
-        date: item.publishedAt
-      }));
-
-      // Step 2: Clear existing news data from the database
-      try {
-        const deleteResponse = await fetch('/api/news', {
-          method: 'DELETE',
-        });
-
-        if (!deleteResponse.ok) {
-          console.warn('Failed to delete existing news items:', deleteResponse.statusText);
-        } else {
-          console.log('Successfully deleted existing news items');
-        }
-      } catch (deleteErr) {
-        console.error('Error deleting existing news:', deleteErr);
-      }
-
-      // Step 3: Save new items to database
-      const savedItems = await Promise.all(mappedResults.map(async (newsItem) => {
         try {
-          const response = await fetch('/api/news', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(newsItem),
+          const deleteResponse = await fetch('/api/news', {
+            method: 'DELETE',
           });
 
-          if (!response.ok) {
-            throw new Error('Failed to save news item');
+          if (!deleteResponse.ok) {
+            console.warn('Failed to delete existing news items:', deleteResponse.statusText);
+          } else {
+            console.log('Successfully deleted existing news items');
           }
-
-          return await response.json();
-        } catch (err) {
-          console.error('Error saving news item:', err);
-          return null;
+        } catch (deleteErr) {
+          console.error('Error deleting existing news:', deleteErr);
         }
-      }));
 
-      // Filter out any failed saves
-      const validSavedItems = savedItems.filter(item => item !== null);
-      console.log('Items saved to DB:', validSavedItems.length);
 
-      // Update local cache
-      localStorage.setItem('newsCache', JSON.stringify(validSavedItems));
-      localStorage.setItem('newsCacheTimestamp', Date.now().toString());
+        const apiKey = process.env.NEXT_PUBLIC_NEWS_API_KEY;
+        const response = await fetch(`https://gnews.io/api/v4/search?q=education&lang=en&country=in&max=10&apikey=${apiKey}`);
 
-      // Update state with new items
-      setNewsItems(validSavedItems);
+        console.log('fetched new data from GNews API');
+        if (!response.ok) {
+          throw new Error('Failed to fetch news data');
+        }
+
+        const data = await response.json();
+
+        console.log('Full API Response:', data);
+
+        if (!data.articles) {
+          throw new Error('API returned an error or invalid data format');
+        }
+        console.log('Fetched Articles:', data.articles);
+
+
+        const mappedResults = data.articles.map(item => ({
+          title: item.title,
+          description: item.description,
+          photoUrl: item.image,
+          link: item.url,
+          date: item.publishedAt
+        }));
+        console.log('mappedResults are:', mappedResults);
+
+
+        const savedItems = await Promise.all(mappedResults.map(async (newsItem) => {
+          try {
+            const response = await fetch('/api/news', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(newsItem),
+            });
+
+            if (!response.ok) {
+              throw new Error('Failed to save news item');
+            }
+
+            return await response.json();
+          } catch (err) {
+            console.error('Error saving news item:', err);
+            return null;
+          }
+        }));
+
+
+        const validSavedItems = savedItems.filter(item => item !== null);
+        console.log('Items saved to DB:', validSavedItems.length);
+
+
+        setNewsItems(validSavedItems);
+        console.log("Updated newsItems state:", validSavedItems);
+
+
+        localStorage.setItem('newsCache', JSON.stringify(validSavedItems));
+        localStorage.setItem('newsCacheTimestamp', currentTime.toString());
+        localStorage.setItem('lastDbFetchTimestamp', currentTime.toString());
+
+      } else {
+
+        const cachedData = localStorage.getItem('newsCache');
+        const cachedTimestamp = localStorage.getItem('newsCacheTimestamp');
+
+
+        if (
+          cachedData &&
+          cachedTimestamp &&
+          (currentTime - parseInt(cachedTimestamp)) < REFRESH_INTERVAL
+        ) {
+          console.log('Using cached news data');
+          setNewsItems(JSON.parse(cachedData));
+        } else {
+
+          try {
+            const dbResponse = await fetch('/api/news');
+
+            if (dbResponse.ok) {
+              const dbNews = await dbResponse.json();
+
+              if (dbNews.length > 0) {
+                console.log('Using database news data');
+                setNewsItems(dbNews);
+
+
+                localStorage.setItem('newsCache', JSON.stringify(dbNews));
+                localStorage.setItem('newsCacheTimestamp', currentTime.toString());
+              } else {
+
+                return fetchNewsFromAPI(true);
+              }
+            }
+          } catch (dbErr) {
+            console.error('Error checking database for news:', dbErr);
+            return fetchNewsFromAPI(true);
+          }
+        }
+      }
+
       setError(null);
       setLoading(false);
     } catch (err) {
@@ -140,7 +155,7 @@ const NewsPage = () => {
       setError('Failed to load news. Please try again later.');
       setLoading(false);
 
-      // Fallback to existing database content if API fetch fails
+
       try {
         const response = await fetch('/api/news');
         if (response.ok) {
@@ -159,10 +174,13 @@ const NewsPage = () => {
   useEffect(() => {
     fetchNewsFromAPI();
 
-    // Set up refresh interval
-    const interval = setInterval(() => fetchNewsFromAPI(true), REFRESH_INTERVAL);
 
-    // Clean up on component unmount
+    const interval = setInterval(() => {
+      console.log("Interval triggered, forcing refresh");
+      fetchNewsFromAPI(true)
+    }, REFRESH_INTERVAL);
+
+
     return () => clearInterval(interval);
   }, []);
 
@@ -179,7 +197,6 @@ const NewsPage = () => {
     <div className="bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] min-h-screen p-8">
       <div className="max-w-6xl mx-auto text-center">
         <h1 className="text-5xl font-bold text-white mb-6 tracking-tight">Latest Education News</h1>
-
 
         {error && (
           <div className="bg-red-500/20 text-red-100 p-4 rounded-lg mb-8">
