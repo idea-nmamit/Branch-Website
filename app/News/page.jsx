@@ -11,7 +11,7 @@ const NewsPage = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [activeCategory, setActiveCategory] = useState('all');
 
-  const REFRESH_INTERVAL = 60 * 60 * 1000;
+  const REFRESH_INTERVAL = 100000; // 1000 seconds
 
   const fetchNewsFromAPI = async (forceRefresh = false) => {
     try {
@@ -46,7 +46,7 @@ const NewsPage = () => {
         }
 
         const apiKey = process.env.NEXT_PUBLIC_NEWS_API_KEY;
-        const response = await fetch(`https://gnews.io/api/v4/search?q=education&lang=en&country=in&max=10&apikey=${apiKey}`);
+        const response = await fetch(`https://gnews.io/api/v4/search?q=("Artificial Intelligence" OR "AI" OR "Machine Learning" OR "Data Science" OR (jobs OR hiring OR recruitment OR placements OR careers OR "job openings"))&lang=en&country=us&max=10&apikey=${apiKey}`);
 
         console.log('fetched new data from GNews API');
         if (!response.ok) {
