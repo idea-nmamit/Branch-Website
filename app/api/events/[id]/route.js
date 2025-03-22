@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export async function GET(req, context) {
+export async function GET(req, { params }) {
   try {
-    // Await the params object
-    const params = await context.params;
-    
     if (!params || !params.id) {
       return NextResponse.json({ error: "Missing ID" }, { status: 400 });
     }

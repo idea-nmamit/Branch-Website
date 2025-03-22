@@ -89,7 +89,7 @@ const EventForm = ({ onEventAdded }) => {
         description,
         imageURL: uploadedImageURL,
         type,
-        attendees: parseInt(attendees) || 0,
+        attendees,
       }
 
       const response = await fetch('/api/events', {

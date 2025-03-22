@@ -20,14 +20,16 @@ export default function EventPage() {
     threshold: 0.1,
   });
 
+  // Fixed shimmer animation - using a proper animation pattern with framer-motion
   const shimmerVariants = {
     initial: {
-      backgroundPosition: "-500px 0",
+      backgroundPosition: "0% 0%",
     },
     animate: {
-      backgroundPosition: "500px 0",
+      backgroundPosition: "100% 0%",
       transition: {
         repeat: Infinity,
+        repeatType: "mirror",
         duration: 1.5,
         ease: "linear",
       },
@@ -74,7 +76,7 @@ export default function EventPage() {
               variants={shimmerVariants}
               initial="initial"
               animate="animate"
-              style={{ backgroundSize: "1000px 100%" }}
+              style={{ backgroundSize: "200% 100%" }}
             ></motion.div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -87,7 +89,10 @@ export default function EventPage() {
                     variants={shimmerVariants}
                     initial="initial"
                     animate="animate"
-                    style={{ backgroundSize: "1000px 100%", width: `${Math.random() * 30 + 50}%` }}
+                    style={{ 
+                      backgroundSize: "200% 100%", 
+                      width: `${Math.random() * 30 + 50}%` 
+                    }}
                   ></motion.div>
                 ))}
               </div>
@@ -98,7 +103,7 @@ export default function EventPage() {
                 variants={shimmerVariants}
                 initial="initial"
                 animate="animate"
-                style={{ backgroundSize: "1000px 100%" }}
+                style={{ backgroundSize: "200% 100%" }}
               ></motion.div>
             </div>
             
@@ -109,7 +114,7 @@ export default function EventPage() {
                 variants={shimmerVariants}
                 initial="initial"
                 animate="animate"
-                style={{ backgroundSize: "1000px 100%" }}
+                style={{ backgroundSize: "200% 100%" }}
               ></motion.div>
               <div className="space-y-3">
                 {[1, 2, 3, 4, 5].map((i) => (
@@ -119,7 +124,10 @@ export default function EventPage() {
                     variants={shimmerVariants}
                     initial="initial"
                     animate="animate"
-                    style={{ backgroundSize: "1000px 100%", width: `${Math.random() * 40 + 60}%` }}
+                    style={{ 
+                      backgroundSize: "200% 100%", 
+                      width: `${Math.random() * 40 + 60}%` 
+                    }}
                   ></motion.div>
                 ))}
               </div>

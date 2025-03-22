@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import prisma from "@/lib/prisma";
 
-
 export async function GET() {
   try {
     const events = await prisma.event.findMany({
@@ -24,7 +23,7 @@ export async function POST(request) {
   try {
     const body = await request.json()
 
-    const { name, venue, date, time, description, imageURL, type } = body
+    const { name, venue, date, time, description, imageURL, type, attendees } = body
 
     if (!name || !venue || !date || !time || !description || !type) {
       return NextResponse.json(
@@ -43,6 +42,7 @@ export async function POST(request) {
         date: dateTime,
         image: imageURL || '',
         description,
+        attendees: parseInt(attendees) || 0, // Parse as integer and provide default value
       },
     })
 
