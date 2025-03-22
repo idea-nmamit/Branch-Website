@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { ExternalLink, Clock, RefreshCw, Bookmark, Share2, TrendingUp } from 'lucide-react';
+import { ExternalLink, Clock, TrendingUp } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const NewsPage = () => {
@@ -492,22 +492,6 @@ const NewsPage = () => {
                           </div>
                         </div>
                       )}
-                      
-                      {/* Interactive Actions */}
-                      <div className="absolute top-3 right-3 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button 
-                          onClick={(e) => handleSaveArticle(e, item.id)}
-                          className="p-1.5 rounded-full bg-black/50 backdrop-blur-sm text-white/80 hover:text-white hover:bg-black/70 transition-all"
-                        >
-                          <Bookmark size={14} />
-                        </button>
-                        <button 
-                          onClick={(e) => handleShareArticle(e, item.id)}
-                          className="p-1.5 rounded-full bg-black/50 backdrop-blur-sm text-white/80 hover:text-white hover:bg-black/70 transition-all"
-                        >
-                          <Share2 size={14} />
-                        </button>
-                      </div>
                       
                       {/* Time Badge */}
                       <div className="absolute bottom-3 right-3 z-10">
