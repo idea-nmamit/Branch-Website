@@ -114,8 +114,7 @@ const HomePage = () => {
       {/* Main Content */}
       <main className="flex-1 flex flex-col items-center justify-center transform -translate-y-16 px-4 container mx-auto">
         {/* Logo and Title */}
-        <div className="absolute">
-          <NeuralNetwork /></div>
+          <NeuralNetwork />
         <div className="w-full max-w-4xl mx-auto text-center">
           <div ref={logoRef} className="text-white flex items-center justify-center mb-4 md:mb-8">
             <div className="relative w-52 h-20 sm:w-64 sm:h-24 md:w-96 md:h-40 lg:w-[450px] lg:h-48">
