@@ -4,97 +4,264 @@ import React, { useEffect, useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const sampleNews = [
-  {
-    id: 1,
-    title: 'AI Revolutionizes Healthcare',
-    description: 'AI is assisting doctors in diagnosing and treating complex illnesses with increased accuracy.',
-    image: '/news1.jpg',
-    link: 'https://example.com/news1',
-  },
-  {
-    id: 2,
-    title: 'Breakthrough in Neural Networks',
-    description: 'Researchers propose a more efficient architecture for training deep learning models.',
-    image: '/news2.jpg',
-    link: 'https://example.com/news2',
-  },
-  {
-    id: 3,
-    title: 'Quantum Computing Meets AI',
-    description: 'The integration of quantum computing and AI opens new doors in computing power.',
-    image: '/news3.jpg',
-    link: 'https://example.com/news3',
-  },
-];
-
 const NewsPage = () => {
   const [newsItems, setNewsItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const REFRESH_INTERVAL = 60 * 60 * 1000;
+
+  const fetchNewsFromAPI = async (forceRefresh = false) => {
+    try {
+      setLoading(true);
+
+
+      const currentTime = Date.now();
+      const lastDbFetchTimestamp = localStorage.getItem('lastDbFetchTimestamp');
+
+
+      const needsFreshData = !lastDbFetchTimestamp ||
+        (currentTime - parseInt(lastDbFetchTimestamp)) >= REFRESH_INTERVAL ||
+        forceRefresh;
+
+
+      if (needsFreshData) {
+        console.log('refresh data');
+
+        localStorage.removeItem('newsCache');
+        localStorage.removeItem('newsCacheTimestamp');
+
+        try {
+          const deleteResponse = await fetch('/api/news', {
+            method: 'DELETE',
+          });
+
+          if (!deleteResponse.ok) {
+            console.warn('Failed to delete existing news items:', deleteResponse.statusText);
+          } else {
+            console.log('Successfully deleted existing news items');
+          }
+        } catch (deleteErr) {
+          console.error('Error deleting existing news:', deleteErr);
+        }
+
+
+        const apiKey = process.env.NEXT_PUBLIC_NEWS_API_KEY;
+        const response = await fetch(`https://gnews.io/api/v4/search?q=education&lang=en&country=in&max=10&apikey=${apiKey}`);
+
+        console.log('fetched new data from GNews API');
+        if (!response.ok) {
+          throw new Error('Failed to fetch news data');
+        }
+
+        const data = await response.json();
+        console.log('Full API Response:', data);
+
+        if (!data.articles) {
+          throw new Error('API returned an error or invalid data format');
+        }
+        console.log('Fetched Articles:', data.articles);
+
+
+        const mappedResults = data.articles.map(item => ({
+          title: item.title,
+          description: item.description,
+          photoUrl: item.image,
+          link: item.url,
+          date: item.publishedAt
+        }));
+        console.log('mappedResults:', mappedResults);
+
+
+        const savedItems = await Promise.all(mappedResults.map(async (newsItem) => {
+          try {
+            const response = await fetch('/api/news', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(newsItem),
+            });
+
+            if (!response.ok) {
+              throw new Error('Failed to save news item');
+            }
+
+            return await response.json();
+          } catch (err) {
+            console.error('Error saving news item:', err);
+            return null;
+          }
+        }));
+
+
+        const validSavedItems = savedItems.filter(item => item !== null);
+        console.log('Items saved to DB:', validSavedItems.length);
+
+
+        setNewsItems(validSavedItems);
+        console.log("Updated newsItems state:", validSavedItems);
+
+
+        localStorage.setItem('newsCache', JSON.stringify(validSavedItems));
+        localStorage.setItem('newsCacheTimestamp', currentTime.toString());
+        localStorage.setItem('lastDbFetchTimestamp', currentTime.toString());
+
+      } else {
+
+        const cachedData = localStorage.getItem('newsCache');
+        const cachedTimestamp = localStorage.getItem('newsCacheTimestamp');
+
+
+        if (
+          cachedData &&
+          cachedTimestamp &&
+          (currentTime - parseInt(cachedTimestamp)) < REFRESH_INTERVAL
+        ) {
+          console.log('Using cached news data');
+          setNewsItems(JSON.parse(cachedData));
+        } else {
+
+          try {
+            const dbResponse = await fetch('/api/news');
+
+            if (dbResponse.ok) {
+              const dbNews = await dbResponse.json();
+
+              if (dbNews.length > 0) {
+                console.log('Using database news data');
+                setNewsItems(dbNews);
+
+
+                localStorage.setItem('newsCache', JSON.stringify(dbNews));
+                localStorage.setItem('newsCacheTimestamp', currentTime.toString());
+              } else {
+
+                return fetchNewsFromAPI(true);
+              }
+            }
+          } catch (dbErr) {
+            console.error('Error checking database for news:', dbErr);
+            return fetchNewsFromAPI(true);
+          }
+        }
+      }
+
+      setError(null);
+      setLoading(false);
+    } catch (err) {
+      console.error('Error in news refresh cycle:', err);
+      setError('Failed to load news. Please try again later.');
+      setLoading(false);
+
+
+      try {
+        const response = await fetch('/api/news');
+        if (response.ok) {
+          const dbNews = await response.json();
+          if (dbNews.length > 0) {
+            setNewsItems(dbNews);
+            setError('Could not fetch fresh news. Showing existing content.');
+          }
+        }
+      } catch (dbErr) {
+        console.error('Error fetching from database:', dbErr);
+      }
+    }
+  };
 
   useEffect(() => {
-    setTimeout(() => {
-      setNewsItems(sampleNews);
-      setLoading(false);
-    }, 1000);
+    fetchNewsFromAPI();
+
+
+    const interval = setInterval(() => {
+      console.log("Interval triggered, forcing refresh");
+      fetchNewsFromAPI(true)
+    }, REFRESH_INTERVAL);
+
+    // Clean up on component unmount
+    return () => clearInterval(interval);
   }, []);
+
+
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-IN', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
 
   return (
     <div className="bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] min-h-screen p-8">
       <div className="max-w-6xl mx-auto text-center">
-        <h1 className="text-5xl font-bold text-white mb-10 tracking-tight">Latest News</h1>
+        <h1 className="text-5xl font-bold text-white mb-16 tracking-tight">Latest Education News</h1>
+
+        {error && (
+          <div className="bg-red-500/20 text-red-100 p-4 rounded-lg mb-8">
+            {error}
+          </div>
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
           {loading
             ? Array(3)
-                .fill()
-                .map((_, index) => (
-                  <div key={index} className="glass-card h-96">
-                    <Skeleton className="w-full h-40 rounded-xl mb-4" />
-                    <Skeleton className="h-6 w-32 mb-2" />
-                    <Skeleton className="h-4 w-24 mb-6" />
-                    <Skeleton className="h-24 w-full rounded-md mb-6" />
-                  </div>
-                ))
-            : newsItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="group glass-card transition-transform duration-300 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-purple-500/30 relative overflow-hidden"
-                >
-                  {/* News Image */}
-                  {item.image && (
-                    <div className="overflow-hidden rounded-xl">
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        className="w-full h-40 object-cover rounded-xl transform transition-transform duration-500 group-hover:scale-110"
-                      />
-                    </div>
-                  )}
-
-                  {/* Title */}
-                  <h2 className="mt-4 text-xl font-bold text-white group-hover:text-purple-200 transition-all duration-300">
-                    {item.title}
-                  </h2>
-
-                  {/* Description */}
-                  <p className="text-gray-300 text-sm mt-2 line-clamp-4">{item.description}</p>
-
-                  {/* Read More */}
-                  {item.link && (
-                    <div className="flex justify-center mt-6">
-                      <a
-                        href={item.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-purple-300 hover:text-purple-100 transition-all text-sm"
-                      >
-                        Read More <ExternalLink size={16} />
-                      </a>
-                    </div>
-                  )}
+              .fill()
+              .map((_, index) => (
+                <div key={index} className="glass-card h-96">
+                  <Skeleton className="w-full h-40 rounded-xl mb-4" />
+                  <Skeleton className="h-6 w-32 mb-2" />
+                  <Skeleton className="h-4 w-24 mb-6" />
+                  <Skeleton className="h-24 w-full rounded-md mb-6" />
                 </div>
-              ))}
+              ))
+            : newsItems.map((item) => (
+              <div
+                key={item.id}
+                className="group glass-card transition-transform duration-300 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-purple-500/30 relative overflow-hidden"
+              >
+                {/* News Image */}
+                <div className="overflow-hidden rounded-xl">
+                  <img
+                    src={item.photoUrl || '/placeholder-news.jpg'}
+                    alt={item.title}
+                    className="w-full h-40 object-cover rounded-xl transform transition-transform duration-500 group-hover:scale-110"
+                    onError={(e) => {
+                      e.target.src = '/placeholder-news.jpg';
+                    }}
+                  />
+                </div>
+
+                {/* Published Date */}
+                <div className="mt-4 text-xs text-purple-300">
+                  {formatDate(item.date)}
+                </div>
+
+                {/* Title */}
+                <h2 className="mt-2 text-xl font-bold text-white group-hover:text-purple-200 transition-all duration-300">
+                  {item.title}
+                </h2>
+
+                {/* Description */}
+                <p className="text-gray-300 text-sm mt-2 line-clamp-4">{item.description}</p>
+
+                {/* Read More */}
+                {item.link && (
+                  <div className="flex justify-center mt-6">
+                    <a
+                      href={item.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-purple-300 hover:text-purple-100 transition-all text-sm"
+                    >
+                      Read More <ExternalLink size={16} />
+                    </a>
+                  </div>
+                )}
+              </div>
+            ))}
         </div>
       </div>
 

@@ -94,7 +94,7 @@ model Faculty {
 model News {
   id          Int      @id @default(autoincrement())
   title       String
-  description String?
+  description String
   date        DateTime
   photoUrl    String
   link        String
