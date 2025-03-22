@@ -74,6 +74,7 @@ model TeamPage {
   id           Int          @id @default(autoincrement())
   name         String
   role         String
+  index        Int
   category     TeamCategory
   photoUrl     String
   linkedinUrl  String?
