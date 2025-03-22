@@ -63,6 +63,7 @@ export async function POST(request) {
     const { 
       name, 
       role, 
+      index,
       category, 
       photoUrl, 
       linkedinUrl, 
@@ -86,6 +87,7 @@ export async function POST(request) {
       data: {
         name,
         role,
+        index: index !== undefined ? parseInt(index) : null,
         category,
         photoUrl,
         linkedinUrl,
