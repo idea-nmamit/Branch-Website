@@ -69,7 +69,8 @@ export async function POST(request) {
       githubUrl, 
       instagramUrl, 
       year, 
-      quote 
+      quote,
+      attendees, 
     } = body;
 
     // Validate required fields
@@ -92,6 +93,7 @@ export async function POST(request) {
         instagramUrl,
         year,
         quote,
+        attendees,
       },
     });
 

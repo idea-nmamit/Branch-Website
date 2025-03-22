@@ -13,7 +13,7 @@ const EventList = ({ events }) => {
 
   return (
     <Card>
-      <CardHeader>zz
+      <CardHeader>
         <CardTitle>Submitted Events</CardTitle>
       </CardHeader>
       <CardContent>

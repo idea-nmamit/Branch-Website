@@ -17,7 +17,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { format } from "date-fns"
-import { CalendarIcon, Clock } from "lucide-react"
+import { CalendarIcon, Clock, Users } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const EventForm = ({ onEventAdded }) => {
@@ -30,6 +30,7 @@ const EventForm = ({ onEventAdded }) => {
   const [selectedImage, setSelectedImage] = useState(null)
   const [loading, setLoading] = useState(false)
   const [type, setType] = useState('TECHNICAL')
+  const [attendees, setAttendees] = useState('')
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
@@ -88,6 +89,7 @@ const EventForm = ({ onEventAdded }) => {
         description,
         imageURL: uploadedImageURL,
         type,
+        attendees: parseInt(attendees) || 0,
       }
 
       const response = await fetch('/api/events', {
@@ -122,6 +124,7 @@ const EventForm = ({ onEventAdded }) => {
       setDescription('')
       setSelectedImage(null)
       setType('TECHNICAL')
+      setAttendees('')
 
       // Notify parent component that an event was added
       if (onEventAdded) {
@@ -233,6 +236,22 @@ const EventForm = ({ onEventAdded }) => {
                 onChange={(e) => setTime(e.target.value)}
                 className="pl-10"
                 required
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="attendees">Number of Attendees</Label>
+            <div className="relative">
+              <Users className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="attendees"
+                type="number"
+                min="0"
+                value={attendees}
+                onChange={(e) => setAttendees(e.target.value)}
+                className="pl-10"
+                placeholder="Enter expected number of attendees"
               />
             </div>
           </div>
