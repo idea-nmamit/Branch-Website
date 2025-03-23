@@ -3,31 +3,30 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import gsap from 'gsap';
-import { useTheme } from 'next-themes';
 import NeuralNetwork from "./NeuralNetwork";
+import PageLoader from "./PageLoader";
 
 const HomePage = () => {
-  const { theme, resolvedTheme } = useTheme();
   const logoRef = useRef(null);
   const subtitleContainerRef = useRef(null);
   const badgeRef = useRef(null);
   const wordsRefs = useRef([]);
   const [lastClickTime, setLastClickTime] = useState(0);
-  const [mounted, setMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const titleText = "Intelligence and Data Science Engineers' Association";
   const titleWords = titleText.split(' ');
+  
+  // Always use light logo
+  const logoSrc = "/Logo-Light.png";
 
   useEffect(() => {
-    setMounted(true);
+    // Reset loading state on each page load/refresh
+    setIsLoading(true);
   }, []);
 
-  const logoSrc = mounted && (theme === 'dark' || resolvedTheme === 'dark')
-    ? "/Logo-Dark.png"
-    : "/Logo-Light.png";
-
   useEffect(() => {
-    if (!mounted) return;
+    if (isLoading) return;
 
     gsap.killTweensOf([logoRef.current, badgeRef.current, ...wordsRefs.current]);
 
@@ -78,10 +77,9 @@ const HomePage = () => {
     }, "-=0.5");
 
     return () => {
-
       gsap.killTweensOf([logoRef.current, badgeRef.current, ...wordsRefs.current]);
     };
-  }, [mounted]);
+  }, [isLoading]);
 
   const handleWordClick = useCallback((index) => {
     const now = Date.now();
@@ -109,16 +107,20 @@ const HomePage = () => {
     });
   }, [lastClickTime]);
 
+  const finishLoading = () => {
+    setIsLoading(false);
+  };
+
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-[#17003A] to-[#34006e] dark:from-[#8617C0] dark:to-[#6e11a0] text-white overflow-hidden">
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center justify-center transform -translate-y-16 px-4 container mx-auto">
-        {/* Logo and Title */}
-          <NeuralNetwork />
-        <div className="w-full max-w-4xl mx-auto text-center">
-          <div ref={logoRef} className="text-white flex items-center justify-center mb-4 md:mb-8">
-            <div className="relative w-52 h-20 sm:w-64 sm:h-24 md:w-96 md:h-40 lg:w-[450px] lg:h-48">
-              {mounted && (
+    <PageLoader finishLoading={finishLoading}>
+      <div className="flex flex-col min-h-screen bg-gradient-to-br from-[#17003A] to-[#34006e] text-white overflow-hidden">
+        {/* Main Content */}
+        <main className="flex-1 flex flex-col items-center justify-center transform -translate-y-16 px-4 container mx-auto">
+          {/* Logo and Title */}
+          {!isLoading && <NeuralNetwork />}
+          <div className="w-full max-w-4xl mx-auto text-center">
+            <div ref={logoRef} className="text-white flex items-center justify-center mb-4 md:mb-8">
+              <div className="relative w-52 h-20 sm:w-64 sm:h-24 md:w-96 md:h-40 lg:w-[450px] lg:h-48">
                 <Image
                   src={logoSrc}
                   alt="IDEA"
@@ -126,45 +128,44 @@ const HomePage = () => {
                   className="object-contain"
                   priority
                 />
-              )}
+              </div>
+            </div>
+
+            <div
+              ref={subtitleContainerRef}
+              className="flex flex-wrap justify-center gap-x-2 gap-y-1 md:gap-y-2 max-w-[90%] mx-auto"
+            >
+              {titleWords.map((word, index) => (
+                <div
+                  key={index}
+                  ref={el => wordsRefs.current[index] = el}
+                  className="relative select-none font-sans tracking-tight"
+                  style={{
+                    fontSize: 'clamp(1.125rem, 5vw, 2.8rem)',
+                    fontWeight: index === 0 || index === 2 ? 800 : 600,
+                    textShadow: '0px 2px 4px rgba(0,0,0,0.4)',
+                    letterSpacing: index === 0 || index === 3 ? '-0.02em' : '-0.01em',
+                    willChange: 'transform'
+                  }}
+                  onClick={() => handleWordClick(index)}
+                >
+                  {word}
+                </div>
+              ))}
             </div>
           </div>
+        </main>
 
-          <div
-            ref={subtitleContainerRef}
-            className="flex flex-wrap justify-center gap-x-2 gap-y-1 md:gap-y-2 max-w-[90%] mx-auto"
-          >
-            {titleWords.map((word, index) => (
-              <div
-                key={index}
-                ref={el => wordsRefs.current[index] = el}
-                className="relative select-none font-sans tracking-tight"
-                style={{
-                  fontSize: 'clamp(1.125rem, 5vw, 2.8rem)',
-                  fontWeight: index === 0 || index === 2 ? 800 : 600,
-                  textShadow: '0px 2px 4px rgba(0,0,0,0.4)',
-                  letterSpacing: index === 0 || index === 3 ? '-0.02em' : '-0.01em',
-                  willChange: 'transform'
-                }}
-                onClick={() => handleWordClick(index)}
-              >
-                {word}
-              </div>
-            ))}
-          </div>
+        {/* News Badge */}
+        <div ref={badgeRef} className="fixed bottom-4 left-4 sm:bottom-6 sm:left-6 md:bottom-12 md:left-12 z-20">
+          <Link href="/News">
+            <div className="bg-gradient-to-r from-pink-300 to-purple-300 text-[#17003A] px-3 py-1.5 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-full font-semibold text-sm sm:text-base md:text-lg shadow-lg tracking-wide cursor-pointer">
+              Latest News
+            </div>
+          </Link>
         </div>
-      </main>
-
-      {/* News Badge */}
-      <div ref={badgeRef} className="fixed bottom-4 left-4 sm:bottom-6 sm:left-6 md:bottom-12 md:left-12 z-20">
-        <Link href="/News">
-          <div className="bg-gradient-to-r from-pink-300 to-purple-300 text-[#17003A] px-3 py-1.5 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-full font-semibold text-sm sm:text-base md:text-lg shadow-lg tracking-wide cursor-pointer">
-            Latest News
-          </div>
-        </Link>
-
       </div>
-    </div>
+    </PageLoader>
   );
 };
 
