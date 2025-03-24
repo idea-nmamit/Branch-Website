@@ -602,62 +602,6 @@ const PageLoader = ({ children, finishLoading }) => {
                   />
                 </div>
               </div>
-              
-              {/* Loading text with more dynamic animation */}
-              <motion.div 
-                className="flex items-center text-white text-sm mb-6"
-                animate={{ 
-                  opacity: [0.6, 1, 0.6],
-                  filter: [
-                    'drop-shadow(0 0 0px rgba(255, 255, 255, 0))',
-                    'drop-shadow(0 0 8px rgba(255, 255, 255, 0.5))',
-                    'drop-shadow(0 0 0px rgba(255, 255, 255, 0))'
-                  ]
-                }}
-                transition={{ 
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              >
-                <span>Training neural network</span>
-                <motion.div className="ml-1 flex space-x-1">
-                  <motion.span 
-                    animate={{ y: [0, -3, 0] }}
-                    transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
-                    className="inline-block"
-                  >.</motion.span>
-                  <motion.span 
-                    animate={{ y: [0, -3, 0] }}
-                    transition={{ duration: 0.6, repeat: Infinity, delay: 0.2 }}
-                    className="inline-block"
-                  >.</motion.span>
-                  <motion.span 
-                    animate={{ y: [0, -3, 0] }}
-                    transition={{ duration: 0.6, repeat: Infinity, delay: 0.4 }}
-                    className="inline-block"
-                  >.</motion.span>
-                </motion.div>
-              </motion.div>
-              
-              {/* Interactive hint with pulse effect */}
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ 
-                  opacity: [0, 0.8, 0],
-                  scale: [0.95, 1, 0.95]
-                }}
-                transition={{ 
-                  delay: 1,
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  repeatDelay: 0.5
-                }}
-                className="text-pink-300 text-sm pointer-events-auto backdrop-blur-sm px-4 py-1 rounded-full bg-pink-500/10"
-              >
-                Interact with the neural nodes...
-              </motion.p>
             </div>
           </motion.div>
         )}
