@@ -28,6 +28,8 @@ export async function POST(request) {
             photoUrl,
             link,
             date,
+            category,
+            fetchedAt
         } = body;
 
         if (!title || !link || !photoUrl || !date || !description) {
@@ -45,6 +47,8 @@ export async function POST(request) {
                 photoUrl,
                 link,
                 date: new Date(date),
+                category,
+                fetchedAt: fetchedAt ? new Date(fetchedAt) : new Date()
             },
         });
         return NextResponse.json(NEWS, { status: 201 });
