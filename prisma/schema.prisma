@@ -94,12 +94,14 @@ model Faculty {
 }
 
 model News {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   title       String
   description String
   date        DateTime
   photoUrl    String
   link        String
+  category    String?
+  fetchedAt   DateTime?
 }
 
 model Gallery {

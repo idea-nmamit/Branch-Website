@@ -5,191 +5,173 @@ import { ExternalLink, Clock, TrendingUp } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const NewsPage = () => {
+  const CATEGORIES = [
+    {
+      value: 'data-science',
+      label: 'Data Science & ML',
+      query: '"Data Science" OR "Machine Learning"',
+      priority: 1
+    },
+    {
+      value: 'technology',
+      label: 'Technology',
+      query: '"Artificial Intelligence" OR "AI"',
+      priority: 2
+    },
+    {
+      value: 'innovation',
+      label: 'Innovation',
+      query: 'Innovation',
+      priority: 3
+    },
+    {
+      value: 'higher-ed',
+      label: 'Education',
+      query: 'education',
+      priority: 4
+    }
+  ].sort((a, b) => a.priority - b.priority);
+
   const [newsItems, setNewsItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [refreshing, setRefreshing] = useState(false);
-  const [activeCategory, setActiveCategory] = useState('all');
+  const [activeCategory, setActiveCategory] = useState('data-science');
+  const [lastFetchTime, setLastFetchTime] = useState(0);
 
-  const REFRESH_INTERVAL = 1000 * 60 * 60 * 2; // 1 hours
+  const REFRESH_INTERVAL = 1000 * 60 * 60 * 3;
 
-  const fetchNewsFromAPI = async (forceRefresh = false) => {
+  const fetchNewsFromAPI = async (forceRefresh = false, selectedCategory = null) => {
     try {
-      if (!loading) setRefreshing(true);
+      setError(null);
       setLoading(true);
 
-      const currentTime = Date.now();
-      const lastDbFetchTimestamp = localStorage.getItem('lastDbFetchTimestamp');
 
-      const needsFreshData = !lastDbFetchTimestamp ||
-        (currentTime - parseInt(lastDbFetchTimestamp)) >= REFRESH_INTERVAL ||
-        forceRefresh;
+      // Check rate limiting
+      const canFetch = Date.now() - lastFetchTime > 3000;
+      if (!canFetch && !forceRefresh) {
+        console.log('Rate limited - waiting before next fetch');
+        return;
+      }
 
-      if (needsFreshData) {
-        console.log('refresh data');
+      // First try to get existing news from database
+      const filterResponse = await fetch('/api/news/filter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          category: selectedCategory || 'all',
+          refreshInterval: REFRESH_INTERVAL
+        })
+      });
 
-        localStorage.removeItem('newsCache');
-        localStorage.removeItem('newsCacheTimestamp');
+      if (filterResponse.ok) {
+        const existingNews = await filterResponse.json();
+        const filteredNews = selectedCategory
+          ? existingNews.filter(item => item.category === selectedCategory)
+          : existingNews;
 
-        try {
-          const deleteResponse = await fetch('/api/news', {
-            method: 'DELETE',
-          });
-
-          if (!deleteResponse.ok) {
-            console.warn('Failed to delete existing news items:', deleteResponse.statusText);
-          } else {
-            console.log('Successfully deleted existing news items');
-          }
-        } catch (deleteErr) {
-          console.error('Error deleting existing news:', deleteErr);
-        }
-
-        const apiKey = process.env.NEXT_PUBLIC_NEWS_API_KEY;
-        const response = await fetch(`https://gnews.io/api/v4/search?q=("Artificial Intelligence" OR "AI" OR "Machine Learning" OR "Data Science" OR (jobs OR hiring OR recruitment OR placements OR careers OR "job openings"))&lang=en&country=us&max=10&apikey=${apiKey}`);
-
-        console.log('fetched new data from GNews API');
-        if (!response.ok) {
-          throw new Error('Failed to fetch news data');
-        }
-
-        const data = await response.json();
-        console.log('Full API Response:', data);
-
-        if (!data.articles) {
-          throw new Error('API returned an error or invalid data format');
-        }
-        console.log('Fetched Articles:', data.articles);
-
-        const mappedResults = data.articles.map(item => ({
-          title: item.title,
-          description: item.description,
-          photoUrl: item.image,
-          link: item.url,
-          date: item.publishedAt,
-          category: assignRandomCategory() // Add random category for demo
-        }));
-        console.log('mappedResults:', mappedResults);
-
-        const savedItems = await Promise.all(mappedResults.map(async (newsItem) => {
-          try {
-            const response = await fetch('/api/news', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(newsItem),
-            });
-
-            if (!response.ok) {
-              throw new Error('Failed to save news item');
-            }
-
-            return await response.json();
-          } catch (err) {
-            console.error('Error saving news item:', err);
-            return null;
-          }
-        }));
-
-        const validSavedItems = savedItems.filter(item => item !== null);
-        console.log('Items saved to DB:', validSavedItems.length);
-
-        setNewsItems(validSavedItems);
-        console.log("Updated newsItems state:", validSavedItems);
-
-        localStorage.setItem('newsCache', JSON.stringify(validSavedItems));
-        localStorage.setItem('newsCacheTimestamp', currentTime.toString());
-        localStorage.setItem('lastDbFetchTimestamp', currentTime.toString());
-
-      } else {
-        const cachedData = localStorage.getItem('newsCache');
-        const cachedTimestamp = localStorage.getItem('newsCacheTimestamp');
-
-        if (
-          cachedData &&
-          cachedTimestamp &&
-          (currentTime - parseInt(cachedTimestamp)) < REFRESH_INTERVAL
-        ) {
-          console.log('Using cached news data');
-          const parsedData = JSON.parse(cachedData);
-          // Ensure we have categories for demo
-          const dataWithCategories = parsedData.map(item => ({
-            ...item,
-            category: item.category || assignRandomCategory()
-          }));
-          setNewsItems(dataWithCategories);
-        } else {
-          try {
-            const dbResponse = await fetch('/api/news');
-
-            if (dbResponse.ok) {
-              const dbNews = await dbResponse.json();
-
-              if (dbNews.length > 0) {
-                console.log('Using database news data');
-                const newsWithCategories = dbNews.map(item => ({
-                  ...item,
-                  category: item.category || assignRandomCategory()
-                }));
-                setNewsItems(newsWithCategories);
-
-                localStorage.setItem('newsCache', JSON.stringify(newsWithCategories));
-                localStorage.setItem('newsCacheTimestamp', currentTime.toString());
-              } else {
-                return fetchNewsFromAPI(true);
-              }
-            }
-          } catch (dbErr) {
-            console.error('Error checking database for news:', dbErr);
-            return fetchNewsFromAPI(true);
-          }
+        if (filteredNews.length > 0 && !forceRefresh) {
+          setNewsItems(filteredNews);
+          setLoading(false);
+          setRefreshing(false);
+          return;
         }
       }
 
-      setError(null);
+      // If forceRefresh or no existing news, fetch from API
+      if (!forceRefresh) {
+        setLoading(false);
+        return;
+      }
+
+      const apiKey = process.env.NEXT_PUBLIC_NEWS_API_KEY;
+      const newsResults = [];
+
+      // Process categories sequentially with longer delay
+      for (const category of CATEGORIES) {
+        try {
+          // Increased delay between requests to 3 seconds
+          await new Promise(resolve => setTimeout(resolve, 3000));
+
+          const response = await fetch(
+            `https://gnews.io/api/v4/search?q=${encodeURIComponent(category.query)}&lang=en&max=10&apikey=${apiKey}`
+          );
+
+          if (!response.ok) {
+            console.warn(`Failed to fetch news for ${category.value}`);
+            continue;
+          }
+
+          const data = await response.json();
+          if (data.articles) {
+            newsResults.push(...data.articles.map(item => ({
+              title: item.title,
+              description: item.description,
+              photoUrl: item.image,
+              link: item.url,
+              date: item.publishedAt,
+              category: category.value,
+              fetchedAt: new Date()
+            })));
+          }
+        } catch (err) {
+          console.error(`Error fetching ${category.label}:`, err);
+        }
+      }
+
+      // Only clear existing entries if we got new data
+      if (newsResults.length > 0) {
+        await fetch('/api/news', { method: 'DELETE' });
+
+        // Save new items
+        await Promise.all(newsResults.map(async (newsItem) => {
+          try {
+            await fetch('/api/news', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(newsItem),
+            });
+          } catch (err) {
+            console.error('Error saving news item:', err);
+          }
+        }));
+
+        setNewsItems(newsResults.sort((a, b) => new Date(b.date) - new Date(a.date)));
+        setLastFetchTime(Date.now());
+      } else {
+        // If no new data, keep existing items
+        if (filterResponse.ok) {
+          const existingNews = await filterResponse.json();
+          setNewsItems(existingNews);
+        }
+      }
+
       setLoading(false);
       setRefreshing(false);
     } catch (err) {
       console.error('Error in news refresh cycle:', err);
-      setError('Failed to load news. Please try again later.');
+      setError('Failed to load some news. Showing cached content if available.');
       setLoading(false);
       setRefreshing(false);
-
-      try {
-        const response = await fetch('/api/news');
-        if (response.ok) {
-          const dbNews = await response.json();
-          if (dbNews.length > 0) {
-            const newsWithCategories = dbNews.map(item => ({
-              ...item,
-              category: item.category || assignRandomCategory()
-            }));
-            setNewsItems(newsWithCategories);
-            setError('Could not fetch fresh news. Showing existing content.');
-          }
-        }
-      } catch (dbErr) {
-        console.error('Error fetching from database:', dbErr);
-      }
     }
   };
 
-  // Added function to assign categories for demo purposes
-  const assignRandomCategory = () => {
-    const categories = ['policy', 'innovation', 'higher-ed', 'k12', 'technology'];
-    return categories[Math.floor(Math.random() * categories.length)];
-  };
-
   useEffect(() => {
-    fetchNewsFromAPI();
+    const initialFetch = async () => {
+      await fetchNewsFromAPI();
+
+      // If still empty after initial fetch, force refresh
+      if (newsItems.length === 0) {
+        console.log("Database empty, forcing refresh");
+        await fetchNewsFromAPI(true);
+      }
+    };
+
+    initialFetch();
 
     const interval = setInterval(() => {
-      console.log("Interval triggered, forcing refresh");
       fetchNewsFromAPI(true);
     }, REFRESH_INTERVAL);
 
-    // Clean up on component unmount
     return () => clearInterval(interval);
   }, []);
 
@@ -206,54 +188,51 @@ const NewsPage = () => {
     const now = new Date();
     const date = new Date(dateString);
     const diff = now - date;
-    
-    // Convert to hours
+
     const hours = Math.floor(diff / (1000 * 60 * 60));
-    
+
     if (hours < 1) return 'Just now';
     if (hours < 24) return `${hours}h ago`;
-    
-    // If older than a day, show days
+
     const days = Math.floor(hours / 24);
     return `${days}d ago`;
   };
 
   const getCategoryColor = (category) => {
     const colors = {
-      'policy': 'from-blue-500 to-blue-700',
+      'data-science': 'from-blue-500 to-blue-700',
+      'technology': 'from-red-500 to-red-700',
       'innovation': 'from-green-500 to-green-700',
       'higher-ed': 'from-purple-500 to-purple-700',
-      'k12': 'from-orange-500 to-orange-700',
-      'technology': 'from-red-500 to-red-700',
     };
     return colors[category] || 'from-purple-500 to-pink-600';
   };
 
   const getCategoryTextColor = (category) => {
     const colors = {
-      'policy': 'text-blue-400',
+      'data-science': 'text-blue-400',
+      'technology': 'text-red-400',
       'innovation': 'text-green-400',
       'higher-ed': 'text-purple-400',
-      'k12': 'text-orange-400',
-      'technology': 'text-red-400',
     };
     return colors[category] || 'text-purple-400';
   };
 
   const getCategoryName = (category) => {
     const names = {
-      'policy': 'Policy',
-      'innovation': 'Innovation',
-      'higher-ed': 'Higher Education',
-      'k12': 'K-12',
+      'data-science': 'Data Science',
       'technology': 'Technology',
+      'innovation': 'Innovation',
+      'higher-ed': 'Education',
     };
     return names[category] || category;
   };
 
-  const filteredNews = activeCategory === 'all' 
-    ? newsItems 
+  const filteredNews = activeCategory === 'all'
+    ? newsItems
     : newsItems.filter(item => item.category === activeCategory);
+
+  const gridNews = filteredNews.length > 0 ? filteredNews.slice(1) : [];
 
   return (
     <div className="bg-[#050415] min-h-screen pb-16 overflow-x-hidden">
@@ -269,7 +248,6 @@ const NewsPage = () => {
       {/* Sticky Header with Glassmorphism */}
       <header className="sticky top-0 z-50 bg-black/30 backdrop-blur-md border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Main Header with Title */}
           <div className="py-6 flex flex-col items-center">
             <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight text-center mb-2">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
@@ -281,63 +259,23 @@ const NewsPage = () => {
               Stay updated with the latest trends and insights in education
             </p>
           </div>
-          
-          {/* Category Navigation */}
+
           <div className="pb-4 flex items-center justify-center space-x-1 overflow-x-auto hide-scrollbar">
-            <button 
-              onClick={() => setActiveCategory('all')} 
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
-                activeCategory === 'all' 
-                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' 
+            {CATEGORIES.map((category) => (
+              <button
+                key={category.value}
+                onClick={() => {
+                  setActiveCategory(category.value);
+                  fetchNewsFromAPI(false, category.value);
+                }}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap ${activeCategory === category.value
+                  ? 'bg-gradient-to-r from-blue-600 to-blue-800 text-white'
                   : 'bg-white/5 text-white/70 hover:bg-white/10'
-              }`}
-            >
-              All News
-            </button>
-            
-            <button 
-              onClick={() => setActiveCategory('policy')} 
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
-                activeCategory === 'policy' 
-                  ? 'bg-gradient-to-r from-blue-600 to-blue-800 text-white' 
-                  : 'bg-white/5 text-white/70 hover:bg-white/10'
-              }`}
-            >
-              Policy
-            </button>
-            
-            <button 
-              onClick={() => setActiveCategory('innovation')} 
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
-                activeCategory === 'innovation' 
-                  ? 'bg-gradient-to-r from-green-600 to-green-800 text-white' 
-                  : 'bg-white/5 text-white/70 hover:bg-white/10'
-              }`}
-            >
-              Innovation
-            </button>
-            
-            <button 
-              onClick={() => setActiveCategory('k12')} 
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
-                activeCategory === 'k12' 
-                  ? 'bg-gradient-to-r from-orange-600 to-orange-800 text-white' 
-                  : 'bg-white/5 text-white/70 hover:bg-white/10'
-              }`}
-            >
-              K-12
-            </button>
-            
-            <button 
-              onClick={() => setActiveCategory('technology')} 
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
-                activeCategory === 'technology' 
-                  ? 'bg-gradient-to-r from-red-600 to-red-800 text-white' 
-                  : 'bg-white/5 text-white/70 hover:bg-white/10'
-              }`}
-            >
-              Technology
-            </button>
+                  }`}
+              >
+                {category.label}
+              </button>
+            ))}
           </div>
         </div>
       </header>
@@ -351,7 +289,6 @@ const NewsPage = () => {
 
         {loading ? (
           <div className="space-y-12">
-            {/* Featured News Skeleton */}
             <div className="neo-card">
               <div className="lg:flex gap-8">
                 <Skeleton className="w-full lg:w-2/3 h-[300px] rounded-xl" />
@@ -364,7 +301,6 @@ const NewsPage = () => {
               </div>
             </div>
 
-            {/* News Grid Skeletons */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
               {Array(6).fill().map((_, index) => (
                 <div key={index} className="neo-card">
@@ -378,7 +314,6 @@ const NewsPage = () => {
           </div>
         ) : (
           <div className="space-y-12">
-            {/* Breaking News Ticker */}
             <div className="w-full bg-black/50 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden mb-6">
               <div className="flex items-center">
                 <div className="bg-gradient-to-r from-red-600 to-red-800 p-2 text-white font-bold flex items-center gap-1 whitespace-nowrap">
@@ -396,22 +331,19 @@ const NewsPage = () => {
                 </div>
               </div>
             </div>
-            
-            {/* Featured News Section */}
+
             {filteredNews.length > 0 && (
               <div className="neo-card featured-news transform transition-all duration-300 overflow-hidden">
                 <div className="absolute top-4 left-4 z-10">
                   <div className="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full text-xs font-bold tracking-wider shadow-lg">
                     FEATURED
                   </div>
-                  
                   {filteredNews[0].category && (
                     <div className={`mt-2 px-3 py-1.5 bg-gradient-to-r ${getCategoryColor(filteredNews[0].category)} text-white rounded-full text-xs font-bold tracking-wider shadow-lg`}>
                       {getCategoryName(filteredNews[0].category).toUpperCase()}
                     </div>
                   )}
                 </div>
-                
                 <div className="lg:flex gap-8">
                   <div className="w-full lg:w-2/3 overflow-hidden rounded-xl relative group">
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-[1]"></div>
@@ -423,16 +355,12 @@ const NewsPage = () => {
                         e.target.src = '/placeholder-news.jpg';
                       }}
                     />
-                  
-                    
-                    {/* Time badge in absolute position */}
                     <div className="absolute bottom-4 left-4 z-20">
                       <div className="flex items-center text-white/80 text-sm bg-black/50 backdrop-blur-sm px-3 py-1 rounded-full">
                         <Clock size={14} className="mr-2" /> {getTimeAgo(filteredNews[0].date)}
                       </div>
                     </div>
                   </div>
-                  
                   <div className="w-full lg:w-1/3 mt-6 lg:mt-0">
                     <div className="flex items-center gap-3 mb-4">
                       <span className="text-purple-200 text-sm">
@@ -456,9 +384,9 @@ const NewsPage = () => {
                   </div>
                 </div>
               </div>
+
             )}
 
-            {/* News Grid */}
             <div>
               <div className="flex justify-between items-center mb-8">
                 <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-200 to-pink-200">Latest Updates</h2>
@@ -466,11 +394,11 @@ const NewsPage = () => {
                   {filteredNews.length} stories
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 {filteredNews.slice(1).map((item) => (
                   <div
-                    key={item.id}
+                    key={`${item.link}-${item.title}`}
                     className="group neo-card transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-purple-500/10 relative"
                   >
                     <div className="overflow-hidden rounded-xl relative">
@@ -483,8 +411,6 @@ const NewsPage = () => {
                           e.target.src = '/placeholder-news.jpg';
                         }}
                       />
-                      
-                      {/* Category Badge */}
                       {item.category && (
                         <div className="absolute top-3 left-3 z-10">
                           <div className={`px-2 py-1 bg-gradient-to-r ${getCategoryColor(item.category)} text-white text-xs rounded-md font-semibold`}>
@@ -492,21 +418,16 @@ const NewsPage = () => {
                           </div>
                         </div>
                       )}
-                      
-                      {/* Time Badge */}
                       <div className="absolute bottom-3 right-3 z-10">
                         <div className="flex items-center gap-1 bg-black/60 backdrop-blur-md text-white/80 text-xs px-2 py-1 rounded-md">
                           <Clock size={12} /> {getTimeAgo(item.date)}
                         </div>
                       </div>
                     </div>
-                    
                     <h2 className="text-xl font-bold text-white group-hover:text-purple-200 transition-colors line-clamp-2 mt-4">
                       {item.title}
                     </h2>
-                    
                     <p className="text-gray-300 text-sm mt-2 line-clamp-3">{item.description}</p>
-                    
                     {item.link && (
                       <div className="mt-4 pt-3 border-t border-white/10 flex justify-between items-center">
                         <span className={`text-xs font-medium ${getCategoryTextColor(item.category)}`}>
@@ -530,7 +451,6 @@ const NewsPage = () => {
         )}
       </main>
 
-      {/* Floating "Back to Top" Button */}
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         className="fixed bottom-6 right-6 z-50 p-3 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg opacity-0 transition-opacity duration-300 hover:shadow-purple-500/50"
@@ -540,10 +460,8 @@ const NewsPage = () => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
         </svg>
       </button>
-      
-      {/* Advanced CSS */}
+
       <style jsx>{`
-        /* Custom Neon Card */
         .neo-card {
           background: rgba(15, 15, 25, 0.6);
           backdrop-filter: blur(16px);
@@ -565,7 +483,6 @@ const NewsPage = () => {
           box-shadow: 0 10px 40px rgba(160, 0, 255, 0.2);
         }
 
-        /* Hide scrollbar for category navigation */
         .hide-scrollbar {
           -ms-overflow-style: none;
           scrollbar-width: none;
@@ -575,7 +492,6 @@ const NewsPage = () => {
           display: none;
         }
 
-        /* Animations */
         @keyframes blob {
           0% {
             transform: translate(0px, 0px) scale(1);
@@ -603,7 +519,6 @@ const NewsPage = () => {
           animation-delay: 4s;
         }
 
-        /* News ticker tape animation */
         .ticker-tape {
           display: flex;
           animation: ticker 30s linear infinite;
@@ -624,7 +539,6 @@ const NewsPage = () => {
           }
         }
 
-        /* Save/Share Toast Notification */
         .save-toast {
           position: fixed;
           bottom: 30px;
@@ -649,7 +563,6 @@ const NewsPage = () => {
         }
       `}</style>
 
-      {/* Back to Top Button Script */}
       <script dangerouslySetInnerHTML={{
         __html: `
           document.addEventListener("scroll", function() {
