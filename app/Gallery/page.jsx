@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/Carousel";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
-import { X, ChevronDown, ChevronLeft, ChevronRight, Search, Download, Heart, Share2, Maximize } from "lucide-react";
+import { X, ChevronDown, ChevronLeft, ChevronRight, Search, Download, Share2, Maximize } from "lucide-react";
 
 const categories = [
   "TECHNICAL", "CULTURAL", "SPORTS", "ACADEMIC",
@@ -35,6 +35,9 @@ export default function GalleryPage() {
   const [placeholderLoaded, setPlaceholderLoaded] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const modalRef = useRef(null);
+  const fetchedRef = useRef(false); // To track if we've already fetched data
+  const [modalImageLoaded, setModalImageLoaded] = useState(false);
+  const [shareError, setShareError] = useState(false);
 
   const handleImageLoad = (imageId) => {
     setLoadedImages(prev => ({ ...prev, [imageId]: true }));
@@ -56,16 +59,15 @@ export default function GalleryPage() {
 
   // Fetch carousel images
   useEffect(() => {
-    // Don't wait for API to show skeletons
-    if (!placeholderLoaded) return;
+    if (!placeholderLoaded || fetchedRef.current) return;
     
     fetch("/api/gallery")
       .then(res => res.json())
       .then(data => {
-        // Update loaded images map with real image IDs
         const updatedLoadStates = { ...loadedImages };
         data.forEach(image => {
           updatedLoadStates[image.id] = false;
+          updatedLoadStates[`modal-${image.id}`] = false;
         });
         
         setLoadedImages(updatedLoadStates);
@@ -76,55 +78,57 @@ export default function GalleryPage() {
         console.error("Error fetching carousel images:", err);
         setCarouselLoading(false);
       });
-  }, [placeholderLoaded]); // Depend on placeholderLoaded
+  }, [placeholderLoaded]);
 
   // Fetch all images and organize by category
   useEffect(() => {
-    // Don't wait for API to show skeletons
-    if (!placeholderLoaded) return;
+    if (!placeholderLoaded || fetchedRef.current) return;
     
-    // Initialize empty object with all categories
+    fetchedRef.current = true;
+    
     const initialCategories = {};
     categories.forEach(cat => {
       initialCategories[cat] = [];
     });
     
-    // Fetch all images with the 'all=true' parameter
     fetch("/api/gallery?all=true")
       .then(res => res.json())
       .then(data => {
-        // Group images by category
         const groupedImages = {...initialCategories};
         
-        // Add all images to the ALL category
         groupedImages["ALL_IMAGES"] = [...data];
         
-        // Sort images into their respective categories
         data.forEach(image => {
           if (image.category && groupedImages.hasOwnProperty(image.category)) {
             groupedImages[image.category].push(image);
           }
         });
         
+        const updatedLoadStates = { ...loadedImages };
+        data.forEach(image => {
+          updatedLoadStates[image.id] = false;
+          updatedLoadStates[`modal-${image.id}`] = false;
+        });
+        
+        setLoadedImages(updatedLoadStates);
         setCategoryImages(groupedImages);
         setGalleryLoading(false);
       })
       .catch(err => {
         console.error("Error fetching all images:", err);
         setGalleryLoading(false);
+        fetchedRef.current = false;
       });
-  }, [placeholderLoaded]); // Depend on placeholderLoaded
+  }, [placeholderLoaded]);
 
   // Autoplay carousel effect
   useEffect(() => {
     if (!api || carouselLoading) return;
 
-    // Set up autoplay interval
     const autoplayInterval = setInterval(() => {
       api.scrollNext();
     }, 5000);
 
-    // Clean up interval on component unmount
     return () => clearInterval(autoplayInterval);
   }, [api, carouselLoading]);
 
@@ -138,6 +142,7 @@ export default function GalleryPage() {
 
   const openImageModal = (image) => {
     setSelectedImage(image);
+    setModalImageLoaded(false); // Reset modal image load state
     document.body.style.overflow = 'hidden';
     const category = image.category || "ALL_IMAGES";
     setCurrentCategory(category);
@@ -148,12 +153,14 @@ export default function GalleryPage() {
   const closeImageModal = () => {
     setSelectedImage(null);
     setIsFullscreen(false);
+    setModalImageLoaded(false);
     document.body.style.overflow = 'auto';
   };
 
   const navigateToPrevImage = (e) => {
     e.stopPropagation();
     if (!currentCategory || currentImageIndex <= 0) return;
+    setModalImageLoaded(false); // Reset modal image load state when navigating
     const newIndex = currentImageIndex - 1;
     setCurrentImageIndex(newIndex);
     setSelectedImage(categoryImages[currentCategory][newIndex]);
@@ -162,6 +169,7 @@ export default function GalleryPage() {
   const navigateToNextImage = (e) => {
     e.stopPropagation();
     if (!currentCategory || currentImageIndex >= categoryImages[currentCategory].length - 1) return;
+    setModalImageLoaded(false); // Reset modal image load state when navigating
     const newIndex = currentImageIndex + 1;
     setCurrentImageIndex(newIndex);
     setSelectedImage(categoryImages[currentCategory][newIndex]);
@@ -179,7 +187,6 @@ export default function GalleryPage() {
     }
   };
   
-  // Add keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (!selectedImage) return;
@@ -201,14 +208,13 @@ export default function GalleryPage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedImage, currentImageIndex, currentCategory]);
 
-  // Handle dropdown toggle with animations using dynamic import for gsap
   const toggleDropdown = () => {
     if (!dropdownOpen) {
       setDropdownOpen(true);
       setIsDropdownRendered(true);
     } else {
       if (dropdownRef.current) {
-        import("gsap").then(({ default: gsap }) => { // dynamic import
+        import("gsap").then(({ default: gsap }) => {
           gsap.to(dropdownRef.current, {
             opacity: 0,
             y: -10,
@@ -225,10 +231,9 @@ export default function GalleryPage() {
     }
   };
 
-  // GSAP animation for dropdown opening using dynamic import
   useEffect(() => {
     if (!dropdownRef.current || !dropdownOpen) return;
-    import("gsap").then(({ default: gsap }) => { // dynamic import
+    import("gsap").then(({ default: gsap }) => {
       gsap.fromTo(
         dropdownRef.current,
         { opacity: 0, y: -10, scale: 0.95, transformOrigin: "top right" },
@@ -237,11 +242,9 @@ export default function GalleryPage() {
     });
   }, [dropdownOpen]);
 
-  // Handler for category selection with animation
   const handleCategorySelect = (category) => {
-    // Animate closing first
     if (dropdownRef.current) {
-      import("gsap").then(({ default: gsap }) => { // dynamic import
+      import("gsap").then(({ default: gsap }) => {
         gsap.to(dropdownRef.current, {
           opacity: 0,
           y: -10,
@@ -253,7 +256,6 @@ export default function GalleryPage() {
             setDropdownOpen(false);
             setSelectedCategory(category);
             
-            // Scroll to the selected category section
             const element = document.getElementById(category.toLowerCase());
             if (element) {
               element.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -264,7 +266,6 @@ export default function GalleryPage() {
     }
   };
 
-  // Search function to call the API with search term
   const handleSearch = async (e) => {
     e.preventDefault();
     
@@ -290,7 +291,6 @@ export default function GalleryPage() {
     }
   };
 
-  // Clear search results
   const clearSearch = () => {
     setSearchTerm("");
     setShowSearchResults(false);
@@ -300,43 +300,95 @@ export default function GalleryPage() {
     }
   };
 
-  // Update the download function to handle cross-origin images
-  const downloadImage = async (imageUrl, imageName) => {
+  const downloadImage = async (e, imageUrl, imageName) => {
+    e.stopPropagation();
     try {
-      // Show loading state
       setDownloading(true);
       
-      // Fetch the image as a blob
-      const response = await fetch(imageUrl);
-      if (!response.ok) throw new Error('Failed to fetch image');
-      
-      const blob = await response.blob();
-      
-      // Create a local blob URL
-      const blobUrl = URL.createObjectURL(blob);
-      
-      // Create a temporary link element
+      // Create a temporary anchor element
       const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = imageName || 'gallery-image';
+      link.href = imageUrl;
+      link.download = (imageName || 'gallery-image').replace(/[^a-z0-9]/gi, '_').toLowerCase();
       document.body.appendChild(link);
       link.click();
-      
-      // Clean up
       document.body.removeChild(link);
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+      
     } catch (error) {
       console.error('Error downloading image:', error);
       alert('Failed to download image. Please try again.');
     } finally {
-      // Hide loading state
       setDownloading(false);
     }
   };
 
+  const shareImage = async (e, image) => {
+    e.stopPropagation();
+    setShareError(false);
+    
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: image.title,
+          text: image.description || 'Check out this image from our gallery!',
+          url: image.photoUrl
+        });
+      } else {
+        // Fallback for browsers that don't support the Web Share API
+        await navigator.clipboard.writeText(image.photoUrl);
+        alert('Image URL copied to clipboard!');
+      }
+    } catch (error) {
+      console.error('Error sharing image:', error);
+      setShareError(true);
+      
+      // Try fallback to clipboard if sharing failed
+      try {
+        await navigator.clipboard.writeText(image.photoUrl);
+        alert('Image URL copied to clipboard!');
+      } catch (clipboardError) {
+        alert('Unable to share image. Please try again later.');
+      }
+    }
+  };
+
+  const GalleryImage = ({ image, onClick }) => {
+    const [isLoaded, setIsLoaded] = useState(false);
+    
+    return (
+      <motion.div 
+        className="relative aspect-square cursor-pointer rounded-xl overflow-hidden group"
+        onClick={() => onClick(image)}
+        whileHover={{ scale: 1.03 }}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        {!isLoaded && (
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-900 to-pink-900 animate-pulse rounded-xl" />
+        )}
+        
+        <Image 
+          src={image.photoUrl} 
+          alt={image.title} 
+          fill
+          className={`object-cover transition-opacity duration-300 ${!isLoaded ? 'opacity-0' : 'opacity-100'}`}
+          onLoad={() => setIsLoaded(true)}
+          loading="lazy"
+          sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+        />
+        
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+          <h3 className="text-white font-medium text-sm truncate">{image.title}</h3>
+          <p className="text-xs text-purple-300 truncate">
+            {image.description?.substring(0, 30)}{image.description?.length > 30 ? '...' : ''}
+          </p>
+        </div>
+      </motion.div>
+    );
+  };
+
   return (
     <div className="w-full min-h-screen px-4 sm:px-6 md:px-8 py-6 sm:py-8 md:py-12 bg-gradient-to-br from-[#0f0524] via-[#1a0938] to-[#2a0b5a] text-white">
-      {/* Header with Search */}
       <header className="max-w-7xl mx-auto mb-8 sm:mb-12">
         <motion.h1 
           className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-300"
@@ -374,7 +426,6 @@ export default function GalleryPage() {
             </button>
           </form>
 
-          {/* Category Dropdown */}
           <div className="relative">
             <button
               onClick={toggleDropdown}
@@ -407,7 +458,6 @@ export default function GalleryPage() {
         </div>
       </header>
 
-      {/* Search Results */}
       {showSearchResults && (
         <motion.div 
           className="max-w-7xl mx-auto mb-12"
@@ -452,8 +502,8 @@ export default function GalleryPage() {
                     src={image.photoUrl} 
                     alt={image.title} 
                     fill
-                    className={`object-cover transition-opacity duration-300 ${!loadedImages[image.id] ? 'opacity-0' : 'opacity-100'}}
-                    onLoadingComplete={() => handleImageLoad(image.id)`}
+                    className={`object-cover transition-opacity duration-300 ${!loadedImages[image.id] ? 'opacity-0' : 'opacity-100'}`}
+                    onLoadingComplete={() => handleImageLoad(image.id)}
                   />
                   
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
@@ -474,10 +524,8 @@ export default function GalleryPage() {
         </motion.div>
       )}
 
-      {/* Main Content */}
       {!showSearchResults && (
         <main className="max-w-7xl mx-auto">
-          {/* Featured Carousel */}
           <section className="mb-12 sm:mb-16">
             <motion.h2 
               className="text-xl sm:text-2xl font-bold mb-6 text-purple-300 flex items-center gap-2"
@@ -534,7 +582,6 @@ export default function GalleryPage() {
             )}
           </section>
 
-          {/* Category Sections */}
           <section className="space-y-12 sm:space-y-16">
             {galleryLoading || !placeholderLoaded ? (
               <div className="space-y-12">
@@ -573,34 +620,7 @@ export default function GalleryPage() {
                   {categoryImages[category]?.length > 0 ? (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
                       {categoryImages[category].slice(0, 8).map((image) => (
-                        <motion.div 
-                          key={image.id} 
-                          className="relative aspect-square cursor-pointer rounded-xl overflow-hidden group"
-                          onClick={() => openImageModal(image)}
-                          whileHover={{ scale: 1.03 }}
-                          initial={{ opacity: 0, scale: 0.95 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          {!loadedImages[image.id] && (
-                            <div className="absolute inset-0 bg-gradient-to-br from-purple-900 to-pink-900 animate-pulse rounded-xl" />
-                          )}
-                          
-                          <Image 
-                            src={image.photoUrl} 
-                            alt={image.title} 
-                            fill
-                            className={`object-cover transition-opacity duration-300 ${!loadedImages[image.id] ? 'opacity-0' : 'opacity-100'}`}
-                            onLoadingComplete={() => handleImageLoad(image.id)}
-                          />
-                          
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-                            <h3 className="text-white font-medium text-sm truncate">{image.title}</h3>
-                            <p className="text-xs text-purple-300 truncate">
-                              {image.description?.substring(0, 30)}{image.description?.length > 30 ? '...' : ''}
-                            </p>
-                          </div>
-                        </motion.div>
+                        <GalleryImage key={image.id} image={image} onClick={openImageModal} />
                       ))}
                     </div>
                   ) : (
@@ -615,122 +635,122 @@ export default function GalleryPage() {
         </main>
       )}
 
-      {/* Image Modal */}
       <AnimatePresence>
-              {selectedImage && (
-                <motion.div 
-                  className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  onClick={closeImageModal}
+        {selectedImage && (
+          <motion.div 
+            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeImageModal}
+          >
+            <motion.div 
+              ref={modalRef}
+              className="relative w-full max-w-6xl max-h-[90vh] bg-[#1a0938] rounded-xl overflow-hidden flex flex-col shadow-2xl border border-purple-500/20"
+              initial={{ scale: 0.95 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.95 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {currentImageIndex > 0 && (
+                <button 
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 rounded-full p-2 text-white z-10 transition-all duration-200 shadow-lg hover:scale-110"
+                  onClick={navigateToPrevImage}
                 >
-                  <motion.div 
-                    ref={modalRef}
-                    className="relative w-full max-w-6xl max-h-[90vh] bg-[#1a0938] rounded-xl overflow-hidden flex flex-col shadow-2xl border border-purple-500/20"
-                    initial={{ scale: 0.95 }}
-                    animate={{ scale: 1 }}
-                    exit={{ scale: 0.95 }}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {/* Navigation Arrows */}
-                    {currentImageIndex > 0 && (
-                      <button 
-                        className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 rounded-full p-2 text-white z-10 transition-all duration-200 shadow-lg hover:scale-110"
-                        onClick={navigateToPrevImage}
-                      >
-                        <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
-                      </button>
-                    )}
-                    
-                    {currentCategory && currentImageIndex < categoryImages[currentCategory].length - 1 && (
-                      <button 
-                        className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 rounded-full p-2 text-white z-10 transition-all duration-200 shadow-lg hover:scale-110"
-                        onClick={navigateToNextImage}
-                      >
-                        <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
-                      </button>
-                    )}
-                    
-                    {/* Image Container */}
-                    <div className="relative w-full h-[50vh] sm:h-[60vh] md:h-[70vh] flex items-center justify-center bg-black">
-                      {!loadedImages[`modal-${selectedImage.id}`] && (
-                        <div className="absolute inset-0 bg-gradient-to-br from-purple-900 to-pink-900 animate-pulse flex items-center justify-center">
-                          <svg className="w-16 h-16 text-purple-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                        </div>
-                      )}
-                      
-                      <Image 
-                        src={selectedImage.photoUrl} 
-                        alt={selectedImage.title} 
-                        fill
-                        className={`object-contain ${!loadedImages[`modal-${selectedImage.id}`] ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
-                        onLoadingComplete={() => handleImageLoad(`modal-${selectedImage.id}`)}
-                      />
-                    </div>
-                    
-                    {/* Image Info */}
-                    <div className="p-4 sm:p-6 bg-gradient-to-b from-[#1a0938] to-[#0f0524]">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h3 className="text-lg sm:text-xl font-bold">{selectedImage.title}</h3>
-                          <p className="text-sm text-purple-300">{formatCategoryName(selectedImage.category)}</p>
-                        </div>
-                        <div className="flex gap-2">
-                          <button 
-                            onClick={() => downloadImage(selectedImage.photoUrl, selectedImage.title.replace(/\s+/g, '_'))}
-                            disabled={downloading}
-                            className="p-2 bg-purple-600 hover:bg-purple-700 rounded-full transition-colors"
-                            title="Download"
-                          >
-                            {downloading ? (
-                              <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
-                            ) : (
-                              <Download className="w-4 h-4" />
-                            )}
-                          </button>
-                          <button 
-                            className="p-2 bg-purple-600 hover:bg-purple-700 rounded-full transition-colors"
-                            title="Share"
-                          >
-                            <Share2 className="w-4 h-4" />
-                          </button>
-                          <button 
-                            onClick={toggleFullscreen}
-                            className="p-2 bg-purple-600 hover:bg-purple-700 rounded-full transition-colors"
-                            title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
-                          >
-                            <Maximize className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                      
-                      <p className="text-sm sm:text-base text-gray-300 mb-4">{selectedImage.description}</p>
-                      
-                      <div className="flex justify-between items-center text-xs text-purple-400">
-                        <span>
-                          Image {currentImageIndex + 1} of {categoryImages[currentCategory]?.length || 1}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Heart className="w-3 h-3 fill-current" />
-                          {Math.floor(Math.random() * 100) + 1} likes
-                        </span>
-                      </div>
-                    </div>
-                    
-                    {/* Close Button */}
-                    <button 
-                      className="absolute top-4 right-4 p-2 bg-black/60 hover:bg-black/80 rounded-full text-white transition-colors shadow-lg"
-                      onClick={closeImageModal}
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  </motion.div>
-                </motion.div>
+                  <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+                </button>
               )}
-            </AnimatePresence>
-          </div>
-        );
-      }
+              
+              {currentCategory && currentImageIndex < categoryImages[currentCategory].length - 1 && (
+                <button 
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 rounded-full p-2 text-white z-10 transition-all duration-200 shadow-lg hover:scale-110"
+                  onClick={navigateToNextImage}
+                >
+                  <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+                </button>
+              )}
+              
+              <div className="relative w-full h-[50vh] sm:h-[60vh] md:h-[70vh] flex items-center justify-center bg-black">
+                {selectedImage && (
+                  <>
+                    {!modalImageLoaded && (
+                      <div className="absolute inset-0 bg-gradient-to-br from-purple-900 to-pink-900 animate-pulse flex items-center justify-center">
+                        <svg className="w-16 h-16 text-purple-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    )}
+                    
+                    <Image 
+                      src={selectedImage.photoUrl} 
+                      alt={selectedImage.title || 'Gallery image'}
+                      fill
+                      className={`object-contain transition-opacity duration-300 ${modalImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                      onLoad={() => setModalImageLoaded(true)}
+                      priority={true}
+                      sizes="(max-width: 768px) 100vw, 80vw"
+                    />
+                  </>
+                )}
+              </div>
+              
+              <div className="p-4 sm:p-6 bg-gradient-to-b from-[#1a0938] to-[#0f0524]">
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <h3 className="text-lg sm:text-xl font-bold">{selectedImage.title}</h3>
+                    <p className="text-sm text-purple-300">{formatCategoryName(selectedImage.category)}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={(e) => downloadImage(e, selectedImage.photoUrl, selectedImage.title)}
+                      disabled={downloading}
+                      className="p-2 bg-purple-600 hover:bg-purple-700 rounded-full transition-colors"
+                      title="Download"
+                    >
+                      {downloading ? (
+                        <span className="inline-block h-4 w-4 border-2 border-t-transparent border-white rounded-full animate-spin"></span>
+                      ) : (
+                        <Download className="w-4 h-4" />
+                      )}
+                    </button>
+                    <button 
+                      onClick={(e) => shareImage(e, selectedImage)}
+                      className={`p-2 ${shareError ? 'bg-red-600 hover:bg-red-700' : 'bg-purple-600 hover:bg-purple-700'} rounded-full transition-colors`}
+                      title="Share"
+                    >
+                      <Share2 className="w-4 h-4" />
+                    </button>
+                    <button 
+                      onClick={toggleFullscreen}
+                      className="p-2 bg-purple-600 hover:bg-purple-700 rounded-full transition-colors"
+                      title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+                    >
+                      <Maximize className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+                
+                {selectedImage.description && (
+                  <p className="text-sm sm:text-base text-gray-300 mb-4">{selectedImage.description}</p>
+                )}
+                
+                <div className="flex justify-between items-center text-xs text-purple-400">
+                  <span>
+                    Image {currentImageIndex + 1} of {categoryImages[currentCategory]?.length || 1}
+                  </span>
+                </div>
+              </div>
+              
+              <button 
+                className="absolute top-4 right-4 p-2 bg-black/60 hover:bg-black/80 rounded-full text-white transition-colors shadow-lg"
+                onClick={closeImageModal}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
