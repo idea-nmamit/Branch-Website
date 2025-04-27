@@ -3,14 +3,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useTheme } from 'next-themes';
-import { Moon, Sun, Menu, X, ChevronDown } from 'lucide-react';
+import { Menu, X, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
+import Logo from '@/public/Logo-Light.png'
 
 const Navbar = () => {
-  const { theme, setTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
@@ -27,12 +26,6 @@ const Navbar = () => {
     setMobileMenuOpen(prev => !prev);
   }, []);
   
-  const toggleTheme = useCallback(() => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  }, [theme, setTheme]);
-  
-  const logoSrc = mounted ? (theme === 'dark' ? '/Logo-Dark.png' : '/Logo-Light.png') : '/Logo-Dark.png';
-  
   return (
     <nav className="w-full bg-gradient-to-r from-[#17003A] to-[#34006e] dark:from-[#8617C0] dark:to-[#6e11a0] text-white py-3 px-4 md:px-6 shadow-lg backdrop-blur-sm sticky top-0 z-50 border-b border-[#8617c0]/30 dark:border-[#340181]/30">
       <div className="container mx-auto flex items-center justify-between">
@@ -40,7 +33,7 @@ const Navbar = () => {
           <div className="relative w-28 h-12 md:w-32 md:h-14 overflow-hidden">
             {mounted && (
               <Image 
-                src={logoSrc}
+                src={Logo}
                 alt="IDEA Logo" 
                 fill
                 priority
@@ -62,20 +55,6 @@ const Navbar = () => {
         </div>
         
         <div className="flex items-center space-x-2 md:space-x-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label="Toggle theme"
-            className="text-white hover:bg-white/20 rounded-full w-9 h-9 p-0 flex items-center justify-center transition-colors duration-200"
-            onClick={toggleTheme}
-          >
-            {mounted && (theme === 'dark' ? (
-              <Sun className="h-5 w-5" />
-            ) : (
-              <Moon className="h-5 w-5" />
-            ))}
-          </Button>
-          
           {/* Mobile menu button */}
           <Button
             variant="ghost"
@@ -97,7 +76,7 @@ const Navbar = () => {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="md:hidden fixed top-[3.75rem] left-0 right-0 bg-gradient-to-b from-[#34006e] to-[#17003A] dark:from-[#6e11a0] dark:to-[#8617C0] shadow-xl z-50 overflow-hidden"
+            className="md:hidden fixed top-[3.75rem] left-0 right-0 bg-gradient-to-b from-[#34006e] to-[#17003A] dark:from-[#6e11a0] dark:to-[#8617C0] shadow-xl z-50 overflow-hidden mt-[16px]"
           >
             <motion.div 
               initial={{ y: -20 }}

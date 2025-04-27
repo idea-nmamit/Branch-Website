@@ -133,7 +133,7 @@ const HomePage = () => {
 
             <div
               ref={subtitleContainerRef}
-              className="flex flex-wrap justify-center gap-x-2 gap-y-1 md:gap-y-2 max-w-[90%] mx-auto"
+              className="flex flex-wrap justify-center gap-x-2 gap-y-1 md:gap-y-2 mx-auto"
             >
               {titleWords.map((word, index) => (
                 <div
