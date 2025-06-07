@@ -11,8 +11,8 @@ const HomePage = () => {
   const subtitleContainerRef = useRef(null);
   const badgeRef = useRef(null);
   const wordsRefs = useRef([]);
-  const [lastClickTime, setLastClickTime] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const [lastClickTime, setLastClickTime] = useState(0);  const [isLoading, setIsLoading] = useState(false); // Default to false
+  const [shouldShowLoader, setShouldShowLoader] = useState(false);
 
   const titleText = "Intelligence and Data Science Engineers' Association";
   const titleWords = titleText.split(' ');
@@ -21,12 +21,18 @@ const HomePage = () => {
   const logoSrc = "/Logo-Light.png";
 
   useEffect(() => {
-    // Reset loading state on each page load/refresh
-    setIsLoading(true);
+    // Check if this is the initial app load
+    if (typeof window !== 'undefined') {
+      const hasLoaded = sessionStorage.getItem('appLoaded');
+      if (!hasLoaded) {
+        setShouldShowLoader(true);
+        setIsLoading(true);
+        sessionStorage.setItem('appLoaded', 'true');
+      }
+    }
   }, []);
-
   useEffect(() => {
-    if (isLoading) return;
+    if (shouldShowLoader && isLoading) return;
 
     gsap.killTweensOf([logoRef.current, badgeRef.current, ...wordsRefs.current]);
 
@@ -74,12 +80,10 @@ const HomePage = () => {
       y: 0,
       duration: 0.8,
       ease: "back.out(1)"
-    }, "-=0.5");
-
-    return () => {
+    }, "-=0.5");    return () => {
       gsap.killTweensOf([logoRef.current, badgeRef.current, ...wordsRefs.current]);
     };
-  }, [isLoading]);
+  }, [shouldShowLoader, isLoading]);
 
   const handleWordClick = useCallback((index) => {
     const now = Date.now();
@@ -105,18 +109,76 @@ const HomePage = () => {
       duration: 0.6,
       ease: "back.out(1.5)"
     });
-  }, [lastClickTime]);
-
-  const finishLoading = () => {
+  }, [lastClickTime]);  const finishLoading = () => {
     setIsLoading(false);
+    setShouldShowLoader(false);
   };
-
-  return (
-    <PageLoader finishLoading={finishLoading}>      <div className="flex flex-col min-h-screen bg-gradient-to-br from-[#17003A] to-[#34006e] text-white overflow-hidden">
+  // If we don't want to show loading, render content directly
+  if (!shouldShowLoader) {
+    return (
+      <div className="flex flex-col min-h-screen bg-gradient-to-br from-[#17003A] to-[#34006e] text-white overflow-hidden">
         {/* Main Content */}
         <main className="flex-1 flex flex-col items-center justify-center transform -translate-y-16 w-full">
           {/* Logo and Title */}
-          {!isLoading && <NeuralNetwork />}
+          <NeuralNetwork />
+          <div className="w-full text-center px-4">
+            <div ref={logoRef} className="text-white flex items-center justify-center mb-4 md:mb-8">
+              <div className="relative w-52 h-20 sm:w-64 sm:h-24 md:w-96 md:h-40 lg:w-[450px] lg:h-48">
+                <Image
+                  src={logoSrc}
+                  alt="IDEA"
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
+            </div>
+
+            <div
+              ref={subtitleContainerRef}
+              className="flex flex-wrap justify-center gap-x-2 gap-y-1 md:gap-y-2 mx-auto"
+            >
+              {titleWords.map((word, index) => (
+                <div
+                  key={index}
+                  ref={el => wordsRefs.current[index] = el}
+                  className="relative select-none font-sans tracking-tight"
+                  style={{
+                    fontSize: 'clamp(1.125rem, 5vw, 2.8rem)',
+                    fontWeight: index === 0 || index === 2 ? 800 : 600,
+                    textShadow: '0px 2px 4px rgba(0,0,0,0.4)',
+                    letterSpacing: index === 0 || index === 3 ? '-0.02em' : '-0.01em',
+                    willChange: 'transform'
+                  }}
+                  onClick={() => handleWordClick(index)}
+                >
+                  {word}
+                </div>
+              ))}
+            </div>
+          </div>
+        </main>
+
+        {/* News Badge */}
+        <div ref={badgeRef} className="fixed bottom-4 left-4 sm:bottom-6 sm:left-6 md:bottom-12 md:left-12 z-20">
+          <Link href="/News">
+            <div className="bg-gradient-to-r from-pink-300 to-purple-300 text-[#17003A] px-3 py-1.5 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-full font-semibold text-sm sm:text-base md:text-lg shadow-lg tracking-wide cursor-pointer">
+              Latest News
+            </div>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+  
+  // Only show PageLoader when we actually want loading (initial app load)
+  return (
+    <PageLoader finishLoading={finishLoading}>
+      <div className="flex flex-col min-h-screen bg-gradient-to-br from-[#17003A] to-[#34006e] text-white overflow-hidden">
+        {/* Main Content */}
+        <main className="flex-1 flex flex-col items-center justify-center transform -translate-y-16 w-full">
+          {/* Logo and Title */}
+          <NeuralNetwork />
           <div className="w-full text-center px-4">
             <div ref={logoRef} className="text-white flex items-center justify-center mb-4 md:mb-8">
               <div className="relative w-52 h-20 sm:w-64 sm:h-24 md:w-96 md:h-40 lg:w-[450px] lg:h-48">
