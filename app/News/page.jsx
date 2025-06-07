@@ -233,54 +233,47 @@ const NewsPage = () => {
     : newsItems.filter(item => item.category === activeCategory);
 
   const gridNews = filteredNews.length > 0 ? filteredNews.slice(1) : [];
-
   return (
-    <div className="bg-[#050415] min-h-screen pb-16 overflow-x-hidden">
+    <div className="bg-gradient-to-br from-[#17003A] to-[#370069] min-h-screen pb-16 overflow-x-hidden">
       {/* Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-0 left-0 w-full h-full">
-          <div className="absolute top-[10%] left-[5%] w-64 h-64 rounded-full bg-purple-700/10 blur-3xl animate-blob"></div>
-          <div className="absolute top-[40%] right-[15%] w-72 h-72 rounded-full bg-blue-700/10 blur-3xl animate-blob animation-delay-2000"></div>
-          <div className="absolute bottom-[20%] left-[35%] w-80 h-80 rounded-full bg-pink-700/10 blur-3xl animate-blob animation-delay-4000"></div>
+          <div className="absolute top-[10%] left-[5%] w-64 h-64 rounded-full bg-white/5 blur-3xl animate-blob"></div>
+          <div className="absolute top-[40%] right-[15%] w-72 h-72 rounded-full bg-white/5 blur-3xl animate-blob animation-delay-2000"></div>
+          <div className="absolute bottom-[20%] left-[35%] w-80 h-80 rounded-full bg-white/5 blur-3xl animate-blob animation-delay-4000"></div>
         </div>
-      </div>
-
-      {/* Sticky Header with Glassmorphism */}
-      <header className="sticky top-0 z-50 bg-black/30 backdrop-blur-md border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-6 flex flex-col items-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight text-center mb-2">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
-                Education News
-              </span>
-            </h1>
-            <div className="h-1 w-24 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full my-2"></div>
-            <p className="text-purple-200/80 text-center max-w-2xl">
-              Stay updated with the latest trends and insights in education
-            </p>
-          </div>
-
-          <div className="pb-4 flex items-center justify-center space-x-1 overflow-x-auto hide-scrollbar">
-            {CATEGORIES.map((category) => (
-              <button
-                key={category.value}
-                onClick={() => {
-                  setActiveCategory(category.value);
-                  fetchNewsFromAPI(false, category.value);
-                }}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap ${activeCategory === category.value
-                  ? 'bg-gradient-to-r from-blue-600 to-blue-800 text-white'
-                  : 'bg-white/5 text-white/70 hover:bg-white/10'
-                  }`}
-              >
-                {category.label}
-              </button>
-            ))}
-          </div>
+      </div>      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 relative z-10">
+        {/* Page Header - Now integrated with main content */}
+        <div className="py-6 flex flex-col items-center mb-8">
+          <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight text-center mb-2">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300">
+              Education News
+            </span>
+          </h1>
+          <div className="h-1 w-24 bg-gradient-to-r from-white to-gray-300 rounded-full my-2"></div>
+          <p className="text-white/80 text-center max-w-2xl">
+            Stay updated with the latest trends and insights in education
+          </p>
         </div>
-      </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 relative z-10">
+        {/* Category Filter Buttons */}
+        <div className="pb-8 flex items-center justify-center space-x-1 overflow-x-auto hide-scrollbar">
+          {CATEGORIES.map((category) => (
+            <button
+              key={category.value}
+              onClick={() => {
+                setActiveCategory(category.value);
+                fetchNewsFromAPI(false, category.value);
+              }}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap ${activeCategory === category.value
+                ? 'bg-gradient-to-r from-gray-600 to-gray-700 text-white'
+                : 'bg-white/10 text-white/70 hover:bg-white/20'
+                }`}
+            >
+              {category.label}
+            </button>
+          ))}
+        </div>
         {error && (
           <div className="bg-red-500/20 text-red-100 p-4 rounded-lg mb-8 border border-red-500/30 backdrop-blur-md">
             {error}
