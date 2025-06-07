@@ -11,7 +11,8 @@ const HomePage = () => {
   const subtitleContainerRef = useRef(null);
   const badgeRef = useRef(null);
   const wordsRefs = useRef([]);
-  const [lastClickTime, setLastClickTime] = useState(0);  const [isLoading, setIsLoading] = useState(false); // Default to false
+  const [lastClickTime, setLastClickTime] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
   const [shouldShowLoader, setShouldShowLoader] = useState(false);
 
   const titleText = "Intelligence and Data Science Engineers' Association";
@@ -31,6 +32,7 @@ const HomePage = () => {
       }
     }
   }, []);
+
   useEffect(() => {
     if (shouldShowLoader && isLoading) return;
 
@@ -80,7 +82,9 @@ const HomePage = () => {
       y: 0,
       duration: 0.8,
       ease: "back.out(1)"
-    }, "-=0.5");    return () => {
+    }, "-=0.5");
+
+    return () => {
       gsap.killTweensOf([logoRef.current, badgeRef.current, ...wordsRefs.current]);
     };
   }, [shouldShowLoader, isLoading]);
@@ -109,18 +113,24 @@ const HomePage = () => {
       duration: 0.6,
       ease: "back.out(1.5)"
     });
-  }, [lastClickTime]);  const finishLoading = () => {
+  }, [lastClickTime]);
+
+  const finishLoading = () => {
     setIsLoading(false);
     setShouldShowLoader(false);
   };
   // If we don't want to show loading, render content directly
   if (!shouldShowLoader) {
     return (
-      <div className="flex flex-col min-h-screen bg-gradient-to-br from-[#17003A] to-[#34006e] text-white overflow-hidden">
-        {/* Main Content */}
-        <main className="flex-1 flex flex-col items-center justify-center transform -translate-y-16 w-full">
-          {/* Logo and Title */}
+      <div className="relative bg-gradient-to-br from-[#17003A] to-[#34006e] text-white overflow-hidden" style={{ height: 'calc(100vh - 80px)' }}>
+        {/* Neural Network Background - positioned absolutely to cover entire background */}
+        <div className="absolute inset-0 w-full h-full z-0">
           <NeuralNetwork />
+        </div>
+        
+        {/* Main Content */}
+        <div className="flex flex-col items-center justify-center h-full w-full relative z-10">
+          {/* Logo and Title */}
           <div className="w-full text-center px-4">
             <div ref={logoRef} className="text-white flex items-center justify-center mb-4 md:mb-8">
               <div className="relative w-52 h-20 sm:w-64 sm:h-24 md:w-96 md:h-40 lg:w-[450px] lg:h-48">
@@ -142,7 +152,7 @@ const HomePage = () => {
                 <div
                   key={index}
                   ref={el => wordsRefs.current[index] = el}
-                  className="relative select-none font-sans tracking-tight"
+                  className="relative select-none font-sans tracking-tight cursor-pointer"
                   style={{
                     fontSize: 'clamp(1.125rem, 5vw, 2.8rem)',
                     fontWeight: index === 0 || index === 2 ? 800 : 600,
@@ -157,12 +167,12 @@ const HomePage = () => {
               ))}
             </div>
           </div>
-        </main>
+        </div>
 
         {/* News Badge */}
-        <div ref={badgeRef} className="fixed bottom-4 left-4 sm:bottom-6 sm:left-6 md:bottom-12 md:left-12 z-20">
+        <div ref={badgeRef} className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 md:bottom-12 md:left-12 z-20">
           <Link href="/News">
-            <div className="bg-gradient-to-r from-pink-300 to-purple-300 text-[#17003A] px-3 py-1.5 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-full font-semibold text-sm sm:text-base md:text-lg shadow-lg tracking-wide cursor-pointer">
+            <div className="bg-gradient-to-r from-pink-300 to-purple-300 text-[#17003A] px-3 py-1.5 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-full font-semibold text-sm sm:text-base md:text-lg shadow-lg tracking-wide cursor-pointer transition-all duration-300 hover:scale-105">
               Latest News
             </div>
           </Link>
@@ -170,15 +180,18 @@ const HomePage = () => {
       </div>
     );
   }
-  
-  // Only show PageLoader when we actually want loading (initial app load)
+    // Only show PageLoader when we actually want loading (initial app load)
   return (
     <PageLoader finishLoading={finishLoading}>
-      <div className="flex flex-col min-h-screen bg-gradient-to-br from-[#17003A] to-[#34006e] text-white overflow-hidden">
-        {/* Main Content */}
-        <main className="flex-1 flex flex-col items-center justify-center transform -translate-y-16 w-full">
-          {/* Logo and Title */}
+      <div className="relative bg-gradient-to-br from-[#17003A] to-[#34006e] text-white overflow-hidden" style={{ height: 'calc(100vh - 80px)' }}>
+        {/* Neural Network Background - positioned absolutely to cover entire background */}
+        <div className="absolute inset-0 w-full h-full z-0">
           <NeuralNetwork />
+        </div>
+        
+        {/* Main Content */}
+        <div className="flex flex-col items-center justify-center h-full w-full relative z-10">
+          {/* Logo and Title */}
           <div className="w-full text-center px-4">
             <div ref={logoRef} className="text-white flex items-center justify-center mb-4 md:mb-8">
               <div className="relative w-52 h-20 sm:w-64 sm:h-24 md:w-96 md:h-40 lg:w-[450px] lg:h-48">
@@ -200,7 +213,7 @@ const HomePage = () => {
                 <div
                   key={index}
                   ref={el => wordsRefs.current[index] = el}
-                  className="relative select-none font-sans tracking-tight"
+                  className="relative select-none font-sans tracking-tight cursor-pointer"
                   style={{
                     fontSize: 'clamp(1.125rem, 5vw, 2.8rem)',
                     fontWeight: index === 0 || index === 2 ? 800 : 600,
@@ -215,12 +228,12 @@ const HomePage = () => {
               ))}
             </div>
           </div>
-        </main>
+        </div>
 
         {/* News Badge */}
-        <div ref={badgeRef} className="fixed bottom-4 left-4 sm:bottom-6 sm:left-6 md:bottom-12 md:left-12 z-20">
+        <div ref={badgeRef} className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 md:bottom-12 md:left-12 z-20">
           <Link href="/News">
-            <div className="bg-gradient-to-r from-pink-300 to-purple-300 text-[#17003A] px-3 py-1.5 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-full font-semibold text-sm sm:text-base md:text-lg shadow-lg tracking-wide cursor-pointer">
+            <div className="bg-gradient-to-r from-pink-300 to-purple-300 text-[#17003A] px-3 py-1.5 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-full font-semibold text-sm sm:text-base md:text-lg shadow-lg tracking-wide cursor-pointer transition-all duration-300 hover:scale-105">
               Latest News
             </div>
           </Link>
