@@ -231,13 +231,7 @@ const HomePage = () => {
         </div>
 
         {/* News Badge */}
-        <div ref={badgeRef} className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 md:bottom-12 md:left-12 z-20">
-          <Link href="/News">
-            <div className="bg-gradient-to-r from-pink-300 to-purple-300 text-[#17003A] px-3 py-1.5 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-full font-semibold text-sm sm:text-base md:text-lg shadow-lg tracking-wide cursor-pointer transition-all duration-300 hover:scale-105">
-              Latest News
-            </div>
-          </Link>
-        </div>
+
       </div>
     </PageLoader>
   );
