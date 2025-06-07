@@ -112,13 +112,12 @@ const HomePage = () => {
   };
 
   return (
-    <PageLoader finishLoading={finishLoading}>
-      <div className="flex flex-col min-h-screen bg-gradient-to-br from-[#17003A] to-[#34006e] text-white overflow-hidden">
+    <PageLoader finishLoading={finishLoading}>      <div className="flex flex-col min-h-screen bg-gradient-to-br from-[#17003A] to-[#34006e] text-white overflow-hidden">
         {/* Main Content */}
-        <main className="flex-1 flex flex-col items-center justify-center transform -translate-y-16 px-4 container mx-auto">
+        <main className="flex-1 flex flex-col items-center justify-center transform -translate-y-16 w-full">
           {/* Logo and Title */}
           {!isLoading && <NeuralNetwork />}
-          <div className="w-full max-w-4xl mx-auto text-center">
+          <div className="w-full text-center px-4">
             <div ref={logoRef} className="text-white flex items-center justify-center mb-4 md:mb-8">
               <div className="relative w-52 h-20 sm:w-64 sm:h-24 md:w-96 md:h-40 lg:w-[450px] lg:h-48">
                 <Image
