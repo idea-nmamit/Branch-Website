@@ -388,10 +388,10 @@ export default function GalleryPage() {
   };
 
   return (
-    <div className="w-full min-h-screen px-4 sm:px-6 md:px-8 py-6 sm:py-8 md:py-12 bg-gradient-to-br from-[#0f0524] via-[#1a0938] to-[#2a0b5a] text-white">
+    <div className="w-full min-h-screen px-4 sm:px-6 md:px-8 py-6 sm:py-8 md:py-12 bg-gradient-to-br from-[#17003A] to-[#370069] dark:from-[#8617C0] dark:to-[#6012A4] text-white">
       <header className="max-w-7xl mx-auto mb-8 sm:mb-12">
         <motion.h1 
-          className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-300"
+          className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-pink-300"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -407,7 +407,7 @@ export default function GalleryPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search images..."
-              className="w-full bg-black/30 backdrop-blur-sm border border-purple-500/50 rounded-full py-2.5 px-5 pr-10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+              className="w-full bg-[#17003A]/30 backdrop-blur-sm border border-[#8617C0]/50 rounded-full py-2.5 px-5 pr-10 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#8617C0] focus:border-transparent transition-all duration-200"
             />
             {searchTerm && (
               <button 
@@ -429,7 +429,7 @@ export default function GalleryPage() {
           <div className="relative">
             <button
               onClick={toggleDropdown}
-              className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-full text-sm sm:text-base transition-colors shadow-lg"
+              className="flex items-center gap-2 bg-[#8617C0] hover:bg-[#370069] text-white py-2 px-4 rounded-full text-sm sm:text-base transition-colors shadow-lg"
             >
               {selectedCategory ? formatCategoryName(selectedCategory) : "All Categories"}
               <ChevronDown className={`w-4 h-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
@@ -438,7 +438,7 @@ export default function GalleryPage() {
             {isDropdownRendered && (
               <motion.div 
                 ref={dropdownRef}
-                className="absolute right-0 mt-2 w-48 bg-[#1a0938] border border-purple-500/30 rounded-lg shadow-xl z-40 backdrop-blur-lg overflow-hidden"
+                className="absolute right-0 mt-2 w-48 bg-[#17003A] border border-[#8617C0]/30 rounded-lg shadow-xl z-40 backdrop-blur-lg overflow-hidden"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
@@ -446,7 +446,7 @@ export default function GalleryPage() {
                 {categories.map((category) => (
                   <button
                     key={category}
-                    className="block w-full text-left px-4 py-2.5 text-sm hover:bg-purple-500/20 transition-colors border-b border-purple-500/10 last:border-b-0"
+                    className="block w-full text-left px-4 py-2.5 text-sm hover:bg-[#8617C0]/20 transition-colors border-b border-[#8617C0]/10 last:border-b-0"
                     onClick={() => handleCategorySelect(category)}
                   >
                     {formatCategoryName(category)}
@@ -465,12 +465,12 @@ export default function GalleryPage() {
           animate={{ opacity: 1 }}
         >
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl sm:text-2xl font-bold">
+            <h2 className="text-xl sm:text-2xl font-bold text-purple-300">
               Search Results for "{searchTerm}"
             </h2>
             <button 
               onClick={clearSearch}
-              className="flex items-center gap-1 text-sm bg-purple-600 hover:bg-purple-700 text-white py-1.5 px-3 rounded-full transition-colors"
+              className="flex items-center gap-1 text-sm bg-[#8617C0] hover:bg-[#370069] text-white py-1.5 px-3 rounded-full transition-colors"
             >
               <X className="w-3 h-3" /> Clear
             </button>
@@ -479,7 +479,7 @@ export default function GalleryPage() {
           {isSearching ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
               {Array(8).fill(0).map((_, index) => (
-                <Skeleton key={index} className="w-full aspect-square rounded-xl" />
+                <Skeleton key={index} className="w-full aspect-square rounded-xl bg-[#17003A]/40" />
               ))}
             </div>
           ) : searchResults.length > 0 ? (
@@ -487,7 +487,7 @@ export default function GalleryPage() {
               {searchResults.map((image) => (
                 <motion.div 
                   key={image.id} 
-                  className="relative aspect-square cursor-pointer rounded-xl overflow-hidden group"
+                  className="relative aspect-square cursor-pointer rounded-xl overflow-hidden group border border-[#8617C0]/20 hover:border-[#8617C0]/60 transition-all duration-300"
                   onClick={() => openImageModal(image)}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -495,7 +495,7 @@ export default function GalleryPage() {
                   whileHover={{ scale: 1.03 }}
                 >
                   {!loadedImages[image.id] && (
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-900 to-pink-900 animate-pulse rounded-xl" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#8617C0] to-[#370069] animate-pulse rounded-xl" />
                   )}
                   
                   <Image 
@@ -506,7 +506,7 @@ export default function GalleryPage() {
                     onLoadingComplete={() => handleImageLoad(image.id)}
                   />
                   
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#17003A]/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
                     <h3 className="text-white font-medium truncate">{image.title}</h3>
                     <p className="text-xs text-purple-300">{formatCategoryName(image.category)}</p>
                   </div>
@@ -515,7 +515,7 @@ export default function GalleryPage() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <div className="inline-block p-4 bg-purple-900/30 rounded-full mb-4">
+              <div className="inline-block p-4 bg-[#8617C0]/20 rounded-full mb-4">
                 <Search className="w-8 h-8 text-purple-400" />
               </div>
               <p className="text-lg text-purple-200">No images found matching your search</p>
@@ -532,14 +532,14 @@ export default function GalleryPage() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
             >
-              <span className="w-2 h-6 bg-purple-500 rounded-full"></span>
+              <span className="w-2 h-6 bg-[#8617C0] rounded-full"></span>
               Featured Highlights
             </motion.h2>
             
             {carouselLoading || !placeholderLoaded ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
                 {Array(3).fill(0).map((_, index) => (
-                  <Skeleton key={index} className="w-full aspect-video rounded-xl" />
+                  <Skeleton key={index} className="w-full aspect-video rounded-xl bg-[#17003A]/40" />
                 ))}
               </div>
             ) : (
@@ -587,10 +587,10 @@ export default function GalleryPage() {
               <div className="space-y-12">
                 {Array(3).fill(0).map((_, index) => (
                   <div key={index} className="space-y-4">
-                    <Skeleton className="h-8 w-48 rounded-full" />
+                    <Skeleton className="h-8 w-48 rounded-full bg-[#17003A]/40" />
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
                       {Array(4).fill(0).map((_, imgIndex) => (
-                        <Skeleton key={imgIndex} className="aspect-square rounded-xl" />
+                        <Skeleton key={imgIndex} className="aspect-square rounded-xl bg-[#17003A]/40" />
                       ))}
                     </div>
                   </div>
@@ -607,7 +607,7 @@ export default function GalleryPage() {
                 >
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl sm:text-2xl font-bold text-purple-300 flex items-center gap-2">
-                      <span className="w-2 h-6 bg-purple-500 rounded-full"></span>
+                      <span className="w-2 h-6 bg-[#8617C0] rounded-full"></span>
                       {formatCategoryName(category)}
                     </h2>
                     {categoryImages[category]?.length > 4 && (
@@ -624,8 +624,8 @@ export default function GalleryPage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="py-8 text-center bg-purple-900/20 rounded-xl">
-                      <p className="text-purple-400">No images available in this category</p>
+                    <div className="py-8 text-center bg-[#8617C0]/20 rounded-xl border border-[#8617C0]/30">
+                      <p className="text-purple-300">No images available in this category</p>
                     </div>
                   )}
                 </motion.section>
@@ -646,7 +646,7 @@ export default function GalleryPage() {
           >
             <motion.div 
               ref={modalRef}
-              className="relative w-full max-w-6xl max-h-[90vh] bg-[#1a0938] rounded-xl overflow-hidden flex flex-col shadow-2xl border border-purple-500/20"
+              className="relative w-full max-w-6xl max-h-[90vh] bg-[#17003A] rounded-xl overflow-hidden flex flex-col shadow-2xl border border-[#8617C0]/20"
               initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.95 }}
@@ -694,17 +694,17 @@ export default function GalleryPage() {
                 )}
               </div>
               
-              <div className="p-4 sm:p-6 bg-gradient-to-b from-[#1a0938] to-[#0f0524]">
+              <div className="p-4 sm:p-6 bg-gradient-to-b from-[#17003A] to-[#0a0015]">
                 <div className="flex justify-between items-start mb-3">
                   <div>
-                    <h3 className="text-lg sm:text-xl font-bold">{selectedImage.title}</h3>
+                    <h3 className="text-lg sm:text-xl font-bold text-white">{selectedImage.title}</h3>
                     <p className="text-sm text-purple-300">{formatCategoryName(selectedImage.category)}</p>
                   </div>
                   <div className="flex gap-2">
                     <button 
                       onClick={(e) => downloadImage(e, selectedImage.photoUrl, selectedImage.title)}
                       disabled={downloading}
-                      className="p-2 bg-purple-600 hover:bg-purple-700 rounded-full transition-colors"
+                      className="p-2 bg-[#8617C0] hover:bg-[#370069] rounded-full transition-colors"
                       title="Download"
                     >
                       {downloading ? (
