@@ -141,7 +141,7 @@ const Page = () => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-[#17003A] to-[#370069] dark:from-[#8617C0] dark:to-[#6012A4] min-h-screen pt-20 pb-24 px-4 sm:px-8 font-sans">
+    <div className="bg-gradient-to-br from-[#17003A] to-[#370069] min-h-screen pt-20 pb-24 px-4 sm:px-8 font-sans">
       <motion.div
         className="max-w-6xl mx-auto relative"
         initial={{ opacity: 0, y: -20 }}

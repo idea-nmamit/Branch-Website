@@ -151,8 +151,8 @@ const EventForm = ({ onEventAdded }) => {
         )}
 
         {successMessage && (
-          <Alert className="mb-6 border-green-600 dark:border-green-400">
-            <AlertDescription className="text-green-600 dark:text-green-400">{successMessage}</AlertDescription>
+          <Alert className="mb-6 border-green-600">
+            <AlertDescription className="text-green-600">{successMessage}</AlertDescription>
           </Alert>
         )}
 

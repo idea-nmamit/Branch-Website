@@ -37,11 +37,10 @@ const EventList = ({ events }) => {
                   {/* Display the event type */}
                   {event.type && (
                     <p className="text-sm mb-1">
-                      <span className="font-medium">Type:</span>{" "}
-                      <span className={`px-2 py-1 rounded-full text-xs ${
+                      <span className="font-medium">Type:</span>{" "}                      <span className={`px-2 py-1 rounded-full text-xs ${
                         event.type === "TECHNICAL" 
-                          ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300" 
-                          : "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300"
+                          ? "bg-blue-100 text-blue-800" 
+                          : "bg-purple-100 text-purple-800"
                       }`}>
                         {event.type}
                       </span>

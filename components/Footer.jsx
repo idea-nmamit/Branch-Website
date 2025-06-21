@@ -3,7 +3,6 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useTheme } from "next-themes";
 import { 
   Linkedin, 
   Github, 
@@ -27,7 +26,6 @@ import {
 import { motion } from "framer-motion";
 
 const Footer = () => {
-  const { resolvedTheme } = useTheme();
   const currentYear = new Date().getFullYear();
 
   const navigationLinks = [
@@ -62,14 +60,12 @@ const Footer = () => {
       hoverColor: "hover:shadow-[#E1306C]/30"
     },
   ];
-
   return (
-    <footer className="w-full relative overflow-hidden py-16 bg-[#17003A] dark:bg-[#8617C0]">
+    <footer className="w-full relative overflow-hidden py-16 bg-[#17003A]">
       {/* Background with gradient overlays */}
       <div className="absolute inset-0">
-        <div className="absolute -bottom-16 left-0 right-0 h-36 bg-gradient-to-t from-black/10 to-transparent"></div>
-        <motion.div 
-          className="absolute top-0 right-0 w-96 h-96 bg-[#8617C0]/30 dark:bg-[#17003A]/30 rounded-full blur-3xl -z-10"
+        <div className="absolute -bottom-16 left-0 right-0 h-36 bg-gradient-to-t from-black/10 to-transparent"></div>        <motion.div 
+          className="absolute top-0 right-0 w-96 h-96 bg-[#8617C0]/30 rounded-full blur-3xl -z-10"
           animate={{ 
             x: [0, 10, 0], 
             opacity: [0.5, 0.7, 0.5] 
@@ -98,37 +94,24 @@ const Footer = () => {
           <div className="flex flex-col text-white h-full">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              animate={{ opacity: 1, y: 0 }}              transition={{ delay: 0.2 }}
               className="flex-1 mt-14"
             >
-              <Card className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border-[#8617c0]/30 dark:border-[#340181]/30 shadow-xl hover:shadow-[#f6014e]/10 transition-all duration-500 w-full h-full flex flex-col">
-                <CardContent className="p-6 flex-1 flex flex-col items-center justify-center space-y-6">
-                  <motion.div 
+              <Card className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border-[#8617c0]/30 shadow-xl hover:shadow-[#f6014e]/10 transition-all duration-500 w-full h-full flex flex-col">
+                <CardContent className="p-6 flex-1 flex flex-col items-center justify-center space-y-6">                  <motion.div 
                     className="relative w-40 h-10 mx-auto"
                     whileHover={{ scale: 1.05 }}
                     transition={{ type: "spring", stiffness: 300 }}
                   >
                     <Link href="/" aria-label="Go to homepage">
-                      {resolvedTheme === "dark" ? (
-                        <Image
-                          src="/Logo-Dark.png"
-                          alt="IDEA Logo"
-                          fill
-                          sizes="10rem"
-                          className="object-contain drop-shadow-2xl"
-                          priority
-                        />
-                      ) : (
-                        <Image
-                          src="/Logo-Light.png"
-                          alt="IDEA Logo"
-                          fill
-                          sizes="10rem"
-                          className="object-contain drop-shadow-2xl"
-                          priority
-                        />
-                      )}
+                      <Image
+                        src="/Logo-Light.png"
+                        alt="IDEA Logo"
+                        fill
+                        sizes="10rem"
+                        className="object-contain drop-shadow-2xl"
+                        priority
+                      />
                     </Link>
                   </motion.div>
                   <p className="text-sm text-white/90 leading-relaxed text-center font-medium tracking-wide">
@@ -137,7 +120,8 @@ const Footer = () => {
                 </CardContent>
               </Card>
             </motion.div>
-          </div>{/* Navigation Links */}
+          </div>
+          {/* Navigation Links */}
           <div className="flex flex-col text-white h-full">
             <h3 className="font-bold text-xl mb-6 relative text-center md:text-left tracking-wide">
               <span className="inline-block">
@@ -153,8 +137,7 @@ const Footer = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
               className="flex-1"
-            >
-              <Card className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border-[#8617c0]/30 dark:border-[#340181]/30 shadow-xl hover:shadow-[#f6014e]/10 transition-all duration-500 w-full h-full flex flex-col">
+            >              <Card className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border-[#8617c0]/30 shadow-xl hover:shadow-[#f6014e]/10 transition-all duration-500 w-full h-full flex flex-col">
                 <CardContent className="p-6 flex-1 flex items-center justify-center">
                   <div className="grid grid-cols-2 gap-y-4 w-full">
                     {navigationLinks.map((link, index) => (
@@ -199,10 +182,9 @@ const Footer = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
               className="flex-1"
-            >
-              <Card className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border-[#8617c0]/30 dark:border-[#340181]/30 shadow-xl hover:shadow-[#f6014e]/10 transition-all duration-500 w-full h-full flex flex-col">
+            >              <Card className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border-[#8617c0]/30 shadow-xl hover:shadow-[#f6014e]/10 transition-all duration-500 w-full h-full flex flex-col">
                 <CardContent className="p-6 space-y-4 flex-1 flex flex-col justify-center">
-                  <motion.div 
+                  <motion.div
                     className="flex items-center space-x-3 group"
                     whileHover={{ x: 5 }}
                     transition={{ type: "spring", stiffness: 400 }}

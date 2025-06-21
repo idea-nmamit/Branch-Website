@@ -31,10 +31,10 @@ export default function NotFound() {
   return (
     <div 
       ref={containerRef}
-      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-gradient-to-br from-[#17003A] to-[#34006e] dark:from-[#8617C0] dark:to-[#6e11a0] text-white"
+      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-gradient-to-br from-[#17003A] to-[#34006e] text-white"
     >
       <motion.div 
-        className="absolute w-[500px] h-[500px] rounded-full bg-[#f6014e]/10 dark:bg-[#f6014e]/20 blur-3xl"
+        className="absolute w-[500px] h-[500px] rounded-full bg-[#f6014e]/10 blur-3xl"
         animate={{
           x: [0, 30, -20, 10, 0],
           y: [0, -40, 20, -10, 0],
@@ -52,7 +52,7 @@ export default function NotFound() {
       />
       
       <motion.div 
-        className="absolute w-[400px] h-[400px] rounded-full bg-[#8617C0]/20 dark:bg-[#340181]/30 blur-3xl"
+        className="absolute w-[400px] h-[400px] rounded-full bg-[#8617C0]/20 blur-3xl"
         animate={{
           x: [0, -30, 20, -10, 0],
           y: [0, 30, -20, 10, 0],

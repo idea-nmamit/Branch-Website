@@ -27,7 +27,7 @@ const Navbar = () => {
   }, []);
   
   return (
-    <nav className="w-full bg-gradient-to-r from-[#17003A] to-[#34006e] dark:from-[#8617C0] dark:to-[#6e11a0] text-white py-3 px-4 md:px-6 shadow-lg backdrop-blur-sm sticky top-0 z-50 border-b border-[#8617c0]/30 dark:border-[#340181]/30">
+    <nav className="w-full bg-gradient-to-r from-[#17003A] to-[#34006e] text-white py-3 px-4 md:px-6 shadow-lg backdrop-blur-sm sticky top-0 z-50 border-b border-[#8617c0]/30">
       <div className="container mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center group">
           <div className="relative w-28 h-12 md:w-32 md:h-14 overflow-hidden">
@@ -76,7 +76,7 @@ const Navbar = () => {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="md:hidden fixed top-[3.75rem] left-0 right-0 bg-gradient-to-b from-[#34006e] to-[#17003A] dark:from-[#6e11a0] dark:to-[#8617C0] shadow-xl z-50 overflow-hidden mt-[16px]"
+            className="md:hidden fixed top-[3.75rem] left-0 right-0 bg-gradient-to-b from-[#34006e] to-[#17003A] shadow-xl z-50 overflow-hidden mt-[16px]"
           >
             <motion.div 
               initial={{ y: -20 }}

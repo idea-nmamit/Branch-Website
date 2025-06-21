@@ -75,7 +75,7 @@ const FacultyCardGrid = () => {
   ];
 
   return (
-    <StyledPageWrapper className="bg-gradient-to-br from-[#17003A] to-[#370069] dark:from-[#8617C0] dark:to-[#6012A4]">
+    <StyledPageWrapper className="bg-gradient-to-br from-[#17003A] to-[#370069]">
       <div className="flex flex-col items-center">
         <h1 className="text-5xl font-bold text-white mb-14 tracking-tight md:text-5xl sm:text-3xl">Faculty</h1>
         <div className="card-container">

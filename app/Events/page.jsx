@@ -33,7 +33,7 @@ const Page = () => {
   const completedEvents = events.filter((event) => event.date < today);
 
   return (
-    <div className="bg-gradient-to-br from-[#17003A] to-[#370069] dark:from-[#8617C0] dark:to-[#6012A4] p-8 min-h-screen">
+    <div className="bg-gradient-to-br from-[#17003A] to-[#370069] p-8 min-h-screen">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-center mb-8">
