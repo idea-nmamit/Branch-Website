@@ -20,8 +20,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns";
 import { cn } from "@/lib/utils"
 
-const AchievementsForm = () => {
-  // { onAchievementAdded }
+const AchievementsForm = ({ onAchievementAdded }) => {
   const [name, setName] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -119,9 +118,13 @@ const AchievementsForm = () => {
 
       if (!response.ok) {
         throw new Error(responseData.error || `Failed to save event. Status: ${response.status}`)
+      }      setSuccessMessage('Achievement Submitted Successfully!')
+      
+      // Call the callback to refresh data
+      if (onAchievementAdded) {
+        onAchievementAdded()
       }
-
-      setSuccessMessage('Achievement Submitted Successfully!')
+      
       // Reset form
       setName("");
       setTitle("");

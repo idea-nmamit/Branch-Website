@@ -14,7 +14,7 @@ const categories = [
   "WORKSHOP", "SEMINAR", "INDUSTRIAL_VISIT", "PROJECT_EXHIBITION", "OUTREACH", "ORIENTATION"
 ];
 
-const GalleryAdmin = () => {
+const GalleryAdmin = ({ onGalleryUpdated }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [photo, setPhoto] = useState(null);
@@ -94,9 +94,13 @@ const GalleryAdmin = () => {
 
       if (!response.ok) {
         throw new Error('Failed to save gallery item.');
+      }      setSuccessMessage('Gallery Item Submitted Successfully!');
+      
+      // Call the callback to refresh data
+      if (onGalleryUpdated) {
+        onGalleryUpdated()
       }
-
-      setSuccessMessage('Gallery Item Submitted Successfully!');
+      
       setTitle('');
       setDescription('');
       setPhoto(null);
