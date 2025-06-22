@@ -106,15 +106,18 @@ const Page = () => {
       className="w-full flex justify-center"
     >
       <div className="relative w-full max-w-sm mx-auto" style={{ height: '420px' }}>
-        <div className="w-full h-full rounded-2xl bg-slate-800/50 backdrop-blur-md border border-slate-600/30 p-6">
-          {/* Header skeleton */}
+        <div className="w-full h-full rounded-2xl bg-slate-800/50 backdrop-blur-md border border-slate-600/30 p-6">          {/* Header skeleton */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-2">
               <Skeleton className="h-5 w-5 rounded" />
               <Skeleton className="h-4 w-16" />
             </div>
-            <Skeleton className="h-2 w-2 rounded-full" />
-          </div>            {/* Profile section skeleton */}
+            {/* Variable social icons skeleton */}
+            <div className="flex space-x-2">
+              <Skeleton className="h-6 w-6 rounded" />
+              <Skeleton className="h-6 w-6 rounded" />
+            </div>
+          </div>{/* Profile section skeleton */}
           <div className="flex flex-col items-center mb-6">
             <Skeleton className="w-32 h-32 rounded-xl mb-4" />
             <div className="text-center">

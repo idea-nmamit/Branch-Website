@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { Code2, Quote, ChevronRight } from "lucide-react";
 
-const Card = ({ name, imageUrl, role, linkedin, quote, github, instagram }) => {
+const Card = ({ name, imageUrl, role, linkedinUrl, quote, githubUrl, instagramUrl }) => {
   const [isClient, setIsClient] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -96,19 +96,17 @@ const Card = ({ name, imageUrl, role, linkedin, quote, github, instagram }) => {
                 </div>
               </div>
             </div>
-            
-            {/* Social links - moved to top right */}
+              {/* Social links - moved to top right */}
             <motion.div
               className="flex space-x-2"
               initial={{ y: -10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
-            >
-              {[
-                { href: github, icon: GithubIcon, color: 'hover:text-white', bg: 'hover:bg-white/10' },
-                { href: linkedin, icon: LinkedinIcon, color: 'hover:text-blue-400', bg: 'hover:bg-blue-400/10' },
-                { href: instagram, icon: InstagramIcon, color: 'hover:text-pink-400', bg: 'hover:bg-pink-400/10' }
-              ].map((social, index) => (
+            >              {[
+                { href: githubUrl, icon: GithubIcon, color: 'hover:text-white', bg: 'hover:bg-white/10' },
+                { href: linkedinUrl, icon: LinkedinIcon, color: 'hover:text-blue-400', bg: 'hover:bg-blue-400/10' },
+                { href: instagramUrl, icon: InstagramIcon, color: 'hover:text-pink-400', bg: 'hover:bg-pink-400/10' }
+              ].filter(social => social.href && social.href.trim() !== '').map((social, index) => (
                 <motion.a
                   key={index}
                   href={social.href}

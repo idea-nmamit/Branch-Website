@@ -116,9 +116,7 @@ const Card = ({ name, imageUrl, designation, linkedin, github, instagram }) => {
                   transition={{ delay: 0.5, duration: 0.8, ease: "easeOut" }}
                 />
               </div>
-            </div>
-
-            {/* Social links with premium styling */}
+            </div>            {/* Social links with premium styling */}
             <motion.div
               className="flex justify-center space-x-6"
               initial={{ opacity: 0, y: 20 }}
@@ -129,7 +127,7 @@ const Card = ({ name, imageUrl, designation, linkedin, github, instagram }) => {
                 { href: instagram, icon: InstagramIcon, label: "Instagram", color: "hover:text-pink-400" },
                 { href: github, icon: GithubIcon, label: "GitHub", color: "hover:text-white" },
                 { href: linkedin, icon: LinkedinIcon, label: "LinkedIn", color: "hover:text-blue-400" }
-              ].map((social, index) => (
+              ].filter(social => social.href && social.href.trim() !== '').map((social, index) => (
                 <motion.a
                   key={index}
                   href={social.href}
