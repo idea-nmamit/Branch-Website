@@ -1,252 +1,187 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import Image from 'next/image';
-import { Radius } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const Card = ({ name, imageUrl, designation, linkedin, github, instagram }) => {
   const [isClient, setIsClient] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    setMousePos({
+      x: (e.clientX - rect.left - centerX) / centerX,
+      y: (e.clientY - rect.top - centerY) / centerY
+    });
+  };
+
   return (
-    <StyledWrapper>
-      <div className="card mb-4">
-        {/* Add margin-bottom to create space below the image */}
-        <div className="profile-pic mb-4 relative w-24 h-24 overflow-hidden">
-          {isClient && (
-            <Image
-              src={imageUrl}
-              alt="profile"
-              fill
-              style={{ objectFit: 'cover' }}
-            />
-          )}
-        </div>
-        <div className="bottom">
-          <div className="mb-12 flex flex-col justify-center items-center content">
-            <h1 className="name w-full">{name}</h1>
-            <span className="w-full text-white">{designation}</span>
-          </div>
-          <div className="bottom-bottom">
-            {/* Use flex with gap for equal spacing between icons */}
-            <div className="flex gap-4 justify-center social-links-container">
-              <a href={instagram} target="_blank" rel="noopener noreferrer">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 30 30"
-                  className="svg"
-                >
-                  <path d="M 9.9980469 3 C 6.1390469 3 3 6.1419531 3 10.001953 L 3 20.001953 C 3 23.860953 6.1419531 27 10.001953 27 L 20.001953 27 C 23.860953 27 27 23.858047 27 19.998047 L 27 9.9980469 C 27 6.1390469 23.858047 3 19.998047 3 L 9.9980469 3 z M 22 7 C 22.552 7 23 7.448 23 8 C 23 8.552 22.552 9 22 9 C 21.448 9 21 8.552 21 8 C 21 7.448 21.448 7 22 7 z M 15 9 C 18.309 9 21 11.691 21 15 C 21 18.309 18.309 21 15 21 C 11.691 21 9 18.309 9 15 C 9 11.691 11.691 9 15 9 z M 15 11 A 4 4 0 0 0 11 15 A 4 4 0 0 0 15 19 A 4 4 0 0 0 19 15 A 4 4 0 0 0 15 11 z" />
-                </svg>
-              </a>
-              <a href={github} target="_blank" rel="noopener noreferrer">
-                <svg
-                  className="svg"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 512 512"
-                  fill="currentColor"
-                >
-                  <path d="M256 32C114.62 32 0 146.62 0 288c0 113.31 73.38 209.06 175.47 242.8 12.82 2.34 17.53-5.56 17.53-12.33 0-6.08-.24-26.21-.35-47.56-71.34 15.51-86.42-30.96-86.42-30.96-11.65-29.59-28.46-37.46-28.46-37.46-23.27-15.91 1.76-15.59 1.76-15.59 25.7 1.81 39.23 26.39 39.23 26.39 22.88 39.21 59.99 27.9 74.62 21.33 2.32-16.56 8.94-27.91 16.27-34.33-56.95-6.48-116.81-28.47-116.81-126.74 0-27.99 10-50.86 26.39-68.78-2.64-6.5-11.43-32.69 2.51-68.19 0 0 21.51-6.88 70.45 26.27a243.69 243.69 0 01128.26 0c48.91-33.15 70.39-26.27 70.39-26.27 13.97 35.5 5.18 61.69 2.54 68.19 16.43 17.92 26.36 40.79 26.36 68.78 0 98.5-59.97 120.19-117.15 126.51 9.18 7.9 17.37 23.52 17.37 47.45 0 34.29-.3 61.92-.3 70.37 0 6.81 4.63 14.74 17.61 12.23C438.66 497 512 401.32 512 288 512 146.62 397.38 32 256 32z" />
-                </svg>
-              </a>
-              <a href={linkedin} target="_blank" rel="noopener noreferrer">
-                <svg
-                  className="svg"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 448 512"
-                  fill="currentColor"
-                >
-                  <path d="M100.28 448H7.4V149.76h92.88zM53.79 108.1C24.09 108.1 0 83.37 0 53.79a53.79 53.79 0 11107.58 0c0 29.58-24.1 54.31-53.79 54.31zM447.9 448h-92.4V302.4c0-34.7-12.5-58.4-43.7-58.4-23.9 0-38.2 16.1-44.4 31.6-2.3 5.5-2.8 13.1-2.8 20.8V448h-92.6s1.2-268.5 0-296.4h92.6v42c12.3-19 34.3-46.1 83.6-46.1 61 0 106.9 39.8 106.9 125.3V448z" />
-                </svg>
-              </a>
+    <div className="relative w-full max-w-sm mx-auto">
+      {/* Subtle ambient glow */}
+      <div className="absolute -inset-1 bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-purple-600/20 rounded-3xl blur-xl opacity-30" />
+      
+      <motion.div
+        className="relative group"
+        onMouseMove={handleMouseMove}
+        whileHover={{ y: -12 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      >
+        {/* Main card */}
+        <motion.div
+          className="relative h-96 rounded-2xl overflow-hidden bg-gradient-to-br from-slate-900/95 to-slate-800/95 backdrop-blur-xl border border-white/10 shadow-2xl"
+          style={{
+            transform: `perspective(1000px) rotateY(${mousePos.x * 5}deg) rotateX(${mousePos.y * -5}deg)`
+          }}
+          whileHover={{
+            borderColor: "rgba(168, 85, 247, 0.4)",
+            boxShadow: "0 25px 50px -12px rgba(168, 85, 247, 0.25), 0 0 0 1px rgba(168, 85, 247, 0.1)"
+          }}
+          transition={{ duration: 0.4 }}
+        >
+          {/* Elegant inner border */}
+          <div className="absolute inset-3 rounded-xl border border-white/5" />
+          
+          {/* Subtle light ray effect */}
+          <motion.div
+            className="absolute top-0 left-1/4 w-px h-full bg-gradient-to-b from-purple-400/0 via-purple-400/20 to-purple-400/0"
+            animate={{ opacity: [0.3, 0.6, 0.3] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          />
+          
+          {/* Content */}
+          <div className="relative p-8 flex flex-col items-center h-full justify-center">
+            {/* Profile image */}
+            <motion.div
+              className="relative mb-8 group/image"
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            >
+              {/* Image container with elegant border */}
+              <div className="relative w-24 h-24">
+                {/* Animated border ring */}
+                <motion.div
+                  className="absolute -inset-2 rounded-full"
+                  style={{
+                    background: "conic-gradient(from 0deg, transparent, rgba(168, 85, 247, 0.6), transparent)"
+                  }}
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                />
+                
+                {/* Static elegant border */}
+                <div className="absolute -inset-1 rounded-full bg-gradient-to-tr from-purple-500/30 to-pink-500/30 p-0.5">
+                  <div className="w-full h-full rounded-full bg-slate-800 p-0.5">
+                    <div className="w-full h-full rounded-full overflow-hidden">
+                      {isClient && (
+                        <motion.img
+                          src={imageUrl}
+                          alt="profile"
+                          className="w-full h-full object-cover transition-all duration-500 group-hover/image:scale-110"
+                          whileHover={{ filter: "brightness(1.1) contrast(1.1)" }}
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Name and title */}
+            <div className="text-center mb-8">
+              <motion.h3
+                className="text-2xl font-bold text-white mb-3 tracking-tight"
+                whileHover={{ 
+                  color: "#C084FC",
+                  transition: { duration: 0.2 }
+                }}
+              >
+                {name}
+              </motion.h3>
+              
+              <div className="space-y-3">
+                <p className="text-purple-200/80 font-medium text-sm tracking-wider uppercase">
+                  {designation}
+                </p>
+                
+                {/* Elegant animated underline */}
+                <motion.div
+                  className="w-16 h-px bg-gradient-to-r from-transparent via-purple-400/60 to-transparent mx-auto"
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ delay: 0.5, duration: 0.8, ease: "easeOut" }}
+                />
+              </div>
             </div>
+
+            {/* Social links with premium styling */}
+            <motion.div
+              className="flex justify-center space-x-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.5 }}
+            >
+              {[
+                { href: instagram, icon: InstagramIcon, label: "Instagram", color: "hover:text-pink-400" },
+                { href: github, icon: GithubIcon, label: "GitHub", color: "hover:text-white" },
+                { href: linkedin, icon: LinkedinIcon, label: "LinkedIn", color: "hover:text-blue-400" }
+              ].map((social, index) => (
+                <motion.a
+                  key={index}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`group/social relative text-white/60 ${social.color} transition-all duration-300`}
+                  whileHover={{ y: -3, scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {/* Elegant hover background */}
+                  <div className="absolute -inset-3 rounded-xl bg-white/5 opacity-0 group-hover/social:opacity-100 transition-opacity duration-300" />
+                  
+                  {/* Icon */}
+                  <div className="relative p-3">
+                    <social.icon size={18} />
+                  </div>
+                  
+                  {/* Subtle tooltip */}
+                  <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-slate-700 text-white text-xs rounded opacity-0 group-hover/social:opacity-100 transition-opacity duration-300 pointer-events-none">
+                    {social.label}
+                  </div>
+                </motion.a>
+              ))}
+            </motion.div>
           </div>
-        </div>
-      </div>
-    </StyledWrapper>
+
+          {/* Subtle corner decorations */}
+          <div className="absolute top-4 right-4 w-8 h-8 border-t border-r border-white/10 rounded-tr-lg" />
+          <div className="absolute bottom-4 left-4 w-8 h-8 border-b border-l border-white/10 rounded-bl-lg" />
+        </motion.div>
+      </motion.div>
+    </div>
   );
 };
 
-const StyledWrapper = styled.div`
-  /* CARD */
-  .card {
-    width: 280px;
-    height: 280px;
-    background: white;
-    /* Reversed default state (lifted/animated) */
-    border-top-left-radius: 55px;
-    border-radius: 29px;
-    padding: 3px;
-    position: relative;
-    box-shadow: #604b4a30 0px 70px 30px -50px;
-    transition: all 0.7s cubic-bezier(.23,1,.32,1);
-  }
+// Clean, minimal social icons
+const InstagramIcon = ({ size = 24 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+  </svg>
+);
 
-  /* On hover, revert to original resting style */
-  .card:hover {
-    border-top-left-radius: 32px;
-    background: none;
-  }
+const GithubIcon = ({ size = 24 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+  </svg>
+);
 
-  /* BOTTOM */
-  .card .bottom {
-    position: absolute;
-    bottom: 3px;
-    left: 3px;
-    right: 3px;
-    background:rgb(68, 26, 110);
-    /* Reversed default: previous hover values */
-    top: 20%;
-    border-radius: 29px 29px 29px 29px;
-    z-index: 2;
-    box-shadow: rgba(96, 75, 74, 0.1882352941) 0px 5px 5px 0px inset;
-    overflow: hidden;
-    transition: all 1.5s cubic-bezier(0, 0.1, 0.01, 1);
-  }
-
-  /* On hover, revert to original bottom style */
-  .card:hover .bottom {
-    top: 80%;
-    border-radius: 29px;
-  }
-
-  /* PROFILE PIC */
-  .card .profile-pic {
-    position: absolute;
-    /* Reversed default: previous hover state */
-    width: 100px;
-    height: 100px;
-    aspect-ratio: 1;
-    top: 10px;
-    left: 10px;
-    border-radius: 50%;
-    z-index: 3;
-    box-shadow: rgba(96, 75, 74, 0.1882352941) 0px 5px 5px 0px;
-    overflow: hidden;
-    transition: all 0.4s cubic-bezier(0.5, 1, 0.9, 1);
-  }
-
-  /* On hover, revert profile pic to original default */
-  .card:hover .profile-pic {
-    width: calc(100% - 6px);
-    height: calc(100% - 6px);
-    top: 3px;
-    left: 3px;
-    border-radius: 29px;
-    z-index: 1;
-    box-shadow: none;
-  }
-
-  /* MAIL */
-  .card .mail {
-    position: absolute;
-    right: 2rem;
-    top: 1.4rem;
-    background: transparent;
-    border: none;
-  }
-
-  .card .mail svg {
-    stroke: #fbb9b6;
-    stroke-width: 3px;
-    transition: stroke 0.4s ease;
-  }
-
-  .card .mail svg:hover {
-    stroke: #f55d56;
-  }
-
-  /* PROFILE PIC IMG & SVG */
-  .card .profile-pic img {
-    object-fit: cover;
-    width: 100%;
-    height: 100%;
-    object-position: 0px 0px;
-    transition: all 0.7s cubic-bezier(9.25, 5.8, 0.75, 1);
-  }
-
-  .card .profile-pic svg {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 0px 0px;
-    transform-origin: 20% 20%;
-    transition: all 0.7s cubic-bezier(9.25, 7.8, 0.75, 1);
-  }
-
-  /* BOTTOM CONTENT */
-  .card .bottom .content {
-    position: absolute;
-    bottom: 0;
-    left: 1.5rem;
-    right: 1.5rem;
-    height: 160px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-  }
-
-  .card .bottom .content .name {
-    display: block;
-    font-size: 1.2rem;
-    color: white;
-    font-weight: bold;
-  }
-
-  .card .bottom .content .about-me {
-    display: block;
-    font-size: 0.9rem;
-    color: white;
-    margin-top: 1rem;
-  }
-
-  /* BOTTOM BOTTOM */
-  .card .bottom .bottom-bottom {
-    position: absolute;
-    bottom: 1rem;
-    left: 1.5rem;
-    right: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .card .bottom .bottom-bottom .social-links-container {
-    display: flex;
-    gap: 1rem;
-  }
-
-  .card .bottom .bottom-bottom .social-links-container svg {
-    height: 20px;
-    fill: white;
-    filter: drop-shadow(0 5px 5px rgba(165, 132, 130, 0.1333));
-    transition: all 0.8s ease;
-  }
-
-  .card .bottom .bottom-bottom .social-links-container svg:hover {
-    fill: #f55d56;
-    transform: scale(1.2);
-  }
-
-  .card .bottom .bottom-bottom .button {
-    background: white;
-    color: #fbb9b6;
-    border: none;
-    border-radius: 20px;
-    font-size: 0.6rem;
-    padding: 0.4rem 0.6rem;
-    box-shadow: rgba(165, 132, 130, 0.1333) 0px 5px 5px 0px;
-    transition: background-color 0.8s ease, color 0.8s ease;
-  }
-  .card .bottom .bottom-bottom .button:hover {
-    background: #f55d56;
-    color: white;
-  }
-`;
+const LinkedinIcon = ({ size = 24 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+  </svg>
+);
 
 export default Card;

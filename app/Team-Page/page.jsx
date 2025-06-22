@@ -54,9 +54,7 @@ const Page = () => {
 
   const filteredMembers = teamMembers
   .filter((member) => member.category === selectedCategory && member.year === selectedYear)
-  .sort((a, b) => a.index - b.index);
-
-  // Direct skeleton rendering functions
+  .sort((a, b) => a.index - b.index);  // Direct skeleton rendering functions
   const renderOfficeBearerSkeleton = (index) => (
     <motion.div
       key={`office-skeleton-${index}`}
@@ -65,17 +63,34 @@ const Page = () => {
       transition={{ duration: 0.3, delay: index * 0.1 }}
       className="w-full flex justify-center"
     >
-      <div className="w-full max-w-xs">
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10 shadow-xl">
-          <div className="flex flex-col items-center">
-            <Skeleton className="h-36 w-36 rounded-full mb-4" />
-            <Skeleton className="h-7 w-3/4 mb-2" />
-            <Skeleton className="h-5 w-1/2 mb-6" />
-            <div className="flex space-x-4 mt-2">
-              <Skeleton className="h-8 w-8 rounded-full" />
-              <Skeleton className="h-8 w-8 rounded-full" />
-              <Skeleton className="h-8 w-8 rounded-full" />
+      <div className="relative w-full max-w-sm mx-auto">
+        <div className="h-96 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 p-6">
+          {/* Role badge skeleton */}
+          <Skeleton className="h-6 w-24 rounded-full mb-4" />
+            {/* Profile image skeleton */}
+          <div className="relative mx-auto mb-6" style={{ width: '120px', height: '120px' }}>
+            <Skeleton className="w-full h-full rounded-full" />
+            <div className="absolute -bottom-1 -right-1">
+              <Skeleton className="w-6 h-6 rounded-full" />
             </div>
+          </div>
+          
+          {/* Content skeletons */}
+          <div className="text-center">
+            <Skeleton className="h-5 w-3/4 mx-auto mb-2" />
+            <Skeleton className="h-4 w-1/2 mx-auto mb-6" />
+            
+            {/* Social links skeleton */}
+            <div className="flex justify-center space-x-4">
+              <Skeleton className="h-7 w-7 rounded-lg" />
+              <Skeleton className="h-7 w-7 rounded-lg" />
+              <Skeleton className="h-7 w-7 rounded-lg" />
+            </div>
+          </div>
+          
+          {/* Bottom accent line skeleton */}
+          <div className="absolute bottom-0 left-0 right-0">
+            <Skeleton className="h-1 w-full rounded-none" />
           </div>
         </div>
       </div>
@@ -90,22 +105,49 @@ const Page = () => {
       transition={{ duration: 0.3, delay: index * 0.1 }}
       className="w-full flex justify-center"
     >
-      <div className="w-full max-w-xs">
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10 shadow-xl">
-          <div className="flex flex-col">
-            <div className="flex items-center mb-4">
-              <Skeleton className="h-14 w-14 rounded-full mr-4" />
-              <div>
-                <Skeleton className="h-6 w-32 mb-2" />
-                <Skeleton className="h-4 w-24" />
+      <div className="relative w-full max-w-sm mx-auto" style={{ height: '420px' }}>
+        <div className="w-full h-full rounded-2xl bg-slate-800/50 backdrop-blur-md border border-slate-600/30 p-6">
+          {/* Header skeleton */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-2">
+              <Skeleton className="h-5 w-5 rounded" />
+              <Skeleton className="h-4 w-16" />
+            </div>
+            <Skeleton className="h-2 w-2 rounded-full" />
+          </div>            {/* Profile section skeleton */}
+          <div className="flex flex-col items-center mb-6">
+            <Skeleton className="w-32 h-32 rounded-xl mb-4" />
+            <div className="text-center">
+              <Skeleton className="h-5 w-32 mb-1 mx-auto" />
+              <Skeleton className="h-4 w-24 mx-auto" />
+            </div>
+          </div>
+          
+          {/* Quote section skeleton */}
+          <div className="bg-black/20 rounded-lg p-4 border-l-4 border-cyan-400/30 mb-6">
+            <div className="flex items-start space-x-3">
+              <Skeleton className="h-4 w-4 rounded flex-shrink-0 mt-1" />
+              <div className="flex-1">
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-3/4" />
               </div>
             </div>
-            <Skeleton className="h-20 w-full mb-4" />
-            <div className="flex space-x-4 mt-2">
-              <Skeleton className="h-8 w-8 rounded-full" />
-              <Skeleton className="h-8 w-8 rounded-full" />
-              <Skeleton className="h-8 w-8 rounded-full" />
+          </div>
+          
+          {/* Social links skeleton */}
+          <div className="flex justify-center space-x-4 mb-6">
+            <Skeleton className="h-8 w-8 rounded-lg" />
+            <Skeleton className="h-8 w-8 rounded-lg" />
+            <Skeleton className="h-8 w-8 rounded-lg" />
+          </div>
+          
+          {/* Bottom section skeleton */}
+          <div className="absolute bottom-0 left-0 right-0 h-12 px-6 flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Skeleton className="h-3 w-3" />
+              <Skeleton className="h-3 w-12" />
             </div>
+            <Skeleton className="h-3 w-3" />
           </div>
         </div>
       </div>
@@ -247,10 +289,18 @@ const Page = () => {
 
         {/* Content */}
         <AnimatePresence mode="wait">
-          {loading ? (
-            <motion.div
+          {loading ? (            <motion.div
               key="loading"
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center"
+              className={`grid gap-x-8 gap-y-16 ${
+                selectedCategory === 'OFFICE_BEARERS' 
+                  ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
+                  : 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3'
+              }`}
+              style={{
+                gridTemplateColumns: selectedCategory === 'OFFICE_BEARERS' 
+                  ? 'repeat(auto-fit, minmax(320px, 1fr))'
+                  : 'repeat(auto-fit, minmax(380px, 1fr))',
+              }}
               variants={containerVariants}
               initial="hidden"
               animate="show"
@@ -290,24 +340,27 @@ const Page = () => {
             >
               <p className="text-white text-lg">No members found for this year and category.</p>
             </motion.div>
-          ) : (
-            <motion.div
+          ) : (            <motion.div
               key={`${selectedCategory}-${selectedYear}`}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16"
+              className={`grid gap-x-8 gap-y-16 ${
+                selectedCategory === 'OFFICE_BEARERS' 
+                  ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
+                  : 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3'
+              }`}
               style={{
-                gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+                gridTemplateColumns: selectedCategory === 'OFFICE_BEARERS' 
+                  ? 'repeat(auto-fit, minmax(320px, 1fr))'
+                  : 'repeat(auto-fit, minmax(380px, 1fr))',
               }}
               variants={containerVariants}
               initial="hidden"
               animate="show"
               exit={{ opacity: 0 }}
-            >
-              {selectedCategory === 'OFFICE_BEARERS'
+            >              {selectedCategory === 'OFFICE_BEARERS'
                 ? filteredMembers.map((member) => (
                   <motion.div
                     key={member.id}
                     variants={itemVariants}
-                    className="w-full flex justify-center"
                   >
                     <Card
                       name={member.name}
@@ -323,7 +376,6 @@ const Page = () => {
                   <motion.div
                     key={member.id}
                     variants={itemVariants}
-                    className="w-full flex justify-center"
                   >
                     <TCard
                       name={member.name}
