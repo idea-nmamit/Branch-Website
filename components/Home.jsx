@@ -129,11 +129,11 @@ const HomePage = () => {
         </div>
         
         {/* Main Content */}
-        <div className="flex flex-col items-center justify-center h-full w-full relative z-10">
+        <div className="flex flex-col items-center justify-center h-full w-full relative z-10 px-4 sm:px-6 md:px-8">
           {/* Logo and Title */}
-          <div className="w-full text-center px-4">
-            <div ref={logoRef} className="text-white flex items-center justify-center mb-4 md:mb-8">
-              <div className="relative w-52 h-20 sm:w-64 sm:h-24 md:w-96 md:h-40 lg:w-[450px] lg:h-48">
+          <div className="w-full max-w-6xl text-center">
+            <div ref={logoRef} className="text-white flex items-center justify-center mb-6 sm:mb-8 md:mb-10">
+              <div className="relative w-64 h-24 sm:w-72 sm:h-28 md:w-96 md:h-40 lg:w-[450px] lg:h-48">
                 <Image
                   src={logoSrc}
                   alt="IDEA"
@@ -146,7 +146,7 @@ const HomePage = () => {
 
             <div
               ref={subtitleContainerRef}
-              className="flex flex-wrap justify-center gap-x-2 gap-y-1 md:gap-y-2 mx-auto"
+              className="flex flex-wrap justify-center gap-x-2 sm:gap-x-3 gap-y-2 sm:gap-y-3 md:gap-y-2 mx-auto max-w-5xl"
             >
               {titleWords.map((word, index) => (
                 <div
@@ -154,7 +154,7 @@ const HomePage = () => {
                   ref={el => wordsRefs.current[index] = el}
                   className="relative select-none font-sans tracking-tight cursor-pointer"
                   style={{
-                    fontSize: 'clamp(1.125rem, 5vw, 2.8rem)',
+                    fontSize: 'clamp(1.5rem, 6vw, 2.8rem)',
                     fontWeight: index === 0 || index === 2 ? 800 : 600,
                     textShadow: '0px 2px 4px rgba(0,0,0,0.4)',
                     letterSpacing: index === 0 || index === 3 ? '-0.02em' : '-0.01em',
@@ -172,7 +172,7 @@ const HomePage = () => {
         {/* News Badge */}
         <div ref={badgeRef} className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 md:bottom-12 md:left-12 z-20">
           <Link href="/News">
-            <div className="bg-gradient-to-r from-pink-300 to-purple-300 text-[#17003A] px-3 py-1.5 sm:px-4 sm:py-2 md:px-6 md:py-3 rounded-full font-semibold text-sm sm:text-base md:text-lg shadow-lg tracking-wide cursor-pointer transition-all duration-300 hover:scale-105">
+            <div className="bg-gradient-to-r from-pink-300 to-purple-300 text-[#17003A] px-4 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-3 rounded-full font-semibold text-sm sm:text-base md:text-lg shadow-lg tracking-wide cursor-pointer transition-all duration-300 hover:scale-105">
               Latest News
             </div>
           </Link>
@@ -190,11 +190,11 @@ const HomePage = () => {
         </div>
         
         {/* Main Content */}
-        <div className="flex flex-col items-center justify-center h-full w-full relative z-10">
+        <div className="flex flex-col items-center justify-center h-full w-full relative z-10 px-4 sm:px-6 md:px-8">
           {/* Logo and Title */}
-          <div className="w-full text-center px-4">
-            <div ref={logoRef} className="text-white flex items-center justify-center mb-4 md:mb-8">
-              <div className="relative w-52 h-20 sm:w-64 sm:h-24 md:w-96 md:h-40 lg:w-[450px] lg:h-48">
+          <div className="w-full max-w-6xl text-center">
+            <div ref={logoRef} className="text-white flex items-center justify-center mb-6 sm:mb-8 md:mb-10">
+              <div className="relative w-64 h-24 sm:w-72 sm:h-28 md:w-96 md:h-40 lg:w-[450px] lg:h-48">
                 <Image
                   src={logoSrc}
                   alt="IDEA"
@@ -207,7 +207,7 @@ const HomePage = () => {
 
             <div
               ref={subtitleContainerRef}
-              className="flex flex-wrap justify-center gap-x-2 gap-y-1 md:gap-y-2 mx-auto"
+              className="flex flex-wrap justify-center gap-x-2 sm:gap-x-3 gap-y-2 sm:gap-y-3 md:gap-y-2 mx-auto max-w-5xl"
             >
               {titleWords.map((word, index) => (
                 <div
@@ -215,7 +215,7 @@ const HomePage = () => {
                   ref={el => wordsRefs.current[index] = el}
                   className="relative select-none font-sans tracking-tight cursor-pointer"
                   style={{
-                    fontSize: 'clamp(1.125rem, 5vw, 2.8rem)',
+                    fontSize: 'clamp(1.5rem, 6vw, 2.8rem)',
                     fontWeight: index === 0 || index === 2 ? 800 : 600,
                     textShadow: '0px 2px 4px rgba(0,0,0,0.4)',
                     letterSpacing: index === 0 || index === 3 ? '-0.02em' : '-0.01em',
@@ -231,6 +231,13 @@ const HomePage = () => {
         </div>
 
         {/* News Badge */}
+        <div ref={badgeRef} className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 md:bottom-12 md:left-12 z-20">
+          <Link href="/News">
+            <div className="bg-gradient-to-r from-pink-300 to-purple-300 text-[#17003A] px-4 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-3 rounded-full font-semibold text-sm sm:text-base md:text-lg shadow-lg tracking-wide cursor-pointer transition-all duration-300 hover:scale-105">
+              Latest News
+            </div>
+          </Link>
+        </div>
 
       </div>
     </PageLoader>

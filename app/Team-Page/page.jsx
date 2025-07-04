@@ -169,11 +169,32 @@ const Page = () => {
   );
 
   const renderSkeletons = () => {
-    return Array(6).fill(0).map((_, index) => (
-      selectedCategory === 'OFFICE_BEARERS'
-        ? renderOfficeBearerSkeleton(index)
-        : renderDevTeamSkeleton(index)
-    ));
+    if (selectedCategory === 'OFFICE_BEARERS') {
+      return Array(6).fill(0).map((_, index) => renderOfficeBearerSkeleton(index));
+    } else {
+      // For DEV_TEAM, show 2 skeletons on desktop, 6 on mobile/tablet
+      return (
+        <>
+          {/* Desktop view - show only 2 skeletons */}
+          <div className="hidden lg:flex lg:justify-center lg:space-x-8 lg:w-full lg:max-w-6xl">
+            {Array(2).fill(0).map((_, index) => (
+              <div key={`desktop-skeleton-${index}`} className="w-full max-w-sm">
+                {renderDevTeamSkeleton(index)}
+              </div>
+            ))}
+          </div>
+          
+          {/* Mobile/Tablet view - show 6 skeletons */}
+          <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 w-full">
+            {Array(6).fill(0).map((_, index) => (
+              <div key={`mobile-skeleton-${index}`} className="flex justify-center">
+                {renderDevTeamSkeleton(index)}
+              </div>
+            ))}
+          </div>
+        </>
+      );
+    }
   };
 
   const containerVariants = {
@@ -303,17 +324,18 @@ const Page = () => {
 
         {/* Content */}
         <AnimatePresence mode="wait">
-          {loading ? (            <motion.div
+          {loading ? (
+            <motion.div
               key="loading"
-              className={`grid gap-x-6 gap-y-12 sm:gap-x-8 sm:gap-y-16 ${
+              className={`${
                 selectedCategory === 'OFFICE_BEARERS' 
-                  ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
-                  : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+                  ? 'grid gap-x-6 gap-y-12 sm:gap-x-8 sm:gap-y-16 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
+                  : 'flex flex-col items-center space-y-12'
               }`}
               style={{
                 gridTemplateColumns: selectedCategory === 'OFFICE_BEARERS' 
                   ? 'repeat(auto-fit, minmax(280px, 1fr))'
-                  : 'repeat(auto-fit, minmax(300px, 1fr))',
+                  : undefined,
               }}
               variants={containerVariants}
               initial="hidden"
@@ -356,21 +378,22 @@ const Page = () => {
             </motion.div>
           ) : (            <motion.div
               key={`${selectedCategory}-${selectedYear}`}
-              className={`grid gap-x-6 gap-y-12 sm:gap-x-8 sm:gap-y-16 ${
+              className={`${
                 selectedCategory === 'OFFICE_BEARERS' 
-                  ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
-                  : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+                  ? 'grid gap-x-6 gap-y-12 sm:gap-x-8 sm:gap-y-16 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
+                  : 'flex flex-col items-center space-y-12'
               }`}
               style={{
                 gridTemplateColumns: selectedCategory === 'OFFICE_BEARERS' 
                   ? 'repeat(auto-fit, minmax(280px, 1fr))'
-                  : 'repeat(auto-fit, minmax(300px, 1fr))',
+                  : undefined,
               }}
               variants={containerVariants}
               initial="hidden"
               animate="show"
               exit={{ opacity: 0 }}
-            >              {selectedCategory === 'OFFICE_BEARERS'
+            >
+              {selectedCategory === 'OFFICE_BEARERS'
                 ? filteredMembers.map((member) => (
                   <motion.div
                     key={member.id}
@@ -387,23 +410,69 @@ const Page = () => {
                     />
                   </motion.div>
                 ))
-                : filteredMembers.map((member) => (
-                  <motion.div
-                    key={member.id}
-                    variants={itemVariants}
-                  >
-                    <TCard
-                      name={member.name}
-                      role={member.role}
-                      quote={member.quote || ''}
-                      imageUrl={member.photoUrl}
-                      linkedinUrl={member.linkedinUrl}
-                      githubUrl={member.githubUrl}
-                      instagramUrl={member.instagramUrl}
-                      portfolioUrl={member.portfolioUrl}
-                    />
-                  </motion.div>
-                ))
+                : (
+                  <>
+                    {/* Desktop view - show only 2 cards */}
+                    <div className="hidden lg:block w-full max-w-6xl">
+                      <div className="grid grid-cols-2 gap-8 justify-items-center">
+                        {filteredMembers.slice(0, 2).map((member) => (
+                          <motion.div
+                            key={member.id}
+                            variants={itemVariants}
+                            className="w-full max-w-sm"
+                          >
+                            <TCard
+                              name={member.name}
+                              role={member.role}
+                              quote={member.quote || ''}
+                              imageUrl={member.photoUrl}
+                              linkedinUrl={member.linkedinUrl}
+                              githubUrl={member.githubUrl}
+                              instagramUrl={member.instagramUrl}
+                              portfolioUrl={member.portfolioUrl}
+                            />
+                          </motion.div>
+                        ))}
+                      </div>
+                      {filteredMembers.length > 2 && (
+                        <motion.div
+                          className="mt-8 text-center"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.5 }}
+                        >
+                          <p className="text-white/60 text-sm">
+                            Showing 2 of {filteredMembers.length} team members
+                          </p>
+                        </motion.div>
+                      )}
+                    </div>
+                    
+                    {/* Mobile/Tablet view - show all cards in single column */}
+                    <div className="lg:hidden w-full">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
+                        {filteredMembers.map((member) => (
+                          <motion.div
+                            key={member.id}
+                            variants={itemVariants}
+                            className="flex justify-center"
+                          >
+                            <TCard
+                              name={member.name}
+                              role={member.role}
+                              quote={member.quote || ''}
+                              imageUrl={member.photoUrl}
+                              linkedinUrl={member.linkedinUrl}
+                              githubUrl={member.githubUrl}
+                              instagramUrl={member.instagramUrl}
+                              portfolioUrl={member.portfolioUrl}
+                            />
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )
               }
             </motion.div>
           )}
