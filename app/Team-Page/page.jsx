@@ -172,16 +172,18 @@ const Page = () => {
     if (selectedCategory === 'OFFICE_BEARERS') {
       return Array(6).fill(0).map((_, index) => renderOfficeBearerSkeleton(index));
     } else {
-      // For DEV_TEAM, show 2 skeletons on desktop, 6 on mobile/tablet
+      // For DEV_TEAM, show all team members with proper grid layout
       return (
         <>
-          {/* Desktop view - show only 2 skeletons */}
-          <div className="hidden lg:flex lg:justify-center lg:space-x-8 lg:w-full lg:max-w-6xl">
-            {Array(2).fill(0).map((_, index) => (
-              <div key={`desktop-skeleton-${index}`} className="w-full max-w-sm">
-                {renderDevTeamSkeleton(index)}
-              </div>
-            ))}
+          {/* Desktop view - show 6 skeletons in 3 columns */}
+          <div className="hidden lg:block w-full max-w-6xl">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
+              {Array(6).fill(0).map((_, index) => (
+                <div key={`desktop-skeleton-${index}`} className="w-full max-w-sm">
+                  {renderDevTeamSkeleton(index)}
+                </div>
+              ))}
+            </div>
           </div>
           
           {/* Mobile/Tablet view - show 6 skeletons */}
@@ -412,10 +414,10 @@ const Page = () => {
                 ))
                 : (
                   <>
-                    {/* Desktop view - show only 2 cards */}
+                    {/* Desktop view - show all cards */}
                     <div className="hidden lg:block w-full max-w-6xl">
-                      <div className="grid grid-cols-2 gap-8 justify-items-center">
-                        {filteredMembers.slice(0, 2).map((member) => (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
+                        {filteredMembers.map((member) => (
                           <motion.div
                             key={member.id}
                             variants={itemVariants}
@@ -434,18 +436,6 @@ const Page = () => {
                           </motion.div>
                         ))}
                       </div>
-                      {filteredMembers.length > 2 && (
-                        <motion.div
-                          className="mt-8 text-center"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: 0.5 }}
-                        >
-                          <p className="text-white/60 text-sm">
-                            Showing 2 of {filteredMembers.length} team members
-                          </p>
-                        </motion.div>
-                      )}
                     </div>
                     
                     {/* Mobile/Tablet view - show all cards in single column */}
