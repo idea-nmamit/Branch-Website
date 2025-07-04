@@ -129,7 +129,7 @@ const HomePage = () => {
         </div>
         
         {/* Main Content */}
-        <div className="flex flex-col items-center justify-center h-full w-full relative z-10 px-4 sm:px-6 md:px-8">
+        <div className="flex flex-col items-center justify-center h-full w-full relative z-10 px-4 sm:px-6 md:px-8" style={{ transform: 'translateY(-8vh)' }}>
           {/* Logo and Title */}
           <div className="w-full max-w-6xl text-center">
             <div ref={logoRef} className="text-white flex items-center justify-center mb-6 sm:mb-8 md:mb-10">
@@ -190,7 +190,7 @@ const HomePage = () => {
         </div>
         
         {/* Main Content */}
-        <div className="flex flex-col items-center justify-center h-full w-full relative z-10 px-4 sm:px-6 md:px-8">
+        <div className="flex flex-col items-center justify-center h-full w-full relative z-10 px-4 sm:px-6 md:px-8" style={{ transform: 'translateY(-8vh)' }}>
           {/* Logo and Title */}
           <div className="w-full max-w-6xl text-center">
             <div ref={logoRef} className="text-white flex items-center justify-center mb-6 sm:mb-8 md:mb-10">
