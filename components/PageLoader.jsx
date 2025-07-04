@@ -25,340 +25,423 @@ const PageLoader = ({ children, finishLoading }) => {
   const sceneRef = useRef(null);
   const engineRef = useRef(null);
   const renderRef = useRef(null);
+  const particlesRef = useRef([]);
+  const connectionsRef = useRef([]);
+  const intervalsRef = useRef([]);
 
   // Initialize Matter.js scene
   useEffect(() => {
-    if (!sceneRef.current) return;
+    if (!sceneRef.current || !loading) return;
 
-    try {
-      // Module aliases
-      const Engine = Matter.Engine,
-            Render = Matter.Render,
-            Runner = Matter.Runner,
-            Bodies = Matter.Bodies,
-            Composite = Matter.Composite,
-            Mouse = Matter.Mouse,
-            MouseConstraint = Matter.MouseConstraint,
-            Body = Matter.Body,
-            Vector = Matter.Vector,
-            Constraint = Matter.Constraint;
+    let cleanup = null;
 
-      // Create engine
-      const engine = Engine.create();
-      engineRef.current = engine;
+    const initializeMatterJS = async () => {
+      try {
+        // Module aliases
+        const Engine = Matter.Engine,
+              Render = Matter.Render,
+              Runner = Matter.Runner,
+              Bodies = Matter.Bodies,
+              Composite = Matter.Composite,
+              Mouse = Matter.Mouse,
+              MouseConstraint = Matter.MouseConstraint,
+              Body = Matter.Body,
+              Vector = Matter.Vector,
+              Constraint = Matter.Constraint;
 
-      // Create renderer
-      const render = Render.create({
-        element: sceneRef.current,
-        engine: engine,
-        options: {
-          width: window.innerWidth,
-          height: window.innerHeight,
-          wireframes: false,
-          background: 'transparent',
-          pixelRatio: Math.min(window.devicePixelRatio, 2) // Limit pixel ratio for performance
+        // Create engine
+        const engine = Engine.create();
+        engine.world.gravity.y = 0.8;
+        engineRef.current = engine;
+
+        // Create renderer
+        const render = Render.create({
+          element: sceneRef.current,
+          engine: engine,
+          options: {
+            width: window.innerWidth,
+            height: window.innerHeight,
+            wireframes: false,
+            background: 'transparent',
+            pixelRatio: Math.min(window.devicePixelRatio, 2)
+          }
+        });
+        renderRef.current = render;
+
+        // Create runner
+        const runner = Runner.create();
+
+        // Create walls function
+        const createWalls = () => {
+          const wallOptions = {
+            isStatic: true,
+            render: { visible: false }
+          };
+
+          const wallThickness = 50;
+          return [
+            Bodies.rectangle(window.innerWidth / 2, window.innerHeight + wallThickness / 2, window.innerWidth + wallThickness * 2, wallThickness, wallOptions),
+            Bodies.rectangle(-wallThickness / 2, window.innerHeight / 2, wallThickness, window.innerHeight + wallThickness * 2, wallOptions),
+            Bodies.rectangle(window.innerWidth + wallThickness / 2, window.innerHeight / 2, wallThickness, window.innerHeight + wallThickness * 2, wallOptions),
+            Bodies.rectangle(window.innerWidth / 2, -wallThickness / 2, window.innerWidth + wallThickness * 2, wallThickness, wallOptions)
+          ];
+        };
+
+        // Add initial walls
+        Composite.add(engine.world, createWalls());
+
+        // Enhanced color palette
+        const colors = [
+          '#8617C0',
+          '#6e11a0',
+          '#6366F1',
+          '#3B82F6',
+          '#EC4899',
+          '#F472B6',
+        ];
+
+        // Create network node function
+        const createNetworkNode = (x, y) => {
+          const colorIndex = Math.floor(Math.random() * colors.length);
+          const size = 12 + Math.random() * 18;
+          const shapeType = Math.random();
+          
+          let shape;
+          const commonOptions = {
+            restitution: 0.7,
+            friction: 0.002,
+            frictionAir: 0.01,
+            render: {
+              fillStyle: colors[colorIndex],
+              opacity: 0.75 + Math.random() * 0.25,
+              shadowColor: colors[colorIndex],
+              shadowBlur: 15,
+              shadowOffsetX: 0,
+              shadowOffsetY: 0
+            }
+          };
+
+          if (shapeType < 0.4) {
+            shape = Bodies.circle(x, y, size / 2, commonOptions);
+          } else if (shapeType < 0.7) {
+            shape = Bodies.rectangle(x, y, size, size * 0.8, commonOptions);
+          } else {
+            shape = Bodies.polygon(x, y, 6, size / 2, commonOptions);
+          }
+
+          Body.setVelocity(shape, {
+            x: (Math.random() - 0.5) * 1.2,
+            y: (Math.random() - 0.5) * 1.2
+          });
+          
+          Body.setAngularVelocity(shape, (Math.random() - 0.5) * 0.03);
+          
+          return shape;
+        };
+
+        // Create initial particles
+        const particles = [];
+        for (let i = 0; i < 35; i++) {
+          const x = Math.random() * window.innerWidth;
+          const y = Math.random() * window.innerHeight;
+          particles.push(createNetworkNode(x, y));
         }
-      });
-      renderRef.current = render;
+        Composite.add(engine.world, particles);
+        particlesRef.current = particles;
 
-      // Create runner
-      const runner = Runner.create();
+        // Create connections function
+        const createConnections = () => {
+          if (!loading) return;
+          
+          // Remove old connections
+          connectionsRef.current.forEach(connection => {
+            Composite.remove(engine.world, connection);
+          });
+          connectionsRef.current = [];
 
-      // Create walls
-      const wallOptions = {
-        isStatic: true,
-        render: {
-          visible: false
-        }
-      };
-
-      const wallThickness = 50;
-      Composite.add(engine.world, [
-        // Bottom wall
-        Bodies.rectangle(window.innerWidth / 2, window.innerHeight + wallThickness / 2, window.innerWidth + wallThickness * 2, wallThickness, wallOptions),
-        // Left wall
-        Bodies.rectangle(-wallThickness / 2, window.innerHeight / 2, wallThickness, window.innerHeight + wallThickness * 2, wallOptions),
-        // Right wall
-        Bodies.rectangle(window.innerWidth + wallThickness / 2, window.innerHeight / 2, wallThickness, window.innerHeight + wallThickness * 2, wallOptions),
-        // Top wall
-        Bodies.rectangle(window.innerWidth / 2, -wallThickness / 2, window.innerWidth + wallThickness * 2, wallThickness, wallOptions)
-      ]);
-
-      // Enhanced color palette with glowing effect
-      const colors = [
-        '#8617C0', // Purple from site
-        '#6e11a0', // Darker purple from site
-        '#6366F1', // Indigo
-        '#3B82F6', // Blue
-        '#EC4899', // Pink
-        '#F472B6', // Lighter pink
-      ];
-
-      // Connection lines between nodes
-      const connections = [];
-      
-      // Create nodes and connection lines to simulate neural network
-      const createNetworkNode = (x, y) => {
-        const colorIndex = Math.floor(Math.random() * colors.length);
-        const size = 12 + Math.random() * 18;
-        const shapeType = Math.random();
-        
-        let shape;
-        const commonOptions = {
-          restitution: 0.7,
-          friction: 0.002,
-          frictionAir: 0.01, // Add air friction for more controlled movement
-          render: {
-            fillStyle: colors[colorIndex],
-            opacity: 0.75 + Math.random() * 0.25,
-            // Add glow effect
-            shadowColor: colors[colorIndex],
-            shadowBlur: 15,
-            shadowOffsetX: 0,
-            shadowOffsetY: 0
+          // Create new connections
+          const currentParticles = particlesRef.current;
+          for (let i = 0; i < currentParticles.length; i++) {
+            for (let j = i + 1; j < currentParticles.length; j++) {
+              const particleA = currentParticles[i];
+              const particleB = currentParticles[j];
+              
+              if (!particleA.position || !particleB.position) continue;
+              
+              const distance = Vector.magnitude(
+                Vector.sub(particleA.position, particleB.position)
+              );
+              
+              if (distance < 150) {
+                const opacity = 1 - (distance / 150);
+                
+                const constraint = Constraint.create({
+                  bodyA: particleA,
+                  bodyB: particleB,
+                  stiffness: 0.001,
+                  damping: 0.1,
+                  render: {
+                    type: 'line',
+                    strokeStyle: `rgba(138, 43, 226, ${opacity * 0.7})`,
+                    lineWidth: 1,
+                    anchors: false
+                  }
+                });
+                
+                connectionsRef.current.push(constraint);
+                Composite.add(engine.world, constraint);
+              }
+            }
           }
         };
 
-        if (shapeType < 0.4) {
-          // Circle (neurons)
-          shape = Bodies.circle(x, y, size / 2, commonOptions);
-        } else if (shapeType < 0.7) {
-          // Rectangle (data points)
-          shape = Bodies.rectangle(x, y, size, size * 0.8, commonOptions);
-        } else {
-          // Hexagon (nodes)
-          shape = Bodies.polygon(x, y, 6, size / 2, commonOptions);
-        }
+        // Setup connection updates
+        const connectionInterval = setInterval(createConnections, 1000);
+        intervalsRef.current.push(connectionInterval);
 
-        // Add initial velocity but don't let it glide as much
-        Body.setVelocity(shape, {
-          x: (Math.random() - 0.5) * 1.2,
-          y: (Math.random() - 0.5) * 1.2
-        });
+        // Add mouse interaction
+        const mouse = Mouse.create(render.canvas);
         
-        // Reduce angular velocity
-        Body.setAngularVelocity(shape, (Math.random() - 0.5) * 0.03);
+        // Disable right-click context menu on canvas
+        render.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
         
-        return shape;
-      };
-
-      // Create initial particles
-      const particles = [];
-      for (let i = 0; i < 35; i++) {
-        const x = Math.random() * window.innerWidth;
-        const y = Math.random() * window.innerHeight;
-        particles.push(createNetworkNode(x, y));
-      }
-      Composite.add(engine.world, particles);
-
-      // Create dynamic connections between nearby particles
-      const createConnections = () => {
-        // Remove old connections
-        connections.forEach(connection => {
-          Composite.remove(engine.world, connection);
-        });
-        connections.length = 0;
-
-        // Create new connections between particles that are close to each other
-        for (let i = 0; i < particles.length; i++) {
-          for (let j = i + 1; j < particles.length; j++) {
-            const particleA = particles[i];
-            const particleB = particles[j];
-            
-            const distance = Vector.magnitude(
-              Vector.sub(particleA.position, particleB.position)
-            );
-            
-            if (distance < 150) { // Only connect if within range
-              const opacity = 1 - (distance / 150); // Fade with distance
-              
-              // Create a visual line constraint
-              const constraint = Constraint.create({
-                bodyA: particleA,
-                bodyB: particleB,
-                stiffness: 0.001,
-                damping: 0.1,
-                render: {
-                  type: 'line',
-                  strokeStyle: `rgba(138, 43, 226, ${opacity * 0.7})`,
-                  lineWidth: 1,
-                  anchors: false
-                }
-              });
-              
-              connections.push(constraint);
-              Composite.add(engine.world, constraint);
+        const mouseConstraint = MouseConstraint.create(engine, {
+          mouse: mouse,
+          constraint: {
+            stiffness: 0.1,
+            render: {
+              visible: false
             }
           }
-        }
-      };
+        });
+        Composite.add(engine.world, mouseConstraint);
 
-      // Periodically update connections
-      const connectionInterval = setInterval(createConnections, 1000);
-
-      // Add mouse interaction with improved glow effect
-      const mouse = Mouse.create(render.canvas);
-      const mouseConstraint = MouseConstraint.create(engine, {
-        mouse: mouse,
-        constraint: {
-          stiffness: 0.2,
-          render: {
-            visible: true,
-            strokeStyle: 'rgba(255, 255, 255, 0.2)',
-            lineWidth: 1
-          }
-        }
-      });
-      Composite.add(engine.world, mouseConstraint);
-
-      // Add magnetic effect to mouse
-      Matter.Events.on(engine, 'beforeUpdate', () => {
-        if (mouse.position.x && mouse.position.y) {
-          particles.forEach(particle => {
-            const mousePos = mouse.position;
-            const distanceToMouse = Vector.magnitude(
-              Vector.sub(particle.position, mousePos)
-            );
+        // Mouse magnetic effect with improved handling
+        let lastMousePosition = { x: 0, y: 0 };
+        let isMouseMoving = false;
+        let mouseMoveTimeout;
+        
+        // Track mouse movement
+        const handleMouseMove = () => {
+          isMouseMoving = true;
+          clearTimeout(mouseMoveTimeout);
+          mouseMoveTimeout = setTimeout(() => {
+            isMouseMoving = false;
+          }, 100);
+        };
+        
+        render.canvas.addEventListener('mousemove', handleMouseMove);
+        
+        Matter.Events.on(engine, 'beforeUpdate', () => {
+          if (!loading || !mouse.position.x || !mouse.position.y || !isMouseMoving) return;
+          
+          // Only apply magnetic effect if mouse has moved significantly
+          const mouseMoved = Math.abs(mouse.position.x - lastMousePosition.x) > 3 || 
+                           Math.abs(mouse.position.y - lastMousePosition.y) > 3;
+          
+          if (mouseMoved) {
+            lastMousePosition = { x: mouse.position.x, y: mouse.position.y };
             
-            if (distanceToMouse < 200) {
-              const force = Vector.mult(
-                Vector.normalise(
-                  Vector.sub(mousePos, particle.position)
-                ),
-                0.2 * (1 - distanceToMouse / 200)
+            particlesRef.current.forEach(particle => {
+              if (!particle.position) return;
+              
+              const mousePos = mouse.position;
+              const distanceToMouse = Vector.magnitude(
+                Vector.sub(particle.position, mousePos)
               );
-              Body.applyForce(particle, particle.position, force);
-            }
-          });
-        }
-      });
-
-      // Create particle trail effect
-      Matter.Events.on(mouseConstraint, 'mousemove', (event) => {
-        if (Math.random() < 0.1) { // Only spawn occasionally for performance
-          const newParticle = Bodies.circle(
-            mouse.position.x, 
-            mouse.position.y, 
-            2 + Math.random() * 5,
-            {
-              frictionAir: 0.05,
-              render: {
-                fillStyle: colors[Math.floor(Math.random() * colors.length)],
-                opacity: 0.7,
-                shadowColor: '#EC4899',
-                shadowBlur: 10
+              
+              if (distanceToMouse < 120 && distanceToMouse > 15) {
+                const attractionStrength = 0.0005;
+                const force = Vector.mult(
+                  Vector.normalise(
+                    Vector.sub(mousePos, particle.position)
+                  ),
+                  attractionStrength * (1 - distanceToMouse / 120)
+                );
+                Body.applyForce(particle, particle.position, force);
               }
+            });
+          }
+        });
+
+        // Keep mouse in sync
+        render.mouse = mouse;
+
+        // Add subtle mouse trail effect
+        let trailParticles = [];
+        const maxTrailParticles = 3;
+        
+        Matter.Events.on(mouseConstraint, 'startdrag', () => {
+          // Clear existing trail when dragging starts
+          trailParticles.forEach(p => {
+            if (engine.world.bodies.includes(p)) {
+              Composite.remove(engine.world, p);
             }
-          );
-          
-          Body.setVelocity(newParticle, {
-            x: (Math.random() - 0.5) * 2,
-            y: (Math.random() - 0.5) * 2
           });
+          trailParticles = [];
+        });
+
+        // Optional: Add gentle mouse trail (uncomment if desired)
+        /*
+        let lastTrailTime = 0;
+        Matter.Events.on(engine, 'beforeUpdate', () => {
+          if (!loading || !mouse.position.x || !mouse.position.y) return;
           
+          const currentTime = Date.now();
+          if (currentTime - lastTrailTime > 200 && Math.random() < 0.3) {
+            lastTrailTime = currentTime;
+            
+            const trailParticle = Bodies.circle(
+              mouse.position.x + (Math.random() - 0.5) * 10, 
+              mouse.position.y + (Math.random() - 0.5) * 10, 
+              2 + Math.random() * 3,
+              {
+                frictionAir: 0.08,
+                render: {
+                  fillStyle: colors[Math.floor(Math.random() * colors.length)],
+                  opacity: 0.6
+                }
+              }
+            );
+            
+            Body.setVelocity(trailParticle, {
+              x: (Math.random() - 0.5) * 1,
+              y: (Math.random() - 0.5) * 1
+            });
+            
+            Composite.add(engine.world, trailParticle);
+            trailParticles.push(trailParticle);
+            
+            // Remove trail particles if too many
+            if (trailParticles.length > maxTrailParticles) {
+              const oldParticle = trailParticles.shift();
+              Composite.remove(engine.world, oldParticle);
+            }
+            
+            // Auto-remove after 2 seconds
+            setTimeout(() => {
+              if (engine.world.bodies.includes(trailParticle)) {
+                Composite.remove(engine.world, trailParticle);
+                const index = trailParticles.indexOf(trailParticle);
+                if (index > -1) trailParticles.splice(index, 1);
+              }
+            }, 2000);
+          }
+        });
+        */
+
+        // Run the engine
+        Runner.run(runner, engine);
+        Render.run(render);
+
+        // Add new particles periodically
+        const addParticlesInterval = setInterval(() => {
+          if (!loading || particlesRef.current.length > 45) return;
+          
+          const edge = Math.floor(Math.random() * 4);
+          let x, y;
+          
+          switch (edge) {
+            case 0: x = Math.random() * window.innerWidth; y = -30; break;
+            case 1: x = window.innerWidth + 30; y = Math.random() * window.innerHeight; break;
+            case 2: x = Math.random() * window.innerWidth; y = window.innerHeight + 30; break;
+            case 3: x = -30; y = Math.random() * window.innerHeight; break;
+          }
+          
+          const newParticle = createNetworkNode(x, y);
           Composite.add(engine.world, newParticle);
+          particlesRef.current.push(newParticle);
           
-          // Remove the particle after a short time
-          setTimeout(() => {
-            Composite.remove(engine.world, newParticle);
-          }, 1000);
-        }
-      });
+          // Remove oldest particle if too many
+          if (particlesRef.current.length > 45) {
+            const particleToRemove = particlesRef.current.shift();
+            Composite.remove(engine.world, particleToRemove);
+          }
+        }, 800);
+        intervalsRef.current.push(addParticlesInterval);
 
-      // Keep the mouse in sync with rendering
-      render.mouse = mouse;
-
-      // Run the engine
-      Runner.run(runner, engine);
-      Render.run(render);
-
-      // Periodically add new elements but with more control for aesthetics
-      const addNewParticles = setInterval(() => {
-        if (!loading) return;
-        
-        const edge = Math.floor(Math.random() * 4);
-        let x, y;
-        
-        switch (edge) {
-          case 0: // top
-            x = Math.random() * window.innerWidth;
-            y = -30;
-            break;
-          case 1: // right
-            x = window.innerWidth + 30;
-            y = Math.random() * window.innerHeight;
-            break;
-          case 2: // bottom
-            x = Math.random() * window.innerWidth;
-            y = window.innerHeight + 30;
-            break;
-          case 3: // left
-            x = -30;
-            y = Math.random() * window.innerHeight;
-            break;
-        }
-        
-        const newParticle = createNetworkNode(x, y);
-        Composite.add(engine.world, newParticle);
-        particles.push(newParticle);
-        
-        // Remove a particle if there are too many
-        if (particles.length > 45) {
-          const particleToRemove = particles.shift();
-          Composite.remove(engine.world, particleToRemove);
-        }
-      }, 800);
-
-      // Clean up
-      return () => {
-        clearInterval(addNewParticles);
-        clearInterval(connectionInterval);
-        
-        // Clear all particles to prevent memory leaks
-        particles.forEach(particle => {
-          Composite.remove(engine.world, particle);
-        });
-        
-        connections.forEach(connection => {
-          Composite.remove(engine.world, connection);
-        });
-        
-        // Properly stop and clean up Matter.js
-        Render.stop(render);
-        Runner.stop(runner);
-        Engine.clear(engine);
-        
-        // Remove the canvas
-        if (render.canvas && render.canvas.parentNode) {
-          render.canvas.parentNode.removeChild(render.canvas);
-        }
-        
-        // Clean texture references
-        if (render.textures) {
-          Object.keys(render.textures).forEach(key => {
-            delete render.textures[key];
+        // Setup cleanup function
+        cleanup = () => {
+          // Clear timeouts and intervals
+          clearTimeout(mouseMoveTimeout);
+          intervalsRef.current.forEach(interval => clearInterval(interval));
+          intervalsRef.current = [];
+          
+          // Remove event listeners
+          if (render.canvas) {
+            render.canvas.removeEventListener('mousemove', handleMouseMove);
+            render.canvas.removeEventListener('contextmenu', (e) => e.preventDefault());
+          }
+          
+          // Clear trail particles
+          if (trailParticles) {
+            trailParticles.forEach(particle => {
+              if (engine.world.bodies.includes(particle)) {
+                Composite.remove(engine.world, particle);
+              }
+            });
+            trailParticles = [];
+          }
+          
+          // Clear particles and connections
+          particlesRef.current.forEach(particle => {
+            Composite.remove(engine.world, particle);
           });
-        }
-      };
-    } catch (error) {
-      console.error("Error initializing Matter.js:", error);
-      // Fallback to complete loading without Matter.js
-      setTimeout(() => {
-        setProgress(100);
-        setLoading(false);
-        if (finishLoading) finishLoading();
-      }, 1000);
-    }
+          particlesRef.current = [];
+          
+          connectionsRef.current.forEach(connection => {
+            Composite.remove(engine.world, connection);
+          });
+          connectionsRef.current = [];
+          
+          // Stop Matter.js
+          Render.stop(render);
+          Runner.stop(runner);
+          Engine.clear(engine);
+          
+          // Remove canvas
+          if (render.canvas && render.canvas.parentNode) {
+            render.canvas.parentNode.removeChild(render.canvas);
+          }
+          
+          // Clean textures
+          if (render.textures) {
+            Object.keys(render.textures).forEach(key => {
+              delete render.textures[key];
+            });
+          }
+        };
+
+      } catch (error) {
+        console.error("Error initializing Matter.js:", error);
+        // Fallback - just complete loading
+        setTimeout(() => {
+          setProgress(100);
+          setTimeout(() => {
+            setLoading(false);
+            if (finishLoading) finishLoading();
+          }, 300);
+        }, 1000);
+      }
+    };
+
+    initializeMatterJS();
+
+    // Return cleanup function
+    return cleanup;
   }, [loading, finishLoading]);
 
   // Handle quotes and progress bar
   useEffect(() => {
+    if (!loading) return;
+
     // Select initial quote
     const initialQuote = aiDataQuotes[Math.floor(Math.random() * aiDataQuotes.length)];
     setQuote(initialQuote);
     
     // Quote rotation
     const quoteRotation = setInterval(() => {
+      if (!loading) return;
       setQuoteIndex(prevIndex => {
         const newIndex = (prevIndex + 1) % aiDataQuotes.length;
         setQuote(aiDataQuotes[newIndex]);
@@ -367,17 +450,23 @@ const PageLoader = ({ children, finishLoading }) => {
     }, 3000);
 
     // Simulate loading progress
-    const interval = setInterval(() => {
+    const progressInterval = setInterval(() => {
       setProgress(prev => {
-        const newProgress = prev + (Math.random() * 4) + 1;
-        return newProgress >= 100 ? 100 : newProgress;
+        if (prev >= 100) {
+          clearInterval(progressInterval);
+          return 100;
+        }
+        const increment = Math.random() * 4 + 1;
+        const newProgress = Math.min(prev + increment, 100);
+        return newProgress;
       });
     }, 150);
 
-    // Finish loading
-    const timer = setTimeout(() => {
-      clearInterval(interval);
+    // Finish loading timer
+    const finishTimer = setTimeout(() => {
+      clearInterval(progressInterval);
       setProgress(100);
+      
       setTimeout(() => {
         setLoading(false);
         if (finishLoading) finishLoading();
@@ -385,69 +474,78 @@ const PageLoader = ({ children, finishLoading }) => {
     }, 3500);
 
     return () => {
-      clearInterval(interval);
       clearInterval(quoteRotation);
-      clearTimeout(timer);
+      clearInterval(progressInterval);
+      clearTimeout(finishTimer);
     };
-  }, [finishLoading]);
+  }, [loading, finishLoading]);
 
-  // Handle window resize with improved debounce
+  // Handle window resize
   useEffect(() => {
+    if (!loading) return;
+
     let resizeTimeout;
     
     const handleResize = () => {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
-        if (renderRef.current) {
+        if (renderRef.current && engineRef.current) {
+          // Update renderer dimensions
           renderRef.current.options.width = window.innerWidth;
           renderRef.current.options.height = window.innerHeight;
           renderRef.current.canvas.width = window.innerWidth;
           renderRef.current.canvas.height = window.innerHeight;
           
-          // Also update boundaries if the engine exists
-          if (engineRef.current && engineRef.current.world.bodies) {
-            const bodies = engineRef.current.world.bodies;
-            const wallThickness = 50;
-            
-            // Find and update walls
-            bodies.forEach(body => {
-              if (body.isStatic && body.render.visible === false) {
-                Composite.remove(engineRef.current.world, body);
-              }
-            });
-            
-            // Re-add walls with new dimensions
-            Composite.add(engineRef.current.world, [
-              // Bottom wall
-              Bodies.rectangle(window.innerWidth / 2, window.innerHeight + wallThickness / 2, window.innerWidth + wallThickness * 2, wallThickness, {
-                isStatic: true,
-                render: { visible: false }
-              }),
-              // Left wall
-              Bodies.rectangle(-wallThickness / 2, window.innerHeight / 2, wallThickness, window.innerHeight + wallThickness * 2, {
-                isStatic: true,
-                render: { visible: false }
-              }),
-              // Right wall
-              Bodies.rectangle(window.innerWidth + wallThickness / 2, window.innerHeight / 2, wallThickness, window.innerHeight + wallThickness * 2, {
-                isStatic: true,
-                render: { visible: false }
-              }),
-              // Top wall
-              Bodies.rectangle(window.innerWidth / 2, -wallThickness / 2, window.innerWidth + wallThickness * 2, wallThickness, {
-                isStatic: true,
-                render: { visible: false }
-              })
-            ]);
-          }
+          // Remove existing walls and add new ones with correct dimensions
+          const bodies = engineRef.current.world.bodies.filter(body => 
+            body.isStatic && body.render.visible === false
+          );
+          
+          bodies.forEach(wall => {
+            Composite.remove(engineRef.current.world, wall);
+          });
+          
+          // Create new walls with updated dimensions
+          const wallThickness = 50;
+          const wallOptions = {
+            isStatic: true,
+            render: { visible: false }
+          };
+          
+          const newWalls = [
+            Bodies.rectangle(window.innerWidth / 2, window.innerHeight + wallThickness / 2, window.innerWidth + wallThickness * 2, wallThickness, wallOptions),
+            Bodies.rectangle(-wallThickness / 2, window.innerHeight / 2, wallThickness, window.innerHeight + wallThickness * 2, wallOptions),
+            Bodies.rectangle(window.innerWidth + wallThickness / 2, window.innerHeight / 2, wallThickness, window.innerHeight + wallThickness * 2, wallOptions),
+            Bodies.rectangle(window.innerWidth / 2, -wallThickness / 2, window.innerWidth + wallThickness * 2, wallThickness, wallOptions)
+          ];
+          
+          Composite.add(engineRef.current.world, newWalls);
         }
-      }, 250); // Debounce resize events
+      }, 250);
     };
 
     window.addEventListener('resize', handleResize);
+    
     return () => {
       window.removeEventListener('resize', handleResize);
       clearTimeout(resizeTimeout);
+    };
+  }, [loading]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      // Clear all intervals
+      intervalsRef.current.forEach(interval => clearInterval(interval));
+      intervalsRef.current = [];
+      
+      // Clear particles and connections
+      if (particlesRef.current) {
+        particlesRef.current = [];
+      }
+      if (connectionsRef.current) {
+        connectionsRef.current = [];
+      }
     };
   }, []);
 
