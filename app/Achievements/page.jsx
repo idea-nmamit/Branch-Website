@@ -93,6 +93,25 @@ const Page = () => {
                     className="h-72 rounded-xl bg-white/10 backdrop-blur"
                   />
                 ))
+            : filtered.length === 0
+            ? (
+                <div className="col-span-full flex flex-col items-center justify-center py-12">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="text-center"
+                  >
+                    <div className="text-6xl mb-4">🏆</div>
+                    <h3 className="text-2xl font-semibold text-white mb-2">
+                      No Achievements Found
+                    </h3>
+                    <p className="text-white/60 text-lg">
+                      No achievements available in the {selectedCategory.toLowerCase()} category yet.
+                    </p>
+                  </motion.div>
+                </div>
+              )
             : filtered.map((achievement) => (
                 <motion.div
                   key={achievement.id}
