@@ -52,9 +52,20 @@ const Page = () => {
 
   const years = [...new Set(teamMembers.map((member) => member.year))].sort().reverse();
 
-  const filteredMembers = teamMembers
-  .filter((member) => member.category === selectedCategory && member.year === selectedYear)
-  .sort((a, b) => a.index - b.index);  // Direct skeleton rendering functions
+  const filteredMembers = (() => {
+    const filtered = teamMembers.filter((member) => member.category === selectedCategory && member.year === selectedYear);
+    
+    if (selectedCategory === 'DEV_TEAM') {
+      const fixedMembers = filtered.filter(member => member.index === 1 || member.index === 2).sort((a, b) => a.index - b.index);
+      const shuffleableMembers = filtered.filter(member => member.index !== 1 && member.index !== 2);
+
+      const shuffled = [...shuffleableMembers].sort(() => Math.random() - 0.5);
+      
+      return [...fixedMembers, ...shuffled];
+    } else {
+      return filtered.sort((a, b) => a.index - b.index);
+    }
+  })(); 
   const renderOfficeBearerSkeleton = (index) => (
     <motion.div
       key={`office-skeleton-${index}`}
