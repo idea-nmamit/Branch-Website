@@ -39,6 +39,22 @@ export async function POST(request) {
             );
         }
 
+        // Check if news with same title and link already exists
+        const existingNews = await prisma.news.findFirst({
+            where: {
+                AND: [
+                    { title: title },
+                    { link: link }
+                ]
+            }
+        });
+
+        if (existingNews) {
+            return NextResponse.json(
+                { message: 'News item already exists', existing: true },
+                { status: 200 }
+            );
+        }
 
         const NEWS = await prisma.news.create({
             data: {

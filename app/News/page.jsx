@@ -37,6 +37,8 @@ const NewsPage = () => {
   const [error, setError] = useState(null);
   const [activeCategory, setActiveCategory] = useState('data-science');
   const [lastFetchTime, setLastFetchTime] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
 
   const REFRESH_INTERVAL = 1000 * 60 * 60 * 3;
 
@@ -65,9 +67,17 @@ const NewsPage = () => {
 
       if (filterResponse.ok) {
         const existingNews = await filterResponse.json();
+
+        // Remove duplicates from existing news too
+        const uniqueExistingNews = existingNews.filter((item, index, self) =>
+          index === self.findIndex(news =>
+            news.title === item.title && news.link === item.link
+          )
+        );
+
         const filteredNews = selectedCategory
-          ? existingNews.filter(item => item.category === selectedCategory)
-          : existingNews;
+          ? uniqueExistingNews.filter(item => item.category === selectedCategory)
+          : uniqueExistingNews;
 
         if (filteredNews.length > 0 && !forceRefresh) {
           setNewsItems(filteredNews);
@@ -120,10 +130,19 @@ const NewsPage = () => {
 
       // Only clear existing entries if we got new data
       if (newsResults.length > 0) {
+        // Remove duplicates based on title and link
+        const uniqueNews = newsResults.filter((item, index, self) =>
+          index === self.findIndex(news =>
+            news.title === item.title && news.link === item.link
+          )
+        );
+
+        console.log(`Fetched ${newsResults.length} articles, filtered to ${uniqueNews.length} unique articles`);
+
         await fetch('/api/news', { method: 'DELETE' });
 
         // Save new items
-        await Promise.all(newsResults.map(async (newsItem) => {
+        await Promise.all(uniqueNews.map(async (newsItem) => {
           try {
             await fetch('/api/news', {
               method: 'POST',
@@ -135,13 +154,21 @@ const NewsPage = () => {
           }
         }));
 
-        setNewsItems(newsResults.sort((a, b) => new Date(b.date) - new Date(a.date)));
+        setNewsItems(uniqueNews.sort((a, b) => new Date(b.date) - new Date(a.date)));
         setLastFetchTime(Date.now());
       } else {
         // If no new data, keep existing items
         if (filterResponse.ok) {
           const existingNews = await filterResponse.json();
-          setNewsItems(existingNews);
+
+          // Remove duplicates from existing news
+          const uniqueExistingNews = existingNews.filter((item, index, self) =>
+            index === self.findIndex(news =>
+              news.title === item.title && news.link === item.link
+            )
+          );
+
+          setNewsItems(uniqueExistingNews);
         }
       }
 
@@ -173,6 +200,16 @@ const NewsPage = () => {
     }, REFRESH_INTERVAL);
 
     return () => clearInterval(interval);
+  }, []);
+
+  // Handle scroll for back to top button
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > 300);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const formatDate = (dateString) => {
@@ -389,9 +426,9 @@ const NewsPage = () => {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                {filteredNews.slice(1).map((item) => (
+                {filteredNews.slice(1).map((item, index) => (
                   <div
-                    key={`${item.link}-${item.title}`}
+                    key={`${item.link}-${item.title}-${index}`}
                     className="group neo-card transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-purple-500/10 relative"
                   >
                     <div className="overflow-hidden rounded-xl relative">
@@ -446,8 +483,8 @@ const NewsPage = () => {
 
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="fixed bottom-6 right-6 z-50 p-3 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg opacity-0 transition-opacity duration-300 hover:shadow-purple-500/50"
-        id="backToTopBtn"
+        className={`fixed bottom-6 right-6 z-50 p-3 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg transition-opacity duration-300 hover:shadow-purple-500/50 ${showBackToTop ? 'opacity-100' : 'opacity-0'
+          }`}
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
@@ -555,21 +592,6 @@ const NewsPage = () => {
           opacity: 1;
         }
       `}</style>
-
-      <script dangerouslySetInnerHTML={{
-        __html: `
-          document.addEventListener("scroll", function() {
-            const backToTopBtn = document.getElementById("backToTopBtn");
-            if (backToTopBtn) {
-              if (window.scrollY > 300) {
-                backToTopBtn.style.opacity = "1";
-              } else {
-                backToTopBtn.style.opacity = "0";
-              }
-            }
-          });
-        `
-      }} />
     </div>
   );
 }
