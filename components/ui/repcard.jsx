@@ -20,24 +20,25 @@ const Card = ({ name, imageUrl, designation, linkedin, github, instagram }) => {
             <Image
               src={imageUrl}
               alt="profile"
-              width={60}
-              height={60}
+              width={120}
+              height={120}
               style={{
-              
                 objectFit: "cover",
               }}
+              quality={95}
+              priority
             />
           )}
         </div>
 
         <div className="bottom">
-          <div className="mb-12 mr-40 w-44 content">
-            <h1 className="name mr-32">{name}</h1>
-            <span className="text-white">{designation}</span>
+          <div className="content">
+            <h1 className="name">{name}</h1>
+            <span className="text-white designation">{designation}</span>
           </div>
 
           <div className="bottom-bottom">
-            <div className="ml-14 social-links-container">
+            <div className="social-links-container">
             
             <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="26" height="26" viewBox="0 0 192 192">
             <a href={linkedin} target="_blank" rel="noopener noreferrer">
@@ -70,21 +71,23 @@ const Card = ({ name, imageUrl, designation, linkedin, github, instagram }) => {
 const StyledWrapper = styled.div`
   /* CARD */
   .card {
-    width: 280px;
-    height: 280px;
+    width: 300px;
+    height: 320px;
     background: white;
-    /* Reversed default state (lifted/animated) */
+    /* Improved styling */
     border-top-left-radius: 55px;
     border-radius: 55px;
     
     padding: 3px;
     position: relative;
     box-shadow: #604b4a30 0px 70px 30px -50px;
-    transition: all 0.7s cubic-bezier(.23,1,.32,1);
+    transition: all 0.3s cubic-bezier(.23,1,.32,1);
   }
-  /* On hover, revert to original resting style */
+  /* On hover, subtle animation */
   .card:hover {
-    border-top-left-radius: 32px;
+    border-top-left-radius: 45px;
+    transform: translateY(-5px);
+    box-shadow: #604b4a40 0px 80px 40px -50px;
   }
 
   /* BOTTOM */
@@ -94,46 +97,44 @@ const StyledWrapper = styled.div`
     left: 3px;
     right: 3px;
     background:rgb(68, 26, 110);
-   opacity: 0.9;
-    /* Reversed default: previous hover values */
-    top: 20%;
+    opacity: 0.9;
+    /* Improved positioning to accommodate larger image */
+    top: 25%;
     border-radius: 80px 29px 29px 29px;
     z-index: 2;
     box-shadow: rgba(96, 75, 74, 0.1882352941) 0px 5px 5px 0px inset;
     overflow: hidden;
-    transition: all 0.7s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   }
-  /* On hover, revert to original bottom style */
+  /* On hover, slide up slightly */
   .card:hover .bottom {
-    top: 80%;
-    border-radius: 29px;
+    top: 22%;
+    border-radius: 60px 29px 29px 29px;
   }
 
   /* PROFILE PIC */
   .card .profile-pic {
     position: absolute;
-    /* Reversed default: previous hover state */
-    width: 100px;
-    height: 100px;
+    /* Improved size and positioning */
+    width: 120px;
+    height: 120px;
     aspect-ratio: 1;
-    top: 10px;
-    left: 10px;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
     border-radius: 50%;
     z-index: 3;
     box-shadow: rgba(96, 75, 74, 0.1882352941) 0px 5px 5px 0px;
     overflow: hidden;
-    transition: all 0.7s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition: all 0.3s ease;
   }
-  /* On hover, revert profile pic to original default */
+  /* On hover, make image slightly larger but keep it contained */
   .card:hover .profile-pic {
-    width: calc(100% - 6px);
-    height: calc(100% - 6px);
-    top: 3px;
-    left: 3px;
-    border-radius: 29px;
-    z-index: 1;
-  
-    box-shadow: none;
+    width: 130px;
+    height: 130px;
+    top: 10px;
+    transform: translateX(-50%) scale(1.05);
+    box-shadow: rgba(96, 75, 74, 0.3) 0px 8px 12px 0px;
   }
 
   /* MAIL */
@@ -159,42 +160,49 @@ const StyledWrapper = styled.div`
     object-fit: cover;
     width: 100%;
     height: 100%;
-    object-position: 0px 0px;
-    transition: all 0.7s cubic-bezier(0.25, 0.8, 0.25, 1);
+    object-position: center center;
+    transition: transform 0.3s ease;
+    filter: brightness(1.05) contrast(1.1);
+  }
+  .card:hover .profile-pic img {
+    transform: scale(1.1);
   }
   .card .profile-pic svg {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 0px 0px;
-    transform-origin: 45% 20%;
-    transition: all 0.7s cubic-bezier(0.25, 0.8, 0.25, 1);
+    object-position: center center;
+    transform-origin: center center;
+    transition: transform 0.3s ease;
   }
 
   /* BOTTOM CONTENT */
   .card .bottom .content {
     position: absolute;
-    bottom: 0;
+    bottom: 80px;
     left: 1.5rem;
     right: 1.5rem;
-    height: 160px;
+    height: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 4px;
+    text-align: center;
   }
   .card .bottom .content .name {
     display: block;
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     color: white;
     font-weight: bold;
+    margin: 0;
   }
-  .card .bottom .content .about-me {
+  .card .bottom .content .designation {
     display: block;
     font-size: 0.9rem;
     color: white;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
+    opacity: 0.9;
   }
 
   /* BOTTOM BOTTOM */
@@ -205,11 +213,12 @@ const StyledWrapper = styled.div`
     right: 1.5rem;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
   }
   .card .bottom .bottom-bottom .social-links-container {
     display: flex;
-    gap: 1rem;
+    gap: 1.5rem;
+    justify-content: center;
   }
   .card .bottom .bottom-bottom .social-links-container svg {
     height: 20px;
