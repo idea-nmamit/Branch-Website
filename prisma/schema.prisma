@@ -10,6 +10,15 @@ datasource db {
 enum AchievementCategory {
   COMPETITION
   RESEARCH
+  SPORTS
+  CULTURAL
+  TECHNICAL
+  ACADEMIC
+}
+
+enum AchievementType {
+  SOLO
+  TEAM
 }
 
 enum EventType {
@@ -43,18 +52,46 @@ model User {
 }
 
 model Achievement {
-  id           Int                 @id @default(autoincrement())
-  name         String
-  title        String
-  description  String
-  photoUrl     String
-  category     AchievementCategory
-  rank         Int? // Only for Competitions
-  githubUrl    String?
-  linkedinUrl  String?
-  instagramUrl String?
-  researchLink String? // Only for Research
-  date         DateTime
+  id             Int                 @id @default(autoincrement())
+  title          String
+  description    String
+  photoUrl       String
+  category       AchievementCategory
+  type           AchievementType // SOLO, TEAM, GROUP
+  rank           Int? // Only for Competitions
+  event          String? // Event/Competition name
+  organizer      String? // Who organized the event
+  venue          String? // Where it took place
+  date           DateTime
+  githubUrl      String? // Project related GitHub (if applicable)
+  researchLink   String? // Only for Research
+  projectUrl     String? // Project demo/website link
+  certificateUrl String? // Certificate image/PDF link
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  // Relationship with achievement members
+  members AchievementMember[]
+}
+
+model AchievementMember {
+  id            Int     @id @default(autoincrement())
+  achievementId Int
+  name          String
+  role          String? // e.g., "Team Lead", "Developer", "Researcher"
+  rollNumber    String? // Student roll number
+  year          String? // Academic year like "2024-25"
+  branch        String? // Branch/Department
+  linkedinUrl   String?
+  githubUrl     String?
+  instagramUrl  String?
+  portfolioUrl  String?
+  photoUrl      String? // Individual member photo
+
+  // Relationship
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@index([achievementId])
 }
 
 model Event {

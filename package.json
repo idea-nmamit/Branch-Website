@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "db:seed": "node prisma/seed.js",
+    "db:reset": "prisma migrate reset --force && npm run db:seed"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",
@@ -71,5 +73,8 @@
     "@tailwindcss/postcss": "^4",
     "prisma": "^6.4.1",
     "tailwindcss": "^4"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   }
 }
