@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/Carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { X, ChevronDown, ChevronLeft, ChevronRight, Search, Download, Share2, Maximize } from "lucide-react";
