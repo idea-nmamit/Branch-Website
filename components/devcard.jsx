@@ -15,7 +15,7 @@ const Card = ({ name, imageUrl, role, linkedinUrl, quote, githubUrl, instagramUr
   return (
     <motion.div
       className="relative w-full max-w-sm mx-auto group"
-      style={{ height: '420px' }}
+      style={{ minHeight: '380px', height: 'auto' }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       whileHover={{ y: -6 }}
@@ -68,37 +68,37 @@ const Card = ({ name, imageUrl, role, linkedinUrl, quote, githubUrl, instagramUr
         </div>
 
         {/* Header section */}
-        <div className="relative p-6">          <motion.div
-            className="flex items-center justify-between mb-6"
+        <div className="relative p-4 sm:p-6">          <motion.div
+            className="flex items-center justify-between mb-4 sm:mb-6"
             initial={{ y: -10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.1 }}
           >
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2 sm:space-x-3">
               <motion.div
-                className="text-cyan-400 bg-cyan-400/10 p-2 rounded-lg"
+                className="text-cyan-400 bg-cyan-400/10 p-1.5 sm:p-2 rounded-lg"
                 animate={{ rotate: isHovered ? 360 : 0 }}
                 transition={{ duration: 1, ease: "easeInOut" }}
               >
-                <Code2 size={18} />
+                <Code2 size={16} className="sm:w-[18px] sm:h-[18px]" />
               </motion.div>
               <div>
-                <span className="text-cyan-300 font-mono text-xs uppercase tracking-wider block">
+                <span className="text-cyan-300 font-mono text-[10px] sm:text-xs uppercase tracking-wider block">
                   Developer
                 </span>
                 <div className="flex items-center space-x-1 mt-1">
                   <motion.div
-                    className="w-2 h-2 bg-green-400 rounded-full"
+                    className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-400 rounded-full"
                     animate={{ scale: [1, 1.2, 1] }}
                     transition={{ duration: 2, repeat: Infinity }}
                   />
-                  <span className="text-green-400 font-mono text-xs">Online</span>
+                  <span className="text-green-400 font-mono text-[10px] sm:text-xs">Online</span>
                 </div>
               </div>
             </div>
               {/* Social links - moved to top right */}
             <motion.div
-              className="flex space-x-2"
+              className="flex space-x-1 sm:space-x-2"
               initial={{ y: -10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
@@ -112,33 +112,33 @@ const Card = ({ name, imageUrl, role, linkedinUrl, quote, githubUrl, instagramUr
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`relative text-gray-300 ${social.color} ${social.bg} transition-all duration-300 p-2 rounded-lg border border-gray-600/20 hover:border-current/30`}
+                  className={`relative text-gray-300 ${social.color} ${social.bg} transition-all duration-300 p-1.5 sm:p-2 rounded-lg border border-gray-600/20 hover:border-current/30`}
                   whileHover={{ scale: 1.05, y: -1 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <social.icon size={16} />
+                  <social.icon size={14} className="sm:w-4 sm:h-4" />
                 </motion.a>
               ))}
             </motion.div>
           </motion.div>{/* Profile section */}
-          <div className="flex flex-col items-center mb-6">            {/* Profile image */}
+          <div className="flex flex-col items-center mb-4 sm:mb-6">            {/* Profile image */}
             <motion.div
-              className="relative mb-4"
+              className="relative mb-3 sm:mb-4"
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <div className="w-32 h-32 rounded-2xl overflow-hidden border-2 border-cyan-400/60 relative bg-gradient-to-br from-cyan-400/10 to-cyan-600/10">                {/* Enhanced scan line effect */}
+              <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl overflow-hidden border-2 border-cyan-400/60 relative bg-gradient-to-br from-cyan-400/10 to-cyan-600/10">                {/* Enhanced scan line effect */}
                 <motion.div
                   className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-400/30 to-transparent h-full"
-                  animate={{ y: [-128, 128] }}
+                  animate={{ y: [-96, 96] }}
                   transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
                 />
                 
                 {/* Corner accents */}
-                <div className="absolute top-1 left-1 w-3 h-3 border-l-2 border-t-2 border-cyan-400" />
-                <div className="absolute top-1 right-1 w-3 h-3 border-r-2 border-t-2 border-cyan-400" />
-                <div className="absolute bottom-1 left-1 w-3 h-3 border-l-2 border-b-2 border-cyan-400" />
-                <div className="absolute bottom-1 right-1 w-3 h-3 border-r-2 border-b-2 border-cyan-400" />
+                <div className="absolute top-0.5 left-0.5 w-2 h-2 sm:w-3 sm:h-3 border-l-2 border-t-2 border-cyan-400" />
+                <div className="absolute top-0.5 right-0.5 w-2 h-2 sm:w-3 sm:h-3 border-r-2 border-t-2 border-cyan-400" />
+                <div className="absolute bottom-0.5 left-0.5 w-2 h-2 sm:w-3 sm:h-3 border-l-2 border-b-2 border-cyan-400" />
+                <div className="absolute bottom-0.5 right-0.5 w-2 h-2 sm:w-3 sm:h-3 border-r-2 border-b-2 border-cyan-400" />
                 
                 {isClient && (
                   <Image
@@ -155,7 +155,7 @@ const Card = ({ name, imageUrl, role, linkedinUrl, quote, githubUrl, instagramUr
             {/* Name and role centered */}
             <div className="text-center">
               <motion.h3
-                className="text-xl font-bold text-white mb-2 tracking-wide"
+                className="text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2 tracking-wide"
                 whileHover={{ color: "#06B6D4" }}
                 transition={{ duration: 0.2 }}
               >
@@ -163,13 +163,13 @@ const Card = ({ name, imageUrl, role, linkedinUrl, quote, githubUrl, instagramUr
               </motion.h3>
               
               <motion.div
-                className="flex items-center justify-center space-x-2 mb-4"
+                className="flex items-center justify-center space-x-2 mb-3 sm:mb-4"
                 initial={{ y: 10, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.2 }}
               >
                 <div className="w-1 h-1 bg-cyan-400 rounded-full" />
-                <span className="text-cyan-300 font-mono text-sm tracking-wider">
+                <span className="text-cyan-300 font-mono text-xs sm:text-sm tracking-wider">
                   {role}
                 </span>
                 <div className="w-1 h-1 bg-cyan-400 rounded-full" />
@@ -179,7 +179,7 @@ const Card = ({ name, imageUrl, role, linkedinUrl, quote, githubUrl, instagramUr
 
           {/* Quote section */}
           <motion.div
-            className="bg-black/40 rounded-xl p-4 border border-cyan-400/30 mb-6 relative overflow-hidden"
+            className="bg-black/40 rounded-xl p-3 sm:p-4 border border-cyan-400/30 mb-4 sm:mb-6 relative overflow-hidden"
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
@@ -193,9 +193,9 @@ const Card = ({ name, imageUrl, role, linkedinUrl, quote, githubUrl, instagramUr
               </div>
             </div>
             
-            <div className="flex items-start space-x-3 relative z-10">
-              <Quote size={16} className="text-cyan-400 mt-1 flex-shrink-0" />
-              <p className="text-gray-300 text-sm leading-relaxed font-light italic">
+            <div className="flex items-start space-x-2 sm:space-x-3 relative z-10">
+              <Quote size={14} className="sm:w-4 sm:h-4 text-cyan-400 mt-1 flex-shrink-0" />
+              <p className="text-gray-300 text-xs sm:text-sm leading-relaxed font-light italic">
                 {quote || "Building the future, one line of code at a time."}
               </p>
             </div>          </motion.div>

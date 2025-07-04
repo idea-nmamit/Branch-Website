@@ -116,47 +116,47 @@ const Page = () => {
       transition={{ duration: 0.3, delay: index * 0.1 }}
       className="w-full flex justify-center"
     >
-      <div className="relative w-full max-w-sm mx-auto" style={{ height: '420px' }}>
-        <div className="w-full h-full rounded-2xl bg-slate-800/50 backdrop-blur-md border border-slate-600/30 p-6">          {/* Header skeleton */}
-          <div className="flex items-center justify-between mb-6">
+      <div className="relative w-full max-w-sm mx-auto" style={{ minHeight: '380px', height: 'auto' }}>
+        <div className="w-full h-full rounded-2xl bg-slate-800/50 backdrop-blur-md border border-slate-600/30 p-4 sm:p-6">          {/* Header skeleton */}
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
             <div className="flex items-center space-x-2">
-              <Skeleton className="h-5 w-5 rounded" />
-              <Skeleton className="h-4 w-16" />
+              <Skeleton className="h-4 w-4 sm:h-5 sm:w-5 rounded" />
+              <Skeleton className="h-3 w-12 sm:h-4 sm:w-16" />
             </div>
             {/* Variable social icons skeleton */}
-            <div className="flex space-x-2">
-              <Skeleton className="h-6 w-6 rounded" />
-              <Skeleton className="h-6 w-6 rounded" />
+            <div className="flex space-x-1 sm:space-x-2">
+              <Skeleton className="h-5 w-5 sm:h-6 sm:w-6 rounded" />
+              <Skeleton className="h-5 w-5 sm:h-6 sm:w-6 rounded" />
             </div>
           </div>{/* Profile section skeleton */}
-          <div className="flex flex-col items-center mb-6">
-            <Skeleton className="w-32 h-32 rounded-xl mb-4" />
+          <div className="flex flex-col items-center mb-4 sm:mb-6">
+            <Skeleton className="w-24 h-24 sm:w-32 sm:h-32 rounded-xl mb-3 sm:mb-4" />
             <div className="text-center">
-              <Skeleton className="h-5 w-32 mb-1 mx-auto" />
-              <Skeleton className="h-4 w-24 mx-auto" />
+              <Skeleton className="h-4 w-28 sm:h-5 sm:w-32 mb-1 mx-auto" />
+              <Skeleton className="h-3 w-20 sm:h-4 sm:w-24 mx-auto" />
             </div>
           </div>
           
           {/* Quote section skeleton */}
-          <div className="bg-black/20 rounded-lg p-4 border-l-4 border-cyan-400/30 mb-6">
-            <div className="flex items-start space-x-3">
-              <Skeleton className="h-4 w-4 rounded flex-shrink-0 mt-1" />
+          <div className="bg-black/20 rounded-lg p-3 sm:p-4 border-l-4 border-cyan-400/30 mb-4 sm:mb-6">
+            <div className="flex items-start space-x-2 sm:space-x-3">
+              <Skeleton className="h-3 w-3 sm:h-4 sm:w-4 rounded flex-shrink-0 mt-1" />
               <div className="flex-1">
-                <Skeleton className="h-4 w-full mb-2" />
-                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3 w-full sm:h-4 mb-2" />
+                <Skeleton className="h-3 w-3/4 sm:h-4" />
               </div>
             </div>
           </div>
           
           {/* Social links skeleton */}
-          <div className="flex justify-center space-x-4 mb-6">
-            <Skeleton className="h-8 w-8 rounded-lg" />
-            <Skeleton className="h-8 w-8 rounded-lg" />
-            <Skeleton className="h-8 w-8 rounded-lg" />
+          <div className="flex justify-center space-x-3 sm:space-x-4 mb-4 sm:mb-6">
+            <Skeleton className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg" />
+            <Skeleton className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg" />
+            <Skeleton className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg" />
           </div>
           
           {/* Bottom section skeleton */}
-          <div className="absolute bottom-0 left-0 right-0 h-12 px-6 flex items-center justify-between">
+          <div className="absolute bottom-0 left-0 right-0 h-12 px-4 sm:px-6 flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Skeleton className="h-3 w-3" />
               <Skeleton className="h-3 w-12" />
@@ -305,15 +305,15 @@ const Page = () => {
         <AnimatePresence mode="wait">
           {loading ? (            <motion.div
               key="loading"
-              className={`grid gap-x-8 gap-y-16 ${
+              className={`grid gap-x-6 gap-y-12 sm:gap-x-8 sm:gap-y-16 ${
                 selectedCategory === 'OFFICE_BEARERS' 
                   ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
-                  : 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3'
+                  : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
               }`}
               style={{
                 gridTemplateColumns: selectedCategory === 'OFFICE_BEARERS' 
-                  ? 'repeat(auto-fit, minmax(320px, 1fr))'
-                  : 'repeat(auto-fit, minmax(380px, 1fr))',
+                  ? 'repeat(auto-fit, minmax(280px, 1fr))'
+                  : 'repeat(auto-fit, minmax(300px, 1fr))',
               }}
               variants={containerVariants}
               initial="hidden"
@@ -356,15 +356,15 @@ const Page = () => {
             </motion.div>
           ) : (            <motion.div
               key={`${selectedCategory}-${selectedYear}`}
-              className={`grid gap-x-8 gap-y-16 ${
+              className={`grid gap-x-6 gap-y-12 sm:gap-x-8 sm:gap-y-16 ${
                 selectedCategory === 'OFFICE_BEARERS' 
                   ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
-                  : 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3'
+                  : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
               }`}
               style={{
                 gridTemplateColumns: selectedCategory === 'OFFICE_BEARERS' 
-                  ? 'repeat(auto-fit, minmax(320px, 1fr))'
-                  : 'repeat(auto-fit, minmax(380px, 1fr))',
+                  ? 'repeat(auto-fit, minmax(280px, 1fr))'
+                  : 'repeat(auto-fit, minmax(300px, 1fr))',
               }}
               variants={containerVariants}
               initial="hidden"
