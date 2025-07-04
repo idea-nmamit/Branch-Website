@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { X, ChevronDown, ChevronLeft, ChevronRight, Search, Download, Share2, Maximize } from "lucide-react";
@@ -18,7 +17,6 @@ export default function GalleryPage() {
   const [carouselLoading, setCarouselLoading] = useState(true);
   const [galleryLoading, setGalleryLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [api, setApi] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isDropdownRendered, setIsDropdownRendered] = useState(false);
@@ -35,9 +33,18 @@ export default function GalleryPage() {
   const [placeholderLoaded, setPlaceholderLoaded] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const modalRef = useRef(null);
-  const fetchedRef = useRef(false); // To track if we've already fetched data
+  const fetchedRef = useRef(false);
   const [modalImageLoaded, setModalImageLoaded] = useState(false);
   const [shareError, setShareError] = useState(false);
+  const [currentCarouselIndex, setCurrentCarouselIndex] = useState(0);
+  const [showNavButtons, setShowNavButtons] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [showMobileHint, setShowMobileHint] = useState(false);
+  const [lastHintTime, setLastHintTime] = useState(0);
+  const [isCarouselTransitioning, setIsCarouselTransitioning] = useState(false);
+  const navButtonTimeoutRef = useRef(null);
+  const tapTimeoutRef = useRef(null);
+  const tapCountRef = useRef(0);
 
   const handleImageLoad = (imageId) => {
     setLoadedImages(prev => ({ ...prev, [imageId]: true }));
@@ -57,7 +64,6 @@ export default function GalleryPage() {
     setPlaceholderLoaded(true);
   }, []);
 
-  // Fetch carousel images
   useEffect(() => {
     if (!placeholderLoaded || fetchedRef.current) return;
     
@@ -80,7 +86,6 @@ export default function GalleryPage() {
       });
   }, [placeholderLoaded]);
 
-  // Fetch all images and organize by category
   useEffect(() => {
     if (!placeholderLoaded || fetchedRef.current) return;
     
@@ -121,16 +126,92 @@ export default function GalleryPage() {
       });
   }, [placeholderLoaded]);
 
-  // Autoplay carousel effect
   useEffect(() => {
-    if (!api || carouselLoading) return;
+    if (carouselLoading || carouselImages.length === 0 || isCarouselTransitioning) return;
 
     const autoplayInterval = setInterval(() => {
-      api.scrollNext();
-    }, 5000);
+      setIsCarouselTransitioning(true);
+      setCurrentCarouselIndex((prev) => (prev + 1) % carouselImages.length);
+      
+      setTimeout(() => {
+        setIsCarouselTransitioning(false);
+      }, 1200);
+    }, 8000);
 
     return () => clearInterval(autoplayInterval);
-  }, [api, carouselLoading]);
+  }, [carouselLoading, carouselImages.length, isCarouselTransitioning]);
+
+  const handleCarouselInteraction = () => {
+    setShowNavButtons(true);
+
+    if (navButtonTimeoutRef.current) {
+      clearTimeout(navButtonTimeoutRef.current);
+    }
+    
+    navButtonTimeoutRef.current = setTimeout(() => {
+      setShowNavButtons(false);
+    }, 3000);
+  };
+
+  const handleDoubleTap = () => {
+    if (!isMobile) return;
+    
+    const currentTime = Date.now();
+    const oneMinute = 60 * 1000;
+    
+    if (currentTime - lastHintTime > oneMinute) {
+      setShowMobileHint(true);
+      setLastHintTime(currentTime);
+      
+      setTimeout(() => {
+        setShowMobileHint(false);
+      }, 3000);
+    }
+
+    handleCarouselInteraction();
+  };
+
+  const handleTapInteraction = (e) => {
+    if (!isMobile) {
+      handleCarouselInteraction();
+      return;
+    }
+
+    tapCountRef.current += 1;
+    
+    if (tapCountRef.current === 1) {
+      tapTimeoutRef.current = setTimeout(() => {
+        tapCountRef.current = 0;
+      }, 300);
+    } else if (tapCountRef.current === 2) {
+      clearTimeout(tapTimeoutRef.current);
+      tapCountRef.current = 0;
+      handleDoubleTap();
+      e.preventDefault();
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (navButtonTimeoutRef.current) {
+        clearTimeout(navButtonTimeoutRef.current);
+      }
+      if (tapTimeoutRef.current) {
+        clearTimeout(tapTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
 
   const formatCategoryName = (category) => {
     return category.replace(/_/g, ' ')
@@ -142,7 +223,7 @@ export default function GalleryPage() {
 
   const openImageModal = (image) => {
     setSelectedImage(image);
-    setModalImageLoaded(false); // Reset modal image load state
+    setModalImageLoaded(false);
     document.body.style.overflow = 'hidden';
     const category = image.category || "ALL_IMAGES";
     setCurrentCategory(category);
@@ -160,7 +241,7 @@ export default function GalleryPage() {
   const navigateToPrevImage = (e) => {
     e.stopPropagation();
     if (!currentCategory || currentImageIndex <= 0) return;
-    setModalImageLoaded(false); // Reset modal image load state when navigating
+    setModalImageLoaded(false);
     const newIndex = currentImageIndex - 1;
     setCurrentImageIndex(newIndex);
     setSelectedImage(categoryImages[currentCategory][newIndex]);
@@ -169,7 +250,7 @@ export default function GalleryPage() {
   const navigateToNextImage = (e) => {
     e.stopPropagation();
     if (!currentCategory || currentImageIndex >= categoryImages[currentCategory].length - 1) return;
-    setModalImageLoaded(false); // Reset modal image load state when navigating
+    setModalImageLoaded(false);
     const newIndex = currentImageIndex + 1;
     setCurrentImageIndex(newIndex);
     setSelectedImage(categoryImages[currentCategory][newIndex]);
@@ -305,7 +386,6 @@ export default function GalleryPage() {
     try {
       setDownloading(true);
       
-      // Create a temporary anchor element
       const link = document.createElement('a');
       link.href = imageUrl;
       link.download = (imageName || 'gallery-image').replace(/[^a-z0-9]/gi, '_').toLowerCase();
@@ -333,7 +413,6 @@ export default function GalleryPage() {
           url: image.photoUrl
         });
       } else {
-        // Fallback for browsers that don't support the Web Share API
         await navigator.clipboard.writeText(image.photoUrl);
         alert('Image URL copied to clipboard!');
       }
@@ -341,7 +420,6 @@ export default function GalleryPage() {
       console.error('Error sharing image:', error);
       setShareError(true);
       
-      // Try fallback to clipboard if sharing failed
       try {
         await navigator.clipboard.writeText(image.photoUrl);
         alert('Image URL copied to clipboard!');
@@ -351,41 +429,77 @@ export default function GalleryPage() {
     }
   };
 
-  const GalleryImage = ({ image, onClick }) => {
+  const GalleryImage = React.memo(({ image, onClick }) => {
     const [isLoaded, setIsLoaded] = useState(false);
+    const [hasError, setHasError] = useState(false);
     
     return (
       <motion.div 
-        className="relative aspect-square cursor-pointer rounded-xl overflow-hidden group"
+        className="relative aspect-square cursor-pointer rounded-xl overflow-hidden group will-change-transform"
         onClick={() => onClick(image)}
-        whileHover={{ scale: 1.03 }}
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
+        whileHover={{ 
+          scale: 1.05, 
+          y: -5,
+          transition: { duration: 0.3, ease: "easeOut" }
+        }}
+        whileTap={{ scale: 0.95 }}
+        layout={false}
       >
-        {!isLoaded && (
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-900 to-pink-900 animate-pulse rounded-xl" />
+        {(!isLoaded && !hasError) && (
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/60 to-pink-900/60 animate-pulse rounded-xl backdrop-blur-sm" />
         )}
         
-        <Image 
-          src={image.photoUrl} 
-          alt={image.title} 
-          fill
-          className={`object-cover transition-opacity duration-300 ${!isLoaded ? 'opacity-0' : 'opacity-100'}`}
-          onLoad={() => setIsLoaded(true)}
-          loading="lazy"
-          sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-        />
+        {hasError ? (
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900 rounded-xl flex items-center justify-center">
+            <div className="text-gray-400 text-sm text-center p-4">
+              Failed to load image
+            </div>
+          </div>
+        ) : (
+          <Image 
+            src={image.photoUrl} 
+            alt={image.title} 
+            fill
+            className={`object-cover transition-opacity duration-700 ${!isLoaded ? 'opacity-0' : 'opacity-100'}`}
+            onLoad={() => setIsLoaded(true)}
+            onError={() => {
+              setHasError(true);
+              setIsLoaded(false);
+            }}
+            loading="lazy"
+            sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+            quality={75}
+          />
+        )}
         
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-          <h3 className="text-white font-medium text-sm truncate">{image.title}</h3>
-          <p className="text-xs text-purple-300 truncate">
+        <motion.div 
+          className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-400 flex flex-col justify-end p-4"
+          initial={false}
+        >
+          <motion.h3 
+            className="text-white font-medium text-sm truncate"
+            initial={false}
+            animate={{ y: 0, opacity: 1 }}
+          >
+            {image.title}
+          </motion.h3>
+          <motion.p 
+            className="text-xs text-purple-300 truncate"
+            initial={false}
+            animate={{ y: 0, opacity: 1 }}
+          >
             {image.description?.substring(0, 30)}{image.description?.length > 30 ? '...' : ''}
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
+        
+        {/* Subtle border on hover */}
+        <motion.div
+          className="absolute inset-0 rounded-xl border-2 border-purple-400/0 group-hover:border-purple-400/30 transition-all duration-300"
+          initial={false}
+        />
       </motion.div>
     );
-  };
+  });
 
   return (
     <div className="w-full min-h-screen px-4 sm:px-6 md:px-8 py-6 sm:py-8 md:py-12 bg-gradient-to-br from-[#17003A] to-[#370069] text-white">
@@ -537,96 +651,321 @@ export default function GalleryPage() {
             </motion.h2>
             
             {carouselLoading || !placeholderLoaded ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-                {Array(3).fill(0).map((_, index) => (
-                  <Skeleton key={index} className="w-full aspect-video rounded-xl bg-[#17003A]/40" />
-                ))}
+              <div className="flex justify-center items-center gap-4 sm:gap-6 px-4">
+                <Skeleton className="w-[250px] h-[180px] md:w-[300px] md:h-[200px] rounded-xl bg-[#17003A]/40 flex-shrink-0" />
+                <Skeleton className="w-[350px] h-[250px] md:w-[450px] md:h-[320px] rounded-xl bg-[#17003A]/40 flex-shrink-0" />
+                <Skeleton className="w-[250px] h-[180px] md:w-[300px] md:h-[200px] rounded-xl bg-[#17003A]/40 flex-shrink-0" />
               </div>
             ) : (
-              <Carousel 
-                className="w-full"
-                opts={{ align: "start", loop: true }}
-                setApi={setApi}
-              >
-                <CarouselContent>
-                  {carouselImages.map((image) => (
-                    <CarouselItem key={image.id} className="basis-full sm:basis-1/2 md:basis-1/3">
-                      <motion.div 
-                        className="relative aspect-video cursor-pointer rounded-xl overflow-hidden group"
-                        onClick={() => openImageModal(image)}
-                        whileHover={{ scale: 0.98 }}
+              <div className="relative overflow-hidden">
+                <div 
+                  className="flex justify-center items-center gap-4 md:gap-8 px-4 py-8 will-change-transform"
+                  onClick={handleTapInteraction}
+                  onTouchStart={handleTapInteraction}
+                >
+                  {carouselImages.slice(0, 3).map((image, index) => {
+                    const adjustedIndex = (currentCarouselIndex + index - 1 + carouselImages.length) % carouselImages.length;
+                    const displayImage = carouselImages[adjustedIndex];
+                    const isCenter = index === 1;
+                    const imageKey = `${displayImage.id}-${currentCarouselIndex}-${index}`;
+                    
+                    return (
+                      <motion.div
+                        key={imageKey}
+                        className={`relative cursor-pointer rounded-xl overflow-hidden group flex-shrink-0 will-change-transform ${
+                          isCenter 
+                            ? 'w-[300px] h-[220px] sm:w-[350px] sm:h-[250px] md:w-[450px] md:h-[320px]'
+                            : 'w-[200px] h-[140px] sm:w-[250px] sm:h-[180px] md:w-[300px] md:h-[200px]'
+                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openImageModal(displayImage);
+                        }}
+                        initial={false}
+                        animate={{
+                          scale: isCenter ? 1 : 0.85,
+                          opacity: isCenter ? 1 : 0.6,
+                          y: isCenter ? 0 : 30,
+                          filter: isCenter ? "blur(0px)" : "blur(1px)",
+                        }}
+                        transition={{ 
+                          duration: 1.2, 
+                          ease: [0.25, 0.46, 0.45, 0.94],
+                          type: "tween"
+                        }}
+                        whileHover={{ 
+                          scale: isCenter ? 1.02 : 0.88,
+                          y: isCenter ? -8 : 25,
+                          transition: { duration: 0.3 }
+                        }}
+                        whileTap={{ scale: isCenter ? 0.98 : 0.82 }}
                       >
-                        {!loadedImages[image.id] && (
-                          <div className="absolute inset-0 bg-gradient-to-br from-purple-900 to-pink-900 animate-pulse rounded-xl" />
+                        {!loadedImages[displayImage.id] && (
+                          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/60 to-pink-900/60 animate-pulse rounded-xl backdrop-blur-sm" />
                         )}
                         
                         <Image
-                          src={image.photoUrl}
-                          alt={image.title}
+                          src={displayImage.photoUrl}
+                          alt={displayImage.title}
                           fill
-                          className={`object-cover transition-opacity duration-300 ${!loadedImages[image.id] ? 'opacity-0' : 'opacity-100'}`}
-                          onLoadingComplete={() => handleImageLoad(image.id)}
+                          className={`object-cover transition-opacity duration-1000 ${!loadedImages[displayImage.id] ? 'opacity-0' : 'opacity-100'}`}
+                          onLoadingComplete={() => handleImageLoad(displayImage.id)}
+                          sizes={isCenter ? "450px" : "300px"}
+                          priority={isCenter}
+                          quality={isCenter ? 90 : 75}
+                          unoptimized={false}
                         />
                         
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex flex-col justify-end p-4">
-                          <h3 className="text-white font-medium">{image.title}</h3>
-                          <p className="text-xs text-purple-300">{formatCategoryName(image.category)}</p>
+                        <div className={`absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end transition-all duration-500 ${
+                          isCenter ? 'p-6' : 'p-3'
+                        }`}>
+                          <motion.h3 
+                            className={`text-white font-medium transition-all duration-500 ${
+                              isCenter ? 'text-lg md:text-xl mb-1' : 'text-xs md:text-sm'
+                            }`}
+                            animate={{ opacity: isCenter ? 1 : 0.8 }}
+                          >
+                            {displayImage.title}
+                          </motion.h3>
+                          <motion.p 
+                            className={`text-purple-300 transition-all duration-500 ${
+                              isCenter ? 'text-sm md:text-base' : 'text-xs'
+                            }`}
+                            animate={{ opacity: isCenter ? 1 : 0.7 }}
+                          >
+                            {formatCategoryName(displayImage.category)}
+                          </motion.p>
+                        </div>
+                        
+                        {isCenter && (
+                          <motion.div 
+                            className="absolute inset-0 ring-2 ring-purple-400/70 rounded-xl pointer-events-none"
+                            initial={{ opacity: 0, scale: 1.05 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.5, delay: 0.2 }}
+                          />
+                        )}
+                        
+                        <div className={`absolute inset-0 rounded-xl transition-all duration-700 ${
+                          isCenter 
+                            ? 'shadow-2xl shadow-purple-500/40' 
+                            : 'shadow-lg shadow-black/60'
+                        }`} />
+                      </motion.div>
+                    );
+                  })}
+                </div>
+                
+                {/* Navigation buttons - Hidden on mobile until interaction */}
+                <AnimatePresence>
+                  {(showNavButtons || !isMobile) && (
+                    <>
+                      <motion.button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!isCarouselTransitioning) {
+                            setIsCarouselTransitioning(true);
+                            setCurrentCarouselIndex((prev) => 
+                              prev === 0 ? carouselImages.length - 1 : prev - 1
+                            );
+                            setTimeout(() => setIsCarouselTransitioning(false), 1200);
+                          }
+                          handleCarouselInteraction();
+                        }}
+                        disabled={isCarouselTransitioning}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/70 hover:bg-black/90 rounded-full flex items-center justify-center text-white transition-all duration-300 z-10 backdrop-blur-sm md:opacity-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                        initial={{ opacity: 0, scale: 0.8, x: -20 }}
+                        animate={{ opacity: 1, scale: 1, x: 0 }}
+                        exit={{ opacity: 0, scale: 0.8, x: -20 }}
+                        whileHover={{ scale: 1.1, backgroundColor: "rgba(0,0,0,0.9)" }}
+                        whileTap={{ scale: 0.95 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <ChevronLeft className="w-6 h-6" />
+                      </motion.button>
+                      
+                      <motion.button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!isCarouselTransitioning) {
+                            setIsCarouselTransitioning(true);
+                            setCurrentCarouselIndex((prev) => 
+                              (prev + 1) % carouselImages.length
+                            );
+                            setTimeout(() => setIsCarouselTransitioning(false), 1200);
+                          }
+                          handleCarouselInteraction();
+                        }}
+                        disabled={isCarouselTransitioning}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/70 hover:bg-black/90 rounded-full flex items-center justify-center text-white transition-all duration-300 z-10 backdrop-blur-sm md:opacity-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                        initial={{ opacity: 0, scale: 0.8, x: 20 }}
+                        animate={{ opacity: 1, scale: 1, x: 0 }}
+                        exit={{ opacity: 0, scale: 0.8, x: 20 }}
+                        whileHover={{ scale: 1.1, backgroundColor: "rgba(0,0,0,0.9)" }}
+                        whileTap={{ scale: 0.95 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <ChevronRight className="w-6 h-6" />
+                      </motion.button>
+                    </>
+                  )}
+                </AnimatePresence>
+
+                {/* Mobile double-tap hint - Only show once per minute */}
+                <AnimatePresence>
+                  {showMobileHint && isMobile && (
+                    <motion.div
+                      className="absolute inset-0 flex items-center justify-center pointer-events-none z-20"
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <motion.div 
+                        className="bg-black/80 backdrop-blur-sm rounded-xl px-6 py-3 text-white text-sm shadow-2xl border border-purple-400/30"
+                        initial={{ y: 20 }}
+                        animate={{ y: 0 }}
+                        exit={{ y: -20 }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
+                          <span>Double tap to show controls</span>
                         </div>
                       </motion.div>
-                    </CarouselItem>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                
+                {/* Dots indicator */}
+                <motion.div 
+                  className="flex justify-center mt-8 gap-3"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6, duration: 0.5 }}
+                >
+                  {carouselImages.map((_, index) => (
+                    <motion.button
+                      key={index}
+                      onClick={() => {
+                        if (!isCarouselTransitioning) {
+                          setIsCarouselTransitioning(true);
+                          setCurrentCarouselIndex(index);
+                          setTimeout(() => setIsCarouselTransitioning(false), 1200);
+                          handleCarouselInteraction();
+                        }
+                      }}
+                      disabled={isCarouselTransitioning}
+                      className={`h-2 rounded-full transition-all duration-500 disabled:cursor-not-allowed ${
+                        index === currentCarouselIndex 
+                          ? 'bg-purple-400 w-8 shadow-lg shadow-purple-400/50' 
+                          : 'bg-white/40 hover:bg-white/60 w-2'
+                      }`}
+                      whileHover={{ scale: 1.2 }}
+                      whileTap={{ scale: 0.9 }}
+                      animate={{
+                        backgroundColor: index === currentCarouselIndex ? "#a855f7" : "rgba(255,255,255,0.4)"
+                      }}
+                    />
                   ))}
-                </CarouselContent>
-                <CarouselPrevious className="left-2 sm:left-4 h-8 w-8 sm:h-10 sm:w-10 bg-black/50 hover:bg-black/70 text-white" />
-                <CarouselNext className="right-2 sm:right-4 h-8 w-8 sm:h-10 sm:w-10 bg-black/50 hover:bg-black/70 text-white" />
-              </Carousel>
+                </motion.div>
+              </div>
             )}
           </section>
 
-          <section className="space-y-12 sm:space-y-16">
+          <section className="space-y-16 sm:space-y-20">
             {galleryLoading || !placeholderLoaded ? (
-              <div className="space-y-12">
+              <div className="space-y-16">
                 {Array(3).fill(0).map((_, index) => (
-                  <div key={index} className="space-y-4">
+                  <motion.div 
+                    key={index} 
+                    className="space-y-6"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
                     <Skeleton className="h-8 w-48 rounded-full bg-[#17003A]/40" />
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
                       {Array(4).fill(0).map((_, imgIndex) => (
                         <Skeleton key={imgIndex} className="aspect-square rounded-xl bg-[#17003A]/40" />
                       ))}
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             ) : (
-              categories.map((category) => (
+              categories.map((category, categoryIndex) => (
                 <motion.section 
                   key={category} 
                   id={category.toLowerCase()}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ 
+                    duration: 0.6, 
+                    delay: categoryIndex * 0.05,
+                    ease: [0.25, 0.46, 0.45, 0.94]
+                  }}
                 >
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl sm:text-2xl font-bold text-purple-300 flex items-center gap-2">
-                      <span className="w-2 h-6 bg-[#8617C0] rounded-full"></span>
+                  <div className="flex items-center justify-between mb-8">
+                    <motion.h2 
+                      className="text-xl sm:text-2xl font-bold text-purple-300 flex items-center gap-3"
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.1, duration: 0.5 }}
+                    >
+                      <span className="w-2 h-8 bg-gradient-to-b from-[#8617C0] to-[#370069] rounded-full"></span>
                       {formatCategoryName(category)}
-                    </h2>
+                    </motion.h2>
                     {categoryImages[category]?.length > 4 && (
-                      <button className="text-sm text-purple-400 hover:text-white transition-colors">
+                      <motion.button 
+                        className="text-sm text-purple-400 hover:text-white transition-all duration-300 hover:scale-105"
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.2, duration: 0.3 }}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
                         View All
-                      </button>
+                      </motion.button>
                     )}
                   </div>
                   
                   {categoryImages[category]?.length > 0 ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
-                      {categoryImages[category].slice(0, 8).map((image) => (
-                        <GalleryImage key={image.id} image={image} onClick={openImageModal} />
+                    <motion.div 
+                      className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6"
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.3, duration: 0.5 }}
+                    >
+                      {categoryImages[category].slice(0, 8).map((image, imageIndex) => (
+                        <motion.div
+                          key={image.id}
+                          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                          whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                          viewport={{ once: true, margin: "-20px" }}
+                          transition={{ 
+                            delay: imageIndex * 0.03,
+                            duration: 0.4,
+                            ease: "easeOut"
+                          }}
+                        >
+                          <GalleryImage image={image} onClick={openImageModal} />
+                        </motion.div>
                       ))}
-                    </div>
+                    </motion.div>
                   ) : (
-                    <div className="py-8 text-center bg-[#8617C0]/20 rounded-xl border border-[#8617C0]/30">
+                    <motion.div 
+                      className="py-12 text-center bg-[#8617C0]/10 rounded-xl border border-[#8617C0]/20 backdrop-blur-sm"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.3, duration: 0.4 }}
+                    >
                       <p className="text-purple-300">No images available in this category</p>
-                    </div>
+                    </motion.div>
                   )}
                 </motion.section>
               ))
