@@ -383,6 +383,7 @@ const Page = () => {
                       linkedin={member.linkedinUrl}
                       github={member.githubUrl}
                       instagram={member.instagramUrl}
+                      portfolio={member.portfolioUrl}
                     />
                   </motion.div>
                 ))
@@ -399,6 +400,7 @@ const Page = () => {
                       linkedinUrl={member.linkedinUrl}
                       githubUrl={member.githubUrl}
                       instagramUrl={member.instagramUrl}
+                      portfolioUrl={member.portfolioUrl}
                     />
                   </motion.div>
                 ))

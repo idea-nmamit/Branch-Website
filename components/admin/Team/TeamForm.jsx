@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Github, Linkedin, Instagram } from "lucide-react"
+import { Github, Linkedin, Instagram, Globe } from "lucide-react"
 
 const TeamForm = ({ onTeamMemberAdded }) => {
   const [name, setName] = useState('')
@@ -25,6 +25,7 @@ const TeamForm = ({ onTeamMemberAdded }) => {
   const [linkedinUrl, setLinkedinUrl] = useState('')
   const [githubUrl, setGithubUrl] = useState('')
   const [instagramUrl, setInstagramUrl] = useState('')
+  const [portfolioUrl, setPortfolioUrl] = useState('')
   const [year, setYear] = useState('2024-25')
   const [quote, setQuote] = useState('')
   const [loading, setLoading] = useState(false)
@@ -84,6 +85,7 @@ const TeamForm = ({ onTeamMemberAdded }) => {
         linkedinUrl: linkedinUrl || null,
         githubUrl: githubUrl || null,
         instagramUrl: instagramUrl || null,
+        portfolioUrl: portfolioUrl || null,
         year,
         quote: quote || null,
       }
@@ -130,6 +132,7 @@ const TeamForm = ({ onTeamMemberAdded }) => {
       setLinkedinUrl('')
       setGithubUrl('')
       setInstagramUrl('')
+      setPortfolioUrl('')
       setYear('2024-25')
       setQuote('')
 
@@ -286,6 +289,19 @@ const TeamForm = ({ onTeamMemberAdded }) => {
               value={instagramUrl}
               onChange={(e) => setInstagramUrl(e.target.value)}
               placeholder="https://instagram.com/username (optional)"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="portfolioUrl">
+              <Globe className="inline mr-2 h-4 w-4" />
+              Portfolio URL
+            </Label>
+            <Input
+              id="portfolioUrl"
+              value={portfolioUrl}
+              onChange={(e) => setPortfolioUrl(e.target.value)}
+              placeholder="https://yourportfolio.com (optional)"
             />
           </div>
 

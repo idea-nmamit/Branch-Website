@@ -1,6 +1,7 @@
 'use client'
 import React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Github, Linkedin, Instagram, Globe } from "lucide-react"
 
 const TeamList = ({ teamMembers }) => {
   if (!teamMembers || teamMembers.length === 0) {
@@ -37,6 +38,30 @@ const TeamList = ({ teamMembers }) => {
                 {member.quote && (
                   <p className="text-sm italic mt-2">"{member.quote}"</p>
                 )}
+                
+                {/* Social Media Links */}
+                <div className="flex gap-2 mt-3">
+                  {member.linkedinUrl && (
+                    <a href={member.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
+                      <Linkedin className="h-4 w-4" />
+                    </a>
+                  )}
+                  {member.githubUrl && (
+                    <a href={member.githubUrl} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-gray-800">
+                      <Github className="h-4 w-4" />
+                    </a>
+                  )}
+                  {member.instagramUrl && (
+                    <a href={member.instagramUrl} target="_blank" rel="noopener noreferrer" className="text-pink-600 hover:text-pink-800">
+                      <Instagram className="h-4 w-4" />
+                    </a>
+                  )}
+                  {member.portfolioUrl && (
+                    <a href={member.portfolioUrl} target="_blank" rel="noopener noreferrer" className="text-green-600 hover:text-green-800">
+                      <Globe className="h-4 w-4" />
+                    </a>
+                  )}
+                </div>
               </CardContent>
             </Card>
           ))}
