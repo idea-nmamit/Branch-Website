@@ -98,22 +98,50 @@ const Page = () => {
 
         {/* Events Section */}
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
-            {[1, 2, 3, 4, 5, 6].map((item) => (
-              <Skeleton key={item} className="w-full h-60 bg-white/10 rounded-lg" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
+              <motion.div
+                key={item}
+                className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 overflow-hidden"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: item * 0.1 }}
+              >
+                <Skeleton className="w-full h-56 bg-white/20 rounded-none" />
+                <div className="p-6 space-y-3">
+                  <Skeleton className="h-6 w-3/4 bg-white/20" />
+                  <Skeleton className="h-4 w-full bg-white/20" />
+                  <Skeleton className="h-4 w-2/3 bg-white/20" />
+                  <Skeleton className="h-10 w-full bg-white/20 rounded-xl mt-4" />
+                </div>
+              </motion.div>
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {upcoming
               ? upcomingEvents.length > 0
-                ? upcomingEvents.map((event) => (
-                    <EventCard key={event.id} event={event} />
+                ? upcomingEvents.map((event, index) => (
+                    <motion.div
+                      key={event.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <EventCard event={event} />
+                    </motion.div>
                   ))
                 : NoEvents("No Upcoming Events")
               : completedEvents.length > 0
-              ? completedEvents.map((event) => (
-                  <EventCard key={event.id} event={event} />
+              ? completedEvents.map((event, index) => (
+                  <motion.div
+                    key={event.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <EventCard event={event} />
+                  </motion.div>
                 ))
               : NoEvents("No Completed Events")}
           </div>
@@ -123,55 +151,116 @@ const Page = () => {
   );
 };
 
-// Event Card Component - Hover Glow + Zoom Animation
-const EventCard = ({ event }) => (
-  <div className="relative group h-[22em] w-[20em] border-2 border-[rgba(75,30,133,0.5)] rounded-[1.5em] bg-gradient-to-br from-[rgba(75,30,133,1)] to-[rgba(75,30,133,0.01)] text-white font-nunito p-[1em] flex flex-col backdrop-blur-[12px] transition-all duration-300 hover:scale-[1.05] hover:shadow-[0_0_15px_rgba(147,51,234,0.7)]">
-    
-    {/* Event Image with Smooth Expansion */}
-    <div className="relative w-full h-[65%] rounded-2xl">
-      <img
-        src={event?.image || "/placeholder.jpg"}
-        alt={event?.name || "Event Image"}
-        className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-110 rounded-2xl"
-      />
-    </div>
+// Event Card Component - Modern Glass Design with Perfect Image Fitting
+const EventCard = ({ event }) => {
+  const formatEventType = (type) => {
+    if (!type) return "";
+    return type
+      .replace(/_/g, " ")
+      .toLowerCase()
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  };
 
-    {/* Event Title & Description */}
-    <div className="flex flex-col items-center flex-grow mt-3">
-      <h1 className="text-[1.5em] font-medium text-center">{event?.name || "Event Name"}</h1>
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return {
+      day: date.getDate(),
+      month: date.toLocaleDateString("en-US", { month: "short" }),
+      year: date.getFullYear()
+    };
+  };
 
-      {/* Next Button */}
-      <div className="flex justify-center mt-3">
-      <Link href={`/Events/${event.id}`}>
-          <div className="btn-content flex items-center px-6 py-2 text-white text-lg md:text-xl font-semibold bg-purple-600 rounded-full shadow-sm shadow-purple-600/50 transition duration-500 hover:shadow-md hover:shadow-purple-600/50 group">
-          <span className="font-medium">View Details</span>
-          <span className="relative ml-4 transition-all duration-500 group-hover:ml-6">
-            <svg width="66" height="43" viewBox="0 0 66 43" xmlns="http://www.w3.org/2000/svg" className="w-8 h-5 scale-75">
-              <g id="arrow" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
-                <path
-                  id="arrow-icon-one"
-                  d="M40.1543933,3.89485454 L43.9763149,0.139296592 C44.1708311,-0.0518420739 44.4826329,-0.0518571125 44.6771675,0.139262789 L65.6916134,20.7848311 C66.0855801,21.1718824 66.0911863,21.8050225 65.704135,22.1989893 C65.7000188,22.2031791 65.6958657,22.2073326 65.6916762,22.2114492 L44.677098,42.8607841 C44.4825957,43.0519059 44.1708242,43.0519358 43.9762853,42.8608513 L40.1545186,39.1069479 C39.9575152,38.9134427 39.9546793,38.5968729 40.1481845,38.3998695 C40.1502893,38.3977268 40.1524132,38.395603 40.1545562,38.3934985 L56.9937789,21.8567812 C57.1908028,21.6632968 57.193672,21.3467273 57.0001876,21.1497035 C56.9980647,21.1475418 56.9959223,21.1453995 56.9937605,21.1432767 L40.1545208,4.60825197 C39.9574869,4.41477773 39.9546013,4.09820839 40.1480756,3.90117456 C40.1501626,3.89904911 40.1522686,3.89694235 40.1543933,3.89485454 Z"
-                  fill="#FFFFFF"
-                ></path>
-                <path
-                  id="arrow-icon-two"
-                  d="M20.1543933,3.89485454 L23.9763149,0.139296592 C24.1708311,-0.0518420739 24.4826329,-0.0518571125 24.6771675,0.139262789 L45.6916134,20.7848311 C46.0855801,21.1718824 46.0911863,21.8050225 45.704135,22.1989893 C45.7000188,22.2031791 45.6958657,22.2073326 45.6916762,22.2114492 L24.677098,42.8607841 C24.4825957,43.0519059 24.1708242,43.0519358 23.9762853,42.8608513 L20.1545186,39.1069479 C19.9575152,38.9134427 19.9546793,38.5968729 20.1481845,38.3998695 C20.1502893,38.3977268 20.1524132,38.395603 20.1545562,38.3934985 L36.9937789,21.8567812 C37.1908028,21.6632968 37.193672,21.3467273 37.0001876,21.1497035 C36.9980647,21.1475418 36.9959223,21.1453995 36.9937605,21.1432767 L20.1545208,4.60825197 C19.9574869,4.41477773 19.9546013,4.09820839 20.1480756,3.90117456 C20.1501626,3.89904911 20.1522686,3.89694235 20.1543933,3.89485454 Z"
-                  fill="#FFFFFF"
-                ></path>
-                <path
-                  id="arrow-icon-three"
-                  d="M0.154393339,3.89485454 L3.97631488,0.139296592 C4.17083111,-0.0518420739 4.48263286,-0.0518571125 4.67716753,0.139262789 L25.6916134,20.7848311 C26.0855801,21.1718824 26.0911863,21.8050225 25.704135,22.1989893 C25.7000188,22.2031791 25.6958657,22.2073326 25.6916762,22.2114492 L4.67709797,42.8607841 C4.48259567,43.0519059 4.17082418,43.0519358 3.97628526,42.8608513 L0.154518591,39.1069479 C-0.0424848215,38.9134427 -0.0453206733,38.5968729 0.148184538,38.3998695 C0.150289256,38.3977268 0.152413239,38.395603 0.154556228,38.3934985 L16.9937789,21.8567812 C17.1908028,21.6632968 17.193672,21.3467273 17.0001876,21.1497035 C16.9980647,21.1475418 16.9959223,21.1453995 16.9937605,21.1432767 L0.15452076,4.60825197 C-0.0425130651,4.41477773 -0.0453986756,4.09820839 0.148075568,3.90117456 C0.150162624,3.89904911 0.152268631,3.89694235 0.154393339,3.89485454 Z"
-                  fill="#FFFFFF"
-                ></path>
-              </g>
-            </svg>
-          </span>
+  const dateInfo = formatDate(event.date);
+
+  return (
+    <motion.div 
+      className="group relative w-full max-w-sm mx-auto"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      whileHover={{ y: -8 }}
+    >
+      {/* Main Card Container */}
+      <div className="relative bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 overflow-hidden shadow-2xl transition-all duration-500 group-hover:shadow-purple-500/25 group-hover:border-purple-400/50">
+        
+        {/* Image Container with Perfect Fitting */}
+        <div className="relative h-56 overflow-hidden">
+          <img
+            src={event?.image || "/placeholder.jpg"}
+            alt={event?.name || "Event Image"}
+            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
+          />
+          
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+          
+          {/* Event Type Badge */}
+          {event.type && (
+            <div className="absolute top-4 right-4">
+              <Badge className="bg-purple-600/90 hover:bg-purple-600 text-white border-0 backdrop-blur-sm">
+                {formatEventType(event.type)}
+              </Badge>
+            </div>
+          )}
+          
+          {/* Date Badge */}
+          <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-2 text-center min-w-[3rem] shadow-lg">
+            <div className="text-2xl font-bold text-purple-900">{dateInfo.day}</div>
+            <div className="text-xs font-medium text-purple-700 uppercase">{dateInfo.month}</div>
+          </div>
         </div>
-        </Link>
+
+        {/* Content Section */}
+        <div className="p-6">
+          {/* Event Title */}
+          <h3 className="text-xl font-bold text-white mb-3 line-clamp-2 leading-tight group-hover:text-purple-200 transition-colors duration-300 min-h-[3.5rem] flex items-center">
+            {event?.name || "Event Name"}
+          </h3>
+          
+          {/* Event Info */}
+          <div className="space-y-2 mb-4">
+            {event.venue && (
+              <div className="flex items-center text-white/80 text-sm">
+                <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                </svg>
+                <span className="truncate">{event.venue}</span>
+              </div>
+            )}
+            
+            <div className="flex items-center text-white/80 text-sm">
+              <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+              </svg>
+              <span>
+                {new Date(event.date).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </span>
+            </div>
+          </div>
+
+          {/* View Details Button */}
+          <Link href={`/Events/${event.id}`} className="block">
+            <motion.button
+              className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-purple-500/25 flex items-center justify-center group/btn"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <span className="mr-2">View Details</span>
+              <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+            </motion.button>
+          </Link>
+        </div>
+
+        {/* Hover Glow Effect */}
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-600/0 via-purple-600/0 to-purple-600/0 group-hover:from-purple-600/10 group-hover:via-purple-600/5 group-hover:to-purple-600/10 transition-all duration-500 pointer-events-none"></div>
       </div>
-    </div>
-  </div>
-);
+    </motion.div>
+  );
+};
 
 // No Events Message
 const NoEvents = (message) => (
