@@ -24,6 +24,7 @@ const Page = () => {
   const [loading, setLoading] = useState(true);
   const [currentMemberIndex, setCurrentMemberIndex] = useState({});
   const [selectedCategory, setSelectedCategory] = useState('ALL');
+  const [expandedDescriptions, setExpandedDescriptions] = useState({});
 
   useEffect(() => {
     const fetchAchievements = async () => {
@@ -32,7 +33,6 @@ const Page = () => {
         const data = await response.json();
         setAchievements(data);
         
-        // Initialize member index for each achievement
         const initialIndexes = {};
         data.forEach(achievement => {
           initialIndexes[achievement.id] = 0;
@@ -64,6 +64,13 @@ const Page = () => {
     setCurrentMemberIndex(prev => ({
       ...prev,
       [achievementId]: prev[achievementId] === 0 ? membersLength - 1 : prev[achievementId] - 1
+    }));
+  };
+
+  const toggleDescription = (achievementId) => {
+    setExpandedDescriptions(prev => ({
+      ...prev,
+      [achievementId]: !prev[achievementId]
     }));
   };
 
@@ -163,22 +170,49 @@ const Page = () => {
                     initial={{ opacity: 0, y: 50 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
-                    whileHover={{ 
-                      scale: 1.02, 
-                      y: -8,
-                      transition: { duration: 0.3 }
-                    }}
                     className="rounded-3xl overflow-hidden relative group border border-white/20 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl shadow-2xl hover:shadow-purple-500/30 hover:border-purple-400/40 transition-all duration-300"
                   >
                     {/* Achievement Image */}
                     <div className="relative h-80 overflow-hidden">
                       <div
-                        className="h-full w-full bg-cover bg-center transform group-hover:scale-105 transition-transform duration-500"
+                        className="h-full w-full bg-cover bg-center"
                         style={{
                           backgroundImage: `url(${achievement.photoUrl || '/default.jpg'})`,
                         }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                      
+                      {/* Position Badge - Top Center */}
+                      {achievement.position && (
+                        <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
+                          <div className={`relative px-4 py-2 rounded-full text-sm font-black border-2 backdrop-blur-xl shadow-2xl ${
+                            achievement.position === '1st' || achievement.position === 'Winner' || achievement.position === 'First' 
+                              ? 'bg-gradient-to-r from-yellow-400/90 to-yellow-600/90 border-yellow-300 text-yellow-900'
+                              : achievement.position === '2nd' || achievement.position === 'Second'
+                              ? 'bg-gradient-to-r from-gray-300/90 to-gray-500/90 border-gray-200 text-gray-900'
+                              : achievement.position === '3rd' || achievement.position === 'Third'
+                              ? 'bg-gradient-to-r from-amber-600/90 to-amber-800/90 border-amber-400 text-amber-100'
+                              : 'bg-gradient-to-r from-purple-500/90 to-purple-700/90 border-purple-300 text-white'
+                          }`}>
+                            <div className="flex items-center gap-2">
+                              {(achievement.position === '1st' || achievement.position === 'Winner' || achievement.position === 'First') && (
+                                <span className="text-lg">🥇</span>
+                              )}
+                              {(achievement.position === '2nd' || achievement.position === 'Second') && (
+                                <span className="text-lg">🥈</span>
+                              )}
+                              {(achievement.position === '3rd' || achievement.position === 'Third') && (
+                                <span className="text-lg">🥉</span>
+                              )}
+                              <span className="tracking-wide">{achievement.position}</span>
+                            </div>
+                            {/* Glow effect for winners */}
+                            {(achievement.position === '1st' || achievement.position === 'Winner' || achievement.position === 'First') && (
+                              <div className="absolute inset-0 rounded-full bg-yellow-400/30 blur-lg -z-10 animate-pulse"></div>
+                            )}
+                          </div>
+                        </div>
+                      )}
                       
                       {/* Enhanced Category Tag */}
                       <div className={`absolute top-4 left-4 px-3 py-2 rounded-xl text-xs font-bold border backdrop-blur-xl ${getCategoryColor(achievement.category)} shadow-xl`}>
@@ -215,38 +249,87 @@ const Page = () => {
                     </div>
 
                     {/* Enhanced Content Section */}
-                    <div className="p-5 space-y-4">
-                      {/* Description */}
-                      <div className="bg-black/10 rounded-xl p-3 border border-white/10">
-                        <p className="text-white/90 text-sm leading-relaxed line-clamp-2">
+                    <div className="p-6 space-y-5">
+                      {/* Achievement Info Grid */}
+                      <div className="grid grid-cols-2 gap-3 mb-4">
+                        {achievement.date && (
+                          <div className="bg-black/20 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Calendar className="w-4 h-4 text-purple-400" />
+                              <span className="text-xs font-semibold text-purple-300">Date</span>
+                            </div>
+                            <p className="text-sm text-white font-medium">
+                              {new Date(achievement.date).toLocaleDateString()}
+                            </p>
+                          </div>
+                        )}
+                        {achievement.location && (
+                          <div className="bg-black/20 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
+                            <div className="flex items-center gap-2 mb-1">
+                              <MapPin className="w-4 h-4 text-blue-400" />
+                              <span className="text-xs font-semibold text-blue-300">Location</span>
+                            </div>
+                            <p className="text-sm text-white font-medium line-clamp-1">
+                              {achievement.location}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Description with better styling */}
+                      <div className="bg-gradient-to-r from-black/15 to-black/25 rounded-2xl p-4 border border-white/15 backdrop-blur-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-1 h-4 bg-gradient-to-b from-purple-400 to-blue-400 rounded-full"></div>
+                            <span className="text-xs font-bold text-white/80 uppercase tracking-wider">Description</span>
+                          </div>
+                          {achievement.description && achievement.description.length > 150 && (
+                            <button
+                              onClick={() => toggleDescription(achievement.id)}
+                              className="text-xs text-purple-300 hover:text-purple-200 font-medium transition-colors duration-200 bg-purple-500/20 px-2 py-1 rounded-lg border border-purple-400/30 hover:bg-purple-500/30"
+                            >
+                              {expandedDescriptions[achievement.id] ? 'Show Less' : 'Show More'}
+                            </button>
+                          )}
+                        </div>
+                        <p className={`text-white/90 text-sm leading-relaxed transition-all duration-300 ${
+                          expandedDescriptions[achievement.id] ? '' : 'line-clamp-3'
+                        }`}>
                           {achievement.description}
                         </p>
                       </div>
 
-                      {/* Enhanced Member Carousel */}
+                      {/* Enhanced Member Carousel with better styling */}
                       {currentMember && (
-                        <div className="bg-gradient-to-r from-white/5 to-white/10 rounded-xl p-4 border border-white/15 backdrop-blur-sm shadow-inner">
-                          <div className="flex items-center justify-between mb-3">
-                            <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                              <div className="p-1.5 bg-purple-500/20 rounded-lg">
-                                <UserIcon className="w-3 h-3 text-purple-400" />
+                        <div className="bg-gradient-to-br from-white/8 to-white/15 rounded-2xl p-5 border border-white/20 backdrop-blur-sm shadow-inner">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-xl border border-purple-400/30">
+                                <UserIcon className="w-4 h-4 text-purple-300" />
                               </div>
-                              {hasMultipleMembers ? 'Team Member' : 'Achiever'}
-                            </h4>
+                              <div>
+                                <h4 className="text-sm font-bold text-white">
+                                  {hasMultipleMembers ? 'Team Member' : 'Achiever'}
+                                </h4>
+                                <p className="text-xs text-white/60">
+                                  {hasMultipleMembers ? `${achievement.members.length} members` : 'Individual'}
+                                </p>
+                              </div>
+                            </div>
                             {hasMultipleMembers && (
-                              <div className="flex items-center gap-2 bg-black/20 rounded-xl px-2 py-1 border border-white/10">
+                              <div className="flex items-center gap-2 bg-black/30 rounded-xl px-3 py-2 border border-white/15">
                                 <button
                                   onClick={() => prevMember(achievement.id, achievement.members.length)}
-                                  className="p-1 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-200 hover:scale-105"
+                                  className="p-1.5 rounded-lg bg-white/15 hover:bg-white/25 transition-all duration-200 border border-white/20"
                                 >
                                   <ChevronLeftIcon className="w-3 h-3 text-white" />
                                 </button>
-                                <span className="text-xs font-bold text-white/90 mx-1 min-w-[2.5rem] text-center">
+                                <span className="text-xs font-bold text-white/90 mx-2 min-w-[2.5rem] text-center">
                                   {(currentMemberIndex[achievement.id] || 0) + 1} / {achievement.members.length}
                                 </span>
                                 <button
                                   onClick={() => nextMember(achievement.id, achievement.members.length)}
-                                  className="p-1 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-200 hover:scale-105"
+                                  className="p-1.5 rounded-lg bg-white/15 hover:bg-white/25 transition-all duration-200 border border-white/20"
                                 >
                                   <ChevronRightIcon className="w-3 h-3 text-white" />
                                 </button>
@@ -262,41 +345,43 @@ const Page = () => {
                               exit={{ opacity: 0, x: -30 }}
                               transition={{ duration: 0.4 }}
                             >
-                              <div className="flex items-center gap-3 mb-3">
+                              <div className="flex items-center gap-4 mb-4">
                                 <div className="relative">
                                   <img 
                                     src={getDefaultAvatar(currentMember.name, currentMemberIndex[achievement.id] || 0)} 
                                     alt={currentMember.name}
-                                    className="w-12 h-12 rounded-full object-cover border-2 border-white/30 shadow-lg"
+                                    className="w-14 h-14 rounded-full object-cover border-2 border-white/40 shadow-xl"
                                   />
                                 </div>
                                 <div className="flex-1">
-                                  <p className="text-sm font-bold text-white mb-1">
+                                  <p className="text-base font-bold text-white mb-1">
                                     {currentMember.name}
                                   </p>
-                                  {currentMember.role && (
-                                    <p className="text-xs text-purple-300 font-semibold mb-0.5 bg-purple-500/10 px-2 py-0.5 rounded-md w-fit">
-                                      {currentMember.role}
-                                    </p>
-                                  )}
-                                  {currentMember.branch && (
-                                    <p className="text-xs text-white/70 bg-white/5 px-2 py-0.5 rounded-md w-fit">
-                                      {currentMember.branch}
-                                    </p>
-                                  )}
+                                  <div className="flex flex-wrap gap-2">
+                                    {currentMember.role && (
+                                      <span className="text-xs text-purple-200 font-semibold bg-purple-500/20 px-2 py-1 rounded-lg border border-purple-400/30">
+                                        {currentMember.role}
+                                      </span>
+                                    )}
+                                    {currentMember.branch && (
+                                      <span className="text-xs text-blue-200 bg-blue-500/20 px-2 py-1 rounded-lg border border-blue-400/30">
+                                        {currentMember.branch}
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                               
-                              {/* Enhanced Social Links */}
-                              <div className="flex gap-2 justify-center">
+                              {/* Enhanced Social Links Grid */}
+                              <div className="grid grid-cols-4 gap-2">
                                 {currentMember.linkedinUrl && (
                                   <a
                                     href={currentMember.linkedinUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="p-2 bg-blue-500/15 rounded-lg hover:bg-blue-500/25 transition-all duration-200 hover:scale-105 border border-blue-400/20 shadow-lg"
+                                    className="p-3 bg-blue-500/20 rounded-xl hover:bg-blue-500/30 transition-all duration-200 border border-blue-400/30 shadow-lg group flex items-center justify-center"
                                   >
-                                    <LinkedinIcon size={14} className="text-blue-400" />
+                                    <LinkedinIcon size={16} className="text-blue-300 group-hover:scale-110 transition-transform" />
                                   </a>
                                 )}
                                 {currentMember.githubUrl && (
@@ -304,9 +389,9 @@ const Page = () => {
                                     href={currentMember.githubUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="p-2 bg-gray-500/15 rounded-lg hover:bg-gray-500/25 transition-all duration-200 hover:scale-105 border border-gray-400/20 shadow-lg"
+                                    className="p-3 bg-gray-500/20 rounded-xl hover:bg-gray-500/30 transition-all duration-200 border border-gray-400/30 shadow-lg group flex items-center justify-center"
                                   >
-                                    <GithubIcon size={14} className="text-white" />
+                                    <GithubIcon size={16} className="text-white group-hover:scale-110 transition-transform" />
                                   </a>
                                 )}
                                 {currentMember.instagramUrl && (
@@ -314,9 +399,9 @@ const Page = () => {
                                     href={currentMember.instagramUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="p-2 bg-pink-500/15 rounded-lg hover:bg-pink-500/25 transition-all duration-200 hover:scale-105 border border-pink-400/20 shadow-lg"
+                                    className="p-3 bg-pink-500/20 rounded-xl hover:bg-pink-500/30 transition-all duration-200 border border-pink-400/30 shadow-lg group flex items-center justify-center"
                                   >
-                                    <InstagramIcon size={14} className="text-pink-400" />
+                                    <InstagramIcon size={16} className="text-pink-300 group-hover:scale-110 transition-transform" />
                                   </a>
                                 )}
                                 {currentMember.portfolioUrl && (
@@ -324,9 +409,9 @@ const Page = () => {
                                     href={currentMember.portfolioUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="p-2 bg-green-500/15 rounded-lg hover:bg-green-500/25 transition-all duration-200 hover:scale-105 border border-green-400/20 shadow-lg"
+                                    className="p-3 bg-green-500/20 rounded-xl hover:bg-green-500/30 transition-all duration-200 border border-green-400/30 shadow-lg group flex items-center justify-center"
                                   >
-                                    <ExternalLink size={14} className="text-green-400" />
+                                    <ExternalLink size={16} className="text-green-300 group-hover:scale-110 transition-transform" />
                                   </a>
                                 )}
                               </div>
@@ -336,56 +421,77 @@ const Page = () => {
                       )}
 
                       {/* Enhanced Achievement Links */}
-                      <div className="flex justify-center gap-3 pt-3 border-t border-white/15">
-                        {achievement.githubUrl && (
-                          <a
-                            href={achievement.githubUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group p-3 bg-gray-500/15 rounded-xl hover:bg-gray-500/25 transition-all duration-200 hover:scale-105 border border-gray-400/20 shadow-lg"
-                            title="GitHub Repository"
-                          >
-                            <GithubIcon size={16} className="text-white group-hover:text-gray-300" />
-                          </a>
-                        )}
-                        {achievement.researchLink && (
-                          <a
-                            href={achievement.researchLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group p-3 bg-green-500/15 rounded-xl hover:bg-green-500/25 transition-all duration-200 hover:scale-105 border border-green-400/20 shadow-lg"
-                            title="Research Paper"
-                          >
-                            <NotebookText size={16} className="text-green-400 group-hover:text-green-300" />
-                          </a>
-                        )}
-                        {achievement.projectUrl && (
-                          <a
-                            href={achievement.projectUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group p-3 bg-blue-500/15 rounded-xl hover:bg-blue-500/25 transition-all duration-200 hover:scale-105 border border-blue-400/20 shadow-lg"
-                            title="Project Demo"
-                          >
-                            <ExternalLink size={16} className="text-blue-400 group-hover:text-blue-300" />
-                          </a>
-                        )}
-                        {achievement.certificateUrl && (
-                          <a
-                            href={achievement.certificateUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group p-3 bg-yellow-500/15 rounded-xl hover:bg-yellow-500/25 transition-all duration-200 hover:scale-105 border border-yellow-400/20 shadow-lg"
-                            title="Certificate"
-                          >
-                            <Award size={16} className="text-yellow-400 group-hover:text-yellow-300" />
-                          </a>
-                        )}
-                      </div>
+                      {(achievement.githubUrl || achievement.researchLink || achievement.projectUrl || achievement.certificateUrl) && (
+                        <div className="border-t border-white/20 pt-4">
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="w-1 h-4 bg-gradient-to-b from-blue-400 to-purple-400 rounded-full"></div>
+                            <span className="text-xs font-bold text-white/80 uppercase tracking-wider">Links & Resources</span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            {achievement.githubUrl && (
+                              <a
+                                href={achievement.githubUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group p-4 bg-gray-500/20 rounded-xl hover:bg-gray-500/30 transition-all duration-200 border border-gray-400/30 shadow-lg"
+                                title="GitHub Repository"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <GithubIcon size={18} className="text-white group-hover:text-gray-300" />
+                                  <span className="text-sm font-medium text-white">Code</span>
+                                </div>
+                              </a>
+                            )}
+                            {achievement.researchLink && (
+                              <a
+                                href={achievement.researchLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group p-4 bg-green-500/20 rounded-xl hover:bg-green-500/30 transition-all duration-200 border border-green-400/30 shadow-lg"
+                                title="Research Paper"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <NotebookText size={18} className="text-green-400 group-hover:text-green-300" />
+                                  <span className="text-sm font-medium text-white">Paper</span>
+                                </div>
+                              </a>
+                            )}
+                            {achievement.projectUrl && (
+                              <a
+                                href={achievement.projectUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group p-4 bg-blue-500/20 rounded-xl hover:bg-blue-500/30 transition-all duration-200 border border-blue-400/30 shadow-lg"
+                                title="Project Demo"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <ExternalLink size={18} className="text-blue-400 group-hover:text-blue-300" />
+                                  <span className="text-sm font-medium text-white">Demo</span>
+                                </div>
+                              </a>
+                            )}
+                            {achievement.certificateUrl && (
+                              <a
+                                href={achievement.certificateUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group p-4 bg-yellow-500/20 rounded-xl hover:bg-yellow-500/30 transition-all duration-200 border border-yellow-400/30 shadow-lg"
+                                title="Certificate"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <Award size={18} className="text-yellow-400 group-hover:text-yellow-300" />
+                                  <span className="text-sm font-medium text-white">Certificate</span>
+                                </div>
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
-                    {/* Subtle Decorative Border Effect */}
-                    <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-purple-500/10 via-transparent to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                    {/* Subtle Decorative Elements */}
+                    <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-purple-500/5 via-transparent to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500 opacity-60"></div>
                   </motion.div>
                 );
               })}
