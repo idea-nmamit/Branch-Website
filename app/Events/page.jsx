@@ -29,8 +29,12 @@ const Page = () => {
   }, []);
 
   const today = new Date().toISOString().split("T")[0];
-  const upcomingEvents = events.filter((event) => event.date >= today);
-  const completedEvents = events.filter((event) => event.date < today);
+  const upcomingEvents = events
+    .filter((event) => event.date >= today)
+    .sort((a, b) => new Date(a.date) - new Date(b.date)); // Earliest upcoming first
+  const completedEvents = events
+    .filter((event) => event.date < today)
+    .sort((a, b) => new Date(b.date) - new Date(a.date)); // Latest completed first
 
   return (
     <div className="bg-gradient-to-br from-[#17003A] to-[#370069] p-8 min-h-screen">
@@ -98,11 +102,11 @@ const Page = () => {
 
         {/* Events Section */}
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 auto-rows-fr">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
               <motion.div
                 key={item}
-                className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 overflow-hidden"
+                className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 overflow-hidden h-[520px]"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: item * 0.1 }}
@@ -118,7 +122,7 @@ const Page = () => {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 auto-rows-fr">
             {upcoming
               ? upcomingEvents.length > 0
                 ? upcomingEvents.map((event, index) => (
@@ -127,6 +131,7 @@ const Page = () => {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
+                      className="h-full"
                     >
                       <EventCard event={event} />
                     </motion.div>
@@ -139,6 +144,7 @@ const Page = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
+                    className="h-full"
                   >
                     <EventCard event={event} />
                   </motion.div>
@@ -151,7 +157,7 @@ const Page = () => {
   );
 };
 
-// Event Card Component - Modern Glass Design with Perfect Image Fitting
+// Enhanced Event Card Component - Clean Modern Design with Subtle Effects
 const EventCard = ({ event }) => {
   const formatEventType = (type) => {
     if (!type) return "";
@@ -174,89 +180,113 @@ const EventCard = ({ event }) => {
 
   return (
     <motion.div 
-      className="group relative w-full max-w-sm mx-auto"
+      className="group relative w-full h-[520px] flex flex-col"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      whileHover={{ y: -8 }}
+      transition={{ duration: 0.4 }}
+      whileHover={{ y: -6 }}
     >
+      {/* Subtle Background Glow */}
+      <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600/30 via-pink-600/30 to-blue-600/30 rounded-2xl blur opacity-0 group-hover:opacity-60 transition-all duration-500"></div>
+      
       {/* Main Card Container */}
-      <div className="relative bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 overflow-hidden shadow-2xl transition-all duration-500 group-hover:shadow-purple-500/25 group-hover:border-purple-400/50">
+      <div className="relative h-full bg-gradient-to-br from-white/15 via-white/10 to-white/5 backdrop-blur-xl rounded-2xl border border-white/30 overflow-hidden shadow-xl transition-all duration-500 group-hover:shadow-purple-500/25 group-hover:border-purple-400/50 flex flex-col">
         
-        {/* Image Container with Perfect Fitting */}
-        <div className="relative h-56 overflow-hidden">
-          <img
-            src={event?.image || "/placeholder.jpg"}
-            alt={event?.name || "Event Image"}
-            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
-          />
-          
-          {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+        {/* Enhanced Image Container */}
+        <div className="relative h-64 overflow-hidden rounded-t-2xl flex-shrink-0">
+          {/* Image with Subtle Effects */}
+          <div className="relative w-full h-full">
+            <img
+              src={event?.image || "/placeholder.jpg"}
+              alt={event?.name || "Event Image"}
+              className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 filter group-hover:brightness-105"
+            />
+            
+            {/* Gradient Overlays */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-60"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-900/10 via-transparent to-pink-900/10 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+          </div>
           
           {/* Event Type Badge */}
           {event.type && (
-            <div className="absolute top-4 right-4">
-              <Badge className="bg-purple-600/90 hover:bg-purple-600 text-white border-0 backdrop-blur-sm">
+            <motion.div 
+              className="absolute top-4 right-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 backdrop-blur-sm shadow-lg text-xs font-semibold px-3 py-1.5">
                 {formatEventType(event.type)}
               </Badge>
-            </div>
+            </motion.div>
           )}
           
           {/* Date Badge */}
-          <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-2 text-center min-w-[3rem] shadow-lg">
-            <div className="text-2xl font-bold text-purple-900">{dateInfo.day}</div>
-            <div className="text-xs font-medium text-purple-700 uppercase">{dateInfo.month}</div>
-          </div>
+          <motion.div 
+            className="absolute top-4 left-4 bg-gradient-to-br from-white/95 to-white/85 backdrop-blur-sm rounded-xl p-3 text-center min-w-[4rem] shadow-lg border border-white/20 group-hover:shadow-xl transition-all duration-300"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.1 }}
+          >
+            <div className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-purple-700 to-pink-600">{dateInfo.day}</div>
+            <div className="text-[10px] font-bold text-purple-600 uppercase tracking-wider">{dateInfo.month}</div>
+            <div className="text-[8px] font-medium text-gray-500">{dateInfo.year}</div>
+          </motion.div>
         </div>
 
         {/* Content Section */}
-        <div className="p-6">
-          {/* Event Title */}
-          <h3 className="text-xl font-bold text-white mb-3 line-clamp-2 leading-tight group-hover:text-purple-200 transition-colors duration-300 min-h-[3.5rem] flex items-center">
-            {event?.name || "Event Name"}
-          </h3>
-          
-          {/* Event Info */}
-          <div className="space-y-2 mb-4">
-            {event.venue && (
-              <div className="flex items-center text-white/80 text-sm">
-                <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                </svg>
-                <span className="truncate">{event.venue}</span>
-              </div>
-            )}
+        <div className="relative p-6 flex flex-col flex-grow">
+          <div className="relative z-10 flex-grow">
+            {/* Event Title */}
+            <h3 className="text-xl font-bold text-white mb-4 leading-tight group-hover:text-purple-200 transition-colors duration-300 line-clamp-2">
+              {event?.name || "Event Name"}
+            </h3>
             
-            <div className="flex items-center text-white/80 text-sm">
-              <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-              </svg>
-              <span>
-                {new Date(event.date).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </span>
+            {/* Event Info with Icons */}
+            <div className="space-y-3 mb-6">
+              {event.venue && (
+                <div className="flex items-start text-white/90 text-sm group-hover:text-purple-200 transition-colors duration-300">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 flex items-center justify-center mr-3 group-hover:from-purple-500/30 group-hover:to-pink-500/30 transition-all duration-300 flex-shrink-0">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <span className="font-medium line-clamp-2">{event.venue}</span>
+                </div>
+              )}
+              
+              <div className="flex items-center text-white/90 text-sm group-hover:text-purple-200 transition-colors duration-300">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 flex items-center justify-center mr-3 group-hover:from-purple-500/30 group-hover:to-pink-500/30 transition-all duration-300 flex-shrink-0">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <span className="font-medium">
+                  {new Date(event.date).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* View Details Button */}
-          <Link href={`/Events/${event.id}`} className="block">
+          {/* CTA Button */}
+          <Link href={`/Events/${event.id}`} className="block relative z-10 mt-auto">
             <motion.button
-              className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-purple-500/25 flex items-center justify-center group/btn"
+              className="w-full bg-gradient-to-r from-purple-600 via-purple-700 to-pink-600 hover:from-purple-700 hover:via-purple-800 hover:to-pink-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-purple-500/30 flex items-center justify-center group/btn"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <span className="mr-2">View Details</span>
-              <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+              <span className="mr-2 font-bold tracking-wide">View Details</span>
+              <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover/btn:translate-x-1" />
             </motion.button>
           </Link>
         </div>
 
-        {/* Hover Glow Effect */}
-        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-600/0 via-purple-600/0 to-purple-600/0 group-hover:from-purple-600/10 group-hover:via-purple-600/5 group-hover:to-purple-600/10 transition-all duration-500 pointer-events-none"></div>
+        {/* Subtle Hover Glow Effect */}
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-600/0 via-pink-600/0 to-blue-600/0 group-hover:from-purple-600/5 group-hover:via-pink-600/5 group-hover:to-blue-600/5 transition-all duration-500 pointer-events-none"></div>
       </div>
     </motion.div>
   );
