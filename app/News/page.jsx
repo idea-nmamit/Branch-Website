@@ -269,7 +269,25 @@ const NewsPage = () => {
     ? newsItems
     : newsItems.filter(item => item.category === activeCategory);
 
-  const gridNews = filteredNews.length > 0 ? filteredNews.slice(1) : [];
+  // Remove duplicates from display - final filter before showing to user
+  const uniqueFilteredNews = filteredNews.filter((item, index, self) => {
+    // More robust duplicate detection
+    const normalizeTitle = (title) => title.toLowerCase().trim().replace(/[^\w\s]/g, '');
+    const normalizeLink = (link) => link.toLowerCase().trim();
+
+    return index === self.findIndex(news => {
+      const isSameTitle = normalizeTitle(news.title) === normalizeTitle(item.title);
+      const isSameLink = normalizeLink(news.link) === normalizeLink(item.link);
+
+      // Consider it a duplicate if either title matches exactly or link matches exactly
+      return isSameTitle || isSameLink;
+    });
+  });
+
+  // Debug logging
+  console.log(`Category: ${activeCategory}, Original: ${filteredNews.length}, After dedup: ${uniqueFilteredNews.length}`);
+
+  const gridNews = uniqueFilteredNews.length > 0 ? uniqueFilteredNews.slice(1) : [];
   return (
     <div className="bg-gradient-to-br from-[#17003A] to-[#370069] min-h-screen pb-16 overflow-x-hidden">
       {/* Animated Background Elements */}
@@ -362,15 +380,15 @@ const NewsPage = () => {
               </div>
             </div>
 
-            {filteredNews.length > 0 && (
+            {uniqueFilteredNews.length > 0 && (
               <div className="neo-card featured-news transform transition-all duration-300 overflow-hidden">
                 <div className="absolute top-4 left-4 z-10">
                   <div className="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full text-xs font-bold tracking-wider shadow-lg">
                     FEATURED
                   </div>
-                  {filteredNews[0].category && (
-                    <div className={`mt-2 px-3 py-1.5 bg-gradient-to-r ${getCategoryColor(filteredNews[0].category)} text-white rounded-full text-xs font-bold tracking-wider shadow-lg`}>
-                      {getCategoryName(filteredNews[0].category).toUpperCase()}
+                  {uniqueFilteredNews[0].category && (
+                    <div className={`mt-2 px-3 py-1.5 bg-gradient-to-r ${getCategoryColor(uniqueFilteredNews[0].category)} text-white rounded-full text-xs font-bold tracking-wider shadow-lg`}>
+                      {getCategoryName(uniqueFilteredNews[0].category).toUpperCase()}
                     </div>
                   )}
                 </div>
@@ -378,8 +396,8 @@ const NewsPage = () => {
                   <div className="w-full lg:w-2/3 overflow-hidden rounded-xl relative group">
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-[1]"></div>
                     <img
-                      src={filteredNews[0].photoUrl || '/placeholder-news.jpg'}
-                      alt={filteredNews[0].title}
+                      src={uniqueFilteredNews[0].photoUrl || '/placeholder-news.jpg'}
+                      alt={uniqueFilteredNews[0].title}
                       className="w-full h-[300px] sm:h-[400px] object-cover rounded-xl group-hover:scale-105 transition-transform duration-700"
                       onError={(e) => {
                         e.target.src = '/placeholder-news.jpg';
@@ -387,23 +405,23 @@ const NewsPage = () => {
                     />
                     <div className="absolute bottom-4 left-4 z-20">
                       <div className="flex items-center text-white/80 text-sm bg-black/50 backdrop-blur-sm px-3 py-1 rounded-full">
-                        <Clock size={14} className="mr-2" /> {getTimeAgo(filteredNews[0].date)}
+                        <Clock size={14} className="mr-2" /> {getTimeAgo(uniqueFilteredNews[0].date)}
                       </div>
                     </div>
                   </div>
                   <div className="w-full lg:w-1/3 mt-6 lg:mt-0">
                     <div className="flex items-center gap-3 mb-4">
                       <span className="text-purple-200 text-sm">
-                        {formatDate(filteredNews[0].date)}
+                        {formatDate(uniqueFilteredNews[0].date)}
                       </span>
                     </div>
                     <h2 className="text-2xl lg:text-3xl font-bold text-white mb-4 hover:text-purple-200 transition-colors">
-                      {filteredNews[0].title}
+                      {uniqueFilteredNews[0].title}
                     </h2>
-                    <p className="text-gray-300 mb-6 line-clamp-4">{filteredNews[0].description}</p>
-                    {filteredNews[0].link && (
+                    <p className="text-gray-300 mb-6 line-clamp-4">{uniqueFilteredNews[0].description}</p>
+                    {uniqueFilteredNews[0].link && (
                       <a
-                        href={filteredNews[0].link}
+                        href={uniqueFilteredNews[0].link}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white py-2 px-5 rounded-full transition-all transform hover:translate-y-[-2px] hover:shadow-lg"
@@ -421,12 +439,12 @@ const NewsPage = () => {
               <div className="flex justify-between items-center mb-8">
                 <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-200 to-pink-200">Latest Updates</h2>
                 <div className="px-3 py-1 rounded-full bg-white/5 text-purple-200 text-sm backdrop-blur-sm border border-white/10">
-                  {filteredNews.length} stories
+                  {uniqueFilteredNews.length} stories
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                {filteredNews.slice(1).map((item, index) => (
+                {uniqueFilteredNews.slice(1).map((item, index) => (
                   <div
                     key={`${item.link}-${item.title}-${index}`}
                     className="group neo-card transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-purple-500/10 relative"
