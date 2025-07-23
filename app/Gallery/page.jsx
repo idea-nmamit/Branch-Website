@@ -634,12 +634,6 @@ export default function GalleryPage() {
                     onLoad={() => handleImageLoad(`gallery-${image.id}`, false)}
                   />
                   
-                  {image.searchScore !== undefined && (
-                    <div className="absolute top-2 right-2 bg-black/70 backdrop-blur-sm rounded-full px-2 py-1 text-xs text-white">
-                      {Math.round((1 - image.searchScore) * 100)}% match
-                    </div>
-                  )}
-                  
                   <div className="absolute inset-0 bg-gradient-to-t from-[#17003A]/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
                     <h3 className="text-white font-medium truncate">{image.title}</h3>
                     <p className="text-xs text-purple-300">{formatCategoryName(image.category)}</p>

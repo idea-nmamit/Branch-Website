@@ -86,14 +86,6 @@ const Card = ({ name, imageUrl, role, linkedinUrl, quote, githubUrl, instagramUr
                 <span className="text-cyan-300 font-mono text-[10px] sm:text-xs uppercase tracking-wider block">
                   Developer
                 </span>
-                <div className="flex items-center space-x-1 mt-1">
-                  <motion.div
-                    className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-400 rounded-full"
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  />
-                  <span className="text-green-400 font-mono text-[10px] sm:text-xs">Online</span>
-                </div>
               </div>
             </div>
               {/* Social links - moved to top right */}
