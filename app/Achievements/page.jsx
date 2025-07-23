@@ -31,10 +31,20 @@ const Page = () => {
       try {
         const response = await fetch('/api/achievements');
         const data = await response.json();
-        setAchievements(data);
+        
+        const sortedData = data.map(achievement => ({
+          ...achievement,
+          members: achievement.members ? achievement.members.sort((a, b) => {
+            if (a.role === 'Team Lead' && b.role !== 'Team Lead') return -1;
+            if (a.role !== 'Team Lead' && b.role === 'Team Lead') return 1;
+            return 0;
+          }) : []
+        }));
+        
+        setAchievements(sortedData);
         
         const initialIndexes = {};
-        data.forEach(achievement => {
+        sortedData.forEach(achievement => {
           initialIndexes[achievement.id] = 0;
         });
         setCurrentMemberIndex(initialIndexes);
@@ -348,7 +358,7 @@ const Page = () => {
                               <div className="flex items-center gap-4 mb-4">
                                 <div className="relative">
                                   <img 
-                                    src={getDefaultAvatar(currentMember.name, currentMemberIndex[achievement.id] || 0)} 
+                                    src={currentMember.photoUrl || getDefaultAvatar(currentMember.name, currentMemberIndex[achievement.id] || 0)} 
                                     alt={currentMember.name}
                                     className="w-14 h-14 rounded-full object-cover border-2 border-white/40 shadow-xl"
                                   />
