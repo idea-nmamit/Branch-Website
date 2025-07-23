@@ -62,7 +62,7 @@ const Card = ({ name, imageUrl, designation, linkedin, github, instagram, portfo
               transition={{ type: "spring", stiffness: 400, damping: 25 }}
             >
               {/* Image container with elegant border */}
-              <div className="relative w-24 h-24">
+              <div className="relative w-32 h-32 sm:w-28 sm:h-28 md:w-24 md:h-24">
                 {/* Animated border ring */}
                 <motion.div
                   className="absolute -inset-2 rounded-full"

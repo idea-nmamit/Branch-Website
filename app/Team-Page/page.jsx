@@ -130,7 +130,7 @@ const Page = () => {
             </div>
           </div>{/* Profile section skeleton */}
           <div className="flex flex-col items-center mb-4 sm:mb-6">
-            <Skeleton className="w-24 h-24 sm:w-32 sm:h-32 rounded-xl mb-3 sm:mb-4" />
+            <Skeleton className="w-32 h-32 sm:w-36 sm:h-36 md:w-32 md:h-32 rounded-xl mb-3 sm:mb-4" />
             <div className="text-center">
               <Skeleton className="h-4 w-28 sm:h-5 sm:w-32 mb-1 mx-auto" />
               <Skeleton className="h-3 w-20 sm:h-4 sm:w-24 mx-auto" />

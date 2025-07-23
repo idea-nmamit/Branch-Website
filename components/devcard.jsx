@@ -128,7 +128,7 @@ const Card = ({ name, imageUrl, role, linkedinUrl, quote, githubUrl, instagramUr
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl overflow-hidden border-2 border-cyan-400/60 relative bg-gradient-to-br from-cyan-400/10 to-cyan-600/10">                {/* Enhanced scan line effect */}
+              <div className="w-32 h-32 sm:w-36 sm:h-36 md:w-32 md:h-32 rounded-2xl overflow-hidden border-2 border-cyan-400/60 relative bg-gradient-to-br from-cyan-400/10 to-cyan-600/10">                {/* Enhanced scan line effect */}
                 <motion.div
                   className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-400/30 to-transparent h-full"
                   animate={{ y: [-96, 96] }}
