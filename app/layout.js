@@ -3,7 +3,6 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Toaster } from '@/components/ui/sonner';
-import PageLoader from '@/components/PageLoader';
 import SSRLoader from '@/components/SSRLoader';
 import React, { useState } from 'react';
 
@@ -38,12 +37,12 @@ export default function RootLayout({ children }) {
         {!hydrated ? (
           <SSRLoader />
         ) : (
-          <PageLoader>
+          <>
             <Navbar />
             <main>{children}</main>
             <Footer />
             <Toaster />
-          </PageLoader>
+          </>
         )}
       </body>
     </html>
