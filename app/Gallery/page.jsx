@@ -47,14 +47,15 @@ export default function GalleryPage() {
       { name: 'description', weight: 0.3 },
       { name: 'category', weight: 0.3 }
     ],
-    threshold: 0.4,
-    distance: 100,
+    threshold: 0.6,
+    distance: 150,
     includeScore: true,
     includeMatches: true,
     minMatchCharLength: 2,
     shouldSort: true,
     ignoreLocation: true,
-    findAllMatches: false
+    findAllMatches: true,
+    useExtendedSearch: true
   }), []);
 
   const fuse = useMemo(() => {
@@ -75,8 +76,7 @@ export default function GalleryPage() {
   }, []);
 
   const categoryImagesRef = useRef({});
-  
-  // Update ref whenever categoryImages changes
+
   useEffect(() => {
     categoryImagesRef.current = categoryImages;
   }, [categoryImages]);
@@ -366,7 +366,7 @@ export default function GalleryPage() {
         const results = fuse.search(searchTerm.trim());
 
         const searchResults = results
-          .filter(result => result.score <= 0.6)
+          .filter(result => result.score <= 0.8)
           .map(result => ({
             ...result.item,
             searchScore: result.score,
@@ -405,7 +405,7 @@ export default function GalleryPage() {
         const results = fuse.search(searchTerm.trim());
         
         const searchResults = results
-          .filter(result => result.score <= 0.6)
+          .filter(result => result.score <= 0.8)
           .map(result => ({
             ...result.item,
             searchScore: result.score,

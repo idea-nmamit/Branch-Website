@@ -150,3 +150,9 @@ model Gallery {
   category    GalleryCategory
   carousel    Boolean
 }
+
+model Settings {
+  id              Int      @id @default(autoincrement())
+  maintenanceMode Boolean  @default(false)
+  updatedAt       DateTime @default(now()) @updatedAt
+}
