@@ -17,6 +17,16 @@ const aiDataQuotes = [
   "Data science turns information into transformation."
 ];
 
+// Generate static star field outside the component for SSR/CSR match
+const staticStars = Array.from({ length: 80 }).map((_, i) => ({
+  left: Math.random() * 100 + '%',
+  top: Math.random() * 100 + '%',
+  width: Math.random() * 2 + 1 + 'px',
+  height: Math.random() * 2 + 1 + 'px',
+  delay: Math.random() * 2,
+  duration: 2 + Math.random() * 3,
+}));
+
 const PageLoader = ({ children, finishLoading }) => {
   const [loading, setLoading] = useState(true);
   const [quote, setQuote] = useState('');
@@ -590,26 +600,26 @@ const PageLoader = ({ children, finishLoading }) => {
             
             {/* Particle background effect */}
             <div className="absolute inset-0 opacity-20">
-              {/* Dynamic star field effect instead of grid */}
-              {Array.from({ length: 80 }).map((_, i) => (
+              {/* Static star field for SSR/CSR match */}
+              {staticStars.map((star, i) => (
                 <motion.div
                   key={i}
                   className="absolute rounded-full bg-white"
                   style={{
-                    width: Math.random() * 2 + 1 + 'px',
-                    height: Math.random() * 2 + 1 + 'px',
-                    left: Math.random() * 100 + '%',
-                    top: Math.random() * 100 + '%'
+                    width: star.width,
+                    height: star.height,
+                    left: star.left,
+                    top: star.top
                   }}
                   animate={{
                     opacity: [0.1, 0.8, 0.1],
                     scale: [1, 1.2, 1]
                   }}
                   transition={{
-                    duration: 2 + Math.random() * 3,
+                    duration: star.duration,
                     repeat: Infinity,
                     ease: "easeInOut",
-                    delay: Math.random() * 2
+                    delay: star.delay
                   }}
                 />
               ))}
@@ -625,18 +635,16 @@ const PageLoader = ({ children, finishLoading }) => {
               {/* Logo animation with enhanced glow effect */}
               <motion.div 
                 className="relative w-52 h-20 sm:w-64 sm:h-24 md:w-96 md:h-40 mb-8"
+                style={{ willChange: 'opacity, transform' }}
+                initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ 
-                  scale: [1, 1.05, 1],
-                  filter: [
-                    'drop-shadow(0 0 8px rgba(236, 72, 153, 0.3))',
-                    'drop-shadow(0 0 15px rgba(236, 72, 153, 0.5))',
-                    'drop-shadow(0 0 8px rgba(236, 72, 153, 0.3))'
-                  ]
+                  opacity: 1, 
+                  scale: [1, 1.04, 1],
                 }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut"
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={{ 
+                  opacity: { duration: 2.8, ease: [0.22, 1, 0.36, 1] },
+                  scale: { duration: 3.5, repeat: Infinity, ease: 'easeInOut' }
                 }}
               >
                 <Image
