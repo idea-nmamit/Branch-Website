@@ -47,15 +47,23 @@ export default function GalleryPage() {
       { name: 'description', weight: 0.3 },
       { name: 'category', weight: 0.3 }
     ],
-    threshold: 0.6,
-    distance: 150,
+    threshold: 0.8,
+    distance: 300,
     includeScore: true,
     includeMatches: true,
-    minMatchCharLength: 2,
+    minMatchCharLength: 1,
     shouldSort: true,
     ignoreLocation: true,
     findAllMatches: true,
-    useExtendedSearch: true
+    useExtendedSearch: true,
+    ignoreFieldNorm: true,
+    getFn: (obj, path) => {
+      const value = Fuse.config.getFn(obj, path);
+      if (typeof value === 'string') {
+        return value + ' ' + value.split(/\s+/).join(' ');
+      }
+      return value;
+    }
   }), []);
 
   const fuse = useMemo(() => {
@@ -366,7 +374,7 @@ export default function GalleryPage() {
         const results = fuse.search(searchTerm.trim());
 
         const searchResults = results
-          .filter(result => result.score <= 0.8)
+          .filter(result => result.score <= 0.9)
           .map(result => ({
             ...result.item,
             searchScore: result.score,
@@ -405,7 +413,7 @@ export default function GalleryPage() {
         const results = fuse.search(searchTerm.trim());
         
         const searchResults = results
-          .filter(result => result.score <= 0.8)
+          .filter(result => result.score <= 0.9)
           .map(result => ({
             ...result.item,
             searchScore: result.score,

@@ -32,18 +32,67 @@ export async function GET(request) {
         let result;
         // Case 0: Search for images by title or description
         if (search) {
-            const searchResults = await prisma.gallery.findMany({
-                where: {
-                    OR: [
-                        { title: { contains: search, mode: 'insensitive' } },
-                        { description: { contains: search, mode: 'insensitive' } }
-                    ]
-                },
-                orderBy: { id: 'desc' },
-            });
+            // Split search query into individual words for better fuzzy matching
+            const searchWords = search.trim().split(/\s+/).filter(word => word.length > 0);
             
-            console.log(`Found ${searchResults.length} images matching search: "${search}"`);
-            result = searchResults;
+            if (searchWords.length === 0) {
+                result = [];
+            } else if (searchWords.length === 1) {
+                // Single word search - use the original logic
+                const searchResults = await prisma.gallery.findMany({
+                    where: {
+                        OR: [
+                            { title: { contains: searchWords[0], mode: 'insensitive' } },
+                            { description: { contains: searchWords[0], mode: 'insensitive' } }
+                        ]
+                    },
+                    orderBy: { id: 'desc' },
+                });
+                result = searchResults;
+            } else {
+                // Multiple words search - find items that match ANY of the words
+                const searchConditions = searchWords.map(word => ({
+                    OR: [
+                        { title: { contains: word, mode: 'insensitive' } },
+                        { description: { contains: word, mode: 'insensitive' } }
+                    ]
+                }));
+
+                const searchResults = await prisma.gallery.findMany({
+                    where: {
+                        OR: searchConditions
+                    },
+                    orderBy: { id: 'desc' },
+                });
+
+                // Score results based on how many words match
+                const scoredResults = searchResults.map(item => {
+                    let score = 0;
+                    const titleLower = item.title.toLowerCase();
+                    const descLower = item.description.toLowerCase();
+                    
+                    searchWords.forEach(word => {
+                        const wordLower = word.toLowerCase();
+                        if (titleLower.includes(wordLower)) score += 2; // Title matches worth more
+                        if (descLower.includes(wordLower)) score += 1;
+                    });
+                    
+                    return { ...item, searchScore: score };
+                });
+
+                // Sort by score (highest first), then by id (most recent first)
+                scoredResults.sort((a, b) => {
+                    if (b.searchScore !== a.searchScore) {
+                        return b.searchScore - a.searchScore;
+                    }
+                    return b.id - a.id;
+                });
+
+                // Remove the searchScore property before returning
+                result = scoredResults.map(({ searchScore, ...item }) => item);
+            }
+            
+            console.log(`Found ${result.length} images matching search: "${search}" (${searchWords.length} words)`);
         } 
         // Case 1: Fetch all images for the full gallery display
         else if (all === 'true') {
