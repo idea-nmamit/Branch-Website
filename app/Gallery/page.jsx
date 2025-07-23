@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { X, ChevronDown, ChevronLeft, ChevronRight, Search, Download, Share2, Maximize } from "lucide-react";
+import Fuse from "fuse.js";
 
 const categories = [
   "TECHNICAL", "CULTURAL", "SPORTS", "ACADEMIC",
@@ -27,6 +28,7 @@ export default function GalleryPage() {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
+  const [allImages, setAllImages] = useState([]);
   const searchInputRef = useRef(null);
   const [downloading, setDownloading] = useState(false);
   const [loadedImages, setLoadedImages] = useState({});
@@ -46,20 +48,42 @@ export default function GalleryPage() {
   const tapTimeoutRef = useRef(null);
   const tapCountRef = useRef(0);
 
-  const handleImageLoad = (imageId) => {
-    setLoadedImages(prev => ({ ...prev, [imageId]: true }));
+  const fuseOptions = useMemo(() => ({
+    keys: [
+      { name: 'title', weight: 0.4 },
+      { name: 'description', weight: 0.3 },
+      { name: 'category', weight: 0.3 }
+    ],
+    threshold: 0.4,
+    distance: 100,
+    includeScore: true,
+    includeMatches: true,
+    minMatchCharLength: 2,
+    shouldSort: true,
+    ignoreLocation: true,
+    findAllMatches: false
+  }), []);
+
+  const fuse = useMemo(() => {
+    if (allImages.length > 0) {
+      return new Fuse(allImages, fuseOptions);
+    }
+    return null;
+  }, [allImages, fuseOptions]);
+
+  const handleImageLoad = (imageId, isCarousel = false) => {
+    const key = isCarousel ? `carousel-${imageId}` : imageId;
+    setLoadedImages(prev => {
+      if (!prev[key]) {
+        return { ...prev, [key]: true };
+      }
+      return prev;
+    });
   };
 
   useEffect(() => {
+    // Only initialize load states once at the beginning
     const initialLoadStates = {};
-    for (let i = 0; i < 5; i++) {
-      initialLoadStates[`placeholder-carousel-${i}`] = false;
-    }
-    categories.forEach(category => {
-      for (let i = 0; i < 8; i++) {
-        initialLoadStates[`placeholder-${category}-${i}`] = false;
-      }
-    });
     setLoadedImages(initialLoadStates);
     setPlaceholderLoaded(true);
   }, []);
@@ -67,18 +91,29 @@ export default function GalleryPage() {
   useEffect(() => {
     if (!placeholderLoaded || fetchedRef.current) return;
     
+    const cachedData = localStorage.getItem('gallery-carousel-images');
+    const cacheTimestamp = localStorage.getItem('gallery-carousel-cache-timestamp');
+    const cacheExpiry = 10 * 60 * 1000;
+    
+    if (cachedData && cacheTimestamp && (Date.now() - parseInt(cacheTimestamp)) < cacheExpiry) {
+      try {
+        const data = JSON.parse(cachedData);
+        processCarouselData(data);
+        return;
+      } catch (error) {
+        console.error("Error parsing cached carousel data:", error);
+        localStorage.removeItem('gallery-carousel-images');
+        localStorage.removeItem('gallery-carousel-cache-timestamp');
+      }
+    }
+    
     fetch("/api/gallery")
       .then(res => res.json())
       .then(data => {
-        const updatedLoadStates = { ...loadedImages };
-        data.forEach(image => {
-          updatedLoadStates[image.id] = false;
-          updatedLoadStates[`modal-${image.id}`] = false;
-        });
+        localStorage.setItem('gallery-carousel-images', JSON.stringify(data));
+        localStorage.setItem('gallery-carousel-cache-timestamp', Date.now().toString());
         
-        setLoadedImages(updatedLoadStates);
-        setCarouselImages(data);
-        setCarouselLoading(false);
+        processCarouselData(data);
       })
       .catch(err => {
         console.error("Error fetching carousel images:", err);
@@ -86,10 +121,41 @@ export default function GalleryPage() {
       });
   }, [placeholderLoaded]);
 
+  const processCarouselData = (data) => {
+    setLoadedImages(prev => {
+      const newStates = { ...prev };
+      data.forEach(image => {
+        if (!newStates.hasOwnProperty(`carousel-${image.id}`)) {
+          newStates[`carousel-${image.id}`] = false;
+        }
+      });
+      return newStates;
+    });
+    
+    setCarouselImages(data);
+    setCarouselLoading(false);
+  };
+
   useEffect(() => {
     if (!placeholderLoaded || fetchedRef.current) return;
     
     fetchedRef.current = true;
+    
+    const cachedData = localStorage.getItem('gallery-all-images');
+    const cacheTimestamp = localStorage.getItem('gallery-cache-timestamp');
+    const cacheExpiry = 10 * 60 * 1000;
+    
+    if (cachedData && cacheTimestamp && (Date.now() - parseInt(cacheTimestamp)) < cacheExpiry) {
+      try {
+        const data = JSON.parse(cachedData);
+        processGalleryData(data);
+        return;
+      } catch (error) {
+        console.error("Error parsing cached data:", error);
+        localStorage.removeItem('gallery-all-images');
+        localStorage.removeItem('gallery-cache-timestamp');
+      }
+    }
     
     const initialCategories = {};
     categories.forEach(cat => {
@@ -99,25 +165,10 @@ export default function GalleryPage() {
     fetch("/api/gallery?all=true")
       .then(res => res.json())
       .then(data => {
-        const groupedImages = {...initialCategories};
+        localStorage.setItem('gallery-all-images', JSON.stringify(data));
+        localStorage.setItem('gallery-cache-timestamp', Date.now().toString());
         
-        groupedImages["ALL_IMAGES"] = [...data];
-        
-        data.forEach(image => {
-          if (image.category && groupedImages.hasOwnProperty(image.category)) {
-            groupedImages[image.category].push(image);
-          }
-        });
-        
-        const updatedLoadStates = { ...loadedImages };
-        data.forEach(image => {
-          updatedLoadStates[image.id] = false;
-          updatedLoadStates[`modal-${image.id}`] = false;
-        });
-        
-        setLoadedImages(updatedLoadStates);
-        setCategoryImages(groupedImages);
-        setGalleryLoading(false);
+        processGalleryData(data);
       })
       .catch(err => {
         console.error("Error fetching all images:", err);
@@ -125,6 +176,38 @@ export default function GalleryPage() {
         fetchedRef.current = false;
       });
   }, [placeholderLoaded]);
+
+  const processGalleryData = (data) => {
+    const initialCategories = {};
+    categories.forEach(cat => {
+      initialCategories[cat] = [];
+    });
+    
+    const groupedImages = {...initialCategories};
+    
+    groupedImages["ALL_IMAGES"] = [...data];
+    
+    data.forEach(image => {
+      if (image.category && groupedImages.hasOwnProperty(image.category)) {
+        groupedImages[image.category].push(image);
+      }
+    });
+    
+    setLoadedImages(prev => {
+      const newStates = { ...prev };
+      data.forEach(image => {
+        if (!newStates.hasOwnProperty(`gallery-${image.id}`)) {
+          newStates[`gallery-${image.id}`] = false;
+          newStates[`modal-${image.id}`] = false;
+        }
+      });
+      return newStates;
+    });
+    
+    setCategoryImages(groupedImages);
+    setAllImages(data);
+    setGalleryLoading(false);
+  };
 
   useEffect(() => {
     if (carouselLoading || carouselImages.length === 0 || isCarouselTransitioning) return;
@@ -212,6 +295,13 @@ export default function GalleryPage() {
     
     return () => window.removeEventListener('resize', checkIsMobile);
   }, []);
+
+  const clearCache = () => {
+    localStorage.removeItem('gallery-all-images');
+    localStorage.removeItem('gallery-cache-timestamp');
+    localStorage.removeItem('gallery-carousel-images');
+    localStorage.removeItem('gallery-carousel-cache-timestamp');
+  };
 
   const formatCategoryName = (category) => {
     return category.replace(/_/g, ' ')
@@ -352,6 +442,7 @@ export default function GalleryPage() {
     
     if (!searchTerm.trim()) {
       setShowSearchResults(false);
+      setSearchResults([]);
       return;
     }
     
@@ -359,11 +450,26 @@ export default function GalleryPage() {
     setShowSearchResults(true);
     
     try {
-      const response = await fetch(`/api/gallery?search=${encodeURIComponent(searchTerm.trim())}`);
-      if (!response.ok) throw new Error('Search request failed');
-      
-      const data = await response.json();
-      setSearchResults(data);
+      if (fuse && allImages.length > 0) {
+        const results = fuse.search(searchTerm.trim());
+
+        const searchResults = results
+          .filter(result => result.score <= 0.6)
+          .map(result => ({
+            ...result.item,
+            searchScore: result.score,
+            matches: result.matches
+          }))
+          .sort((a, b) => a.searchScore - b.searchScore);
+        
+        setSearchResults(searchResults);
+      } else {
+        const response = await fetch(`/api/gallery?search=${encodeURIComponent(searchTerm.trim())}`);
+        if (!response.ok) throw new Error('Search request failed');
+        
+        const data = await response.json();
+        setSearchResults(data);
+      }
     } catch (error) {
       console.error("Error searching images:", error);
       setSearchResults([]);
@@ -371,6 +477,37 @@ export default function GalleryPage() {
       setIsSearching(false);
     }
   };
+
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setSearchResults([]);
+      setShowSearchResults(false);
+      return;
+    }
+
+    if (fuse && allImages.length > 0) {
+      const debounceTimer = setTimeout(() => {
+        setIsSearching(true);
+        setShowSearchResults(true);
+
+        const results = fuse.search(searchTerm.trim());
+        
+        const searchResults = results
+          .filter(result => result.score <= 0.6)
+          .map(result => ({
+            ...result.item,
+            searchScore: result.score,
+            matches: result.matches
+          }))
+          .sort((a, b) => a.searchScore - b.searchScore);
+        
+        setSearchResults(searchResults);
+        setIsSearching(false);
+      }, 300);
+
+      return () => clearTimeout(debounceTimer);
+    }
+  }, [searchTerm, fuse, allImages]);
 
   const clearSearch = () => {
     setSearchTerm("");
@@ -432,6 +569,24 @@ export default function GalleryPage() {
   const GalleryImage = React.memo(({ image, onClick }) => {
     const [isLoaded, setIsLoaded] = useState(false);
     const [hasError, setHasError] = useState(false);
+    const imageKey = `gallery-${image.id}`;
+    
+    // Check if the image is already loaded in the global state
+    React.useEffect(() => {
+      if (loadedImages[imageKey]) {
+        setIsLoaded(true);
+      }
+    }, [loadedImages, imageKey]);
+    
+    const handleLocalImageLoad = React.useCallback(() => {
+      setIsLoaded(true);
+      handleImageLoad(`gallery-${image.id}`, false);
+    }, [image.id]);
+    
+    const handleImageError = React.useCallback(() => {
+      setHasError(true);
+      setIsLoaded(false);
+    }, []);
     
     return (
       <motion.div 
@@ -461,11 +616,8 @@ export default function GalleryPage() {
             alt={image.title} 
             fill
             className={`object-cover transition-opacity duration-700 ${!isLoaded ? 'opacity-0' : 'opacity-100'}`}
-            onLoad={() => setIsLoaded(true)}
-            onError={() => {
-              setHasError(true);
-              setIsLoaded(false);
-            }}
+            onLoad={handleLocalImageLoad}
+            onError={handleImageError}
             loading="lazy"
             sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
             quality={75}
@@ -492,14 +644,39 @@ export default function GalleryPage() {
           </motion.p>
         </motion.div>
         
-        {/* Subtle border on hover */}
         <motion.div
           className="absolute inset-0 rounded-xl border-2 border-purple-400/0 group-hover:border-purple-400/30 transition-all duration-300"
           initial={false}
         />
       </motion.div>
     );
+  }, (prevProps, nextProps) => {
+    // Custom comparison function to prevent unnecessary re-renders
+    return (
+      prevProps.image.id === nextProps.image.id &&
+      prevProps.image.photoUrl === nextProps.image.photoUrl &&
+      prevProps.image.title === nextProps.image.title &&
+      prevProps.image.description === nextProps.image.description
+    );
   });
+
+  const highlightText = (text, matches) => {
+    if (!matches || matches.length === 0) return text;
+    
+    let highlightedText = text;
+    matches.forEach(match => {
+      if (match.indices && match.indices.length > 0) {
+        match.indices.forEach(([start, end]) => {
+          const before = text.substring(0, start);
+          const matched = text.substring(start, end + 1);
+          const after = text.substring(end + 1);
+          highlightedText = before + `<mark class="bg-yellow-400 text-black px-1 rounded">${matched}</mark>` + after;
+        });
+      }
+    });
+    
+    return highlightedText;
+  };
 
   return (
     <div className="w-full min-h-screen px-4 sm:px-6 md:px-8 py-6 sm:py-8 md:py-12 bg-gradient-to-br from-[#17003A] to-[#370069] text-white">
@@ -514,31 +691,33 @@ export default function GalleryPage() {
         </motion.h1>
         
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <form onSubmit={handleSearch} className="relative w-full sm:w-96">
-            <input
-              ref={searchInputRef}
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search images..."
-              className="w-full bg-[#17003A]/30 backdrop-blur-sm border border-[#8617C0]/50 rounded-full py-2.5 px-5 pr-10 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#8617C0] focus:border-transparent transition-all duration-200"
-            />
-            {searchTerm && (
+          <div className="relative w-full sm:w-96">
+            <form onSubmit={handleSearch} className="relative">
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search images..."
+                className="w-full bg-[#17003A]/30 backdrop-blur-sm border border-[#8617C0]/50 rounded-full py-2.5 px-5 pr-10 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#8617C0] focus:border-transparent transition-all duration-200"
+              />
+              {searchTerm && (
+                <button 
+                  type="button"
+                  onClick={clearSearch}
+                  className="absolute right-10 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
               <button 
-                type="button"
-                onClick={clearSearch}
-                className="absolute right-10 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                type="submit" 
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-purple-600 hover:bg-purple-700 text-white p-1.5 rounded-full transition-colors"
               >
-                <X className="w-4 h-4" />
+                <Search className="w-4 h-4" />
               </button>
-            )}
-            <button 
-              type="submit" 
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-purple-600 hover:bg-purple-700 text-white p-1.5 rounded-full transition-colors"
-            >
-              <Search className="w-4 h-4" />
-            </button>
-          </form>
+            </form>
+          </div>
 
           <div className="relative">
             <button
@@ -557,7 +736,9 @@ export default function GalleryPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
               >
-                {categories.map((category) => (
+                {categories
+                  .filter(category => category === "ALL_IMAGES" || categoryImages[category]?.length > 0)
+                  .map((category) => (
                   <button
                     key={category}
                     className="block w-full text-left px-4 py-2.5 text-sm hover:bg-[#8617C0]/20 transition-colors border-b border-[#8617C0]/10 last:border-b-0"
@@ -579,9 +760,16 @@ export default function GalleryPage() {
           animate={{ opacity: 1 }}
         >
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl sm:text-2xl font-bold text-purple-300">
-              Search Results for "{searchTerm}"
-            </h2>
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold text-purple-300">
+                Search Results for "{searchTerm}"
+              </h2>
+              {searchResults.length > 0 && !isSearching && (
+                <p className="text-sm text-purple-400 mt-1">
+                  Found {searchResults.length} result{searchResults.length !== 1 ? 's' : ''}
+                </p>
+              )}
+            </div>
             <button 
               onClick={clearSearch}
               className="flex items-center gap-1 text-sm bg-[#8617C0] hover:bg-[#370069] text-white py-1.5 px-3 rounded-full transition-colors"
@@ -598,17 +786,17 @@ export default function GalleryPage() {
             </div>
           ) : searchResults.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
-              {searchResults.map((image) => (
+              {searchResults.map((image, index) => (
                 <motion.div 
                   key={image.id} 
                   className="relative aspect-square cursor-pointer rounded-xl overflow-hidden group border border-[#8617C0]/20 hover:border-[#8617C0]/60 transition-all duration-300"
                   onClick={() => openImageModal(image)}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
                   whileHover={{ scale: 1.03 }}
                 >
-                  {!loadedImages[image.id] && (
+                  {!loadedImages[`gallery-${image.id}`] && (
                     <div className="absolute inset-0 bg-gradient-to-br from-[#8617C0] to-[#370069] animate-pulse rounded-xl" />
                   )}
                   
@@ -616,13 +804,26 @@ export default function GalleryPage() {
                     src={image.photoUrl} 
                     alt={image.title} 
                     fill
-                    className={`object-cover transition-opacity duration-300 ${!loadedImages[image.id] ? 'opacity-0' : 'opacity-100'}`}
-                    onLoadingComplete={() => handleImageLoad(image.id)}
+                    className={`object-cover transition-opacity duration-300 ${!loadedImages[`gallery-${image.id}`] ? 'opacity-0' : 'opacity-100'}`}
+                    onLoad={() => handleImageLoad(`gallery-${image.id}`, false)}
                   />
                   
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#17003A]/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+                  {image.searchScore !== undefined && (
+                    <div className="absolute top-2 right-2 bg-black/70 backdrop-blur-sm rounded-full px-2 py-1 text-xs text-white">
+                      {Math.round((1 - image.searchScore) * 100)}% match
+                    </div>
+                  )}
+                  
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#17003A]/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
                     <h3 className="text-white font-medium truncate">{image.title}</h3>
                     <p className="text-xs text-purple-300">{formatCategoryName(image.category)}</p>
+                    {image.matches && image.matches.length > 0 && (
+                      <div className="mt-1">
+                        <p className="text-xs text-green-400">
+                          Matched: {image.matches.map(match => match.key).join(', ')}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               ))}
@@ -632,7 +833,7 @@ export default function GalleryPage() {
               <div className="inline-block p-4 bg-[#8617C0]/20 rounded-full mb-4">
                 <Search className="w-8 h-8 text-purple-400" />
               </div>
-              <p className="text-lg text-purple-200">No images found matching your search</p>
+              <p className="text-lg text-purple-200 mb-2">No images found matching your search</p>
             </div>
           )}
         </motion.div>
@@ -667,7 +868,7 @@ export default function GalleryPage() {
                     const adjustedIndex = (currentCarouselIndex + index - 1 + carouselImages.length) % carouselImages.length;
                     const displayImage = carouselImages[adjustedIndex];
                     const isCenter = index === 1;
-                    const imageKey = `${displayImage.id}-${currentCarouselIndex}-${index}`;
+                    const imageKey = `carousel-${displayImage.id}`;
                     
                     return (
                       <motion.div
@@ -700,7 +901,7 @@ export default function GalleryPage() {
                         }}
                         whileTap={{ scale: isCenter ? 0.98 : 0.82 }}
                       >
-                        {!loadedImages[displayImage.id] && (
+                        {!loadedImages[`carousel-${displayImage.id}`] && (
                           <div className="absolute inset-0 bg-gradient-to-br from-purple-900/60 to-pink-900/60 animate-pulse rounded-xl backdrop-blur-sm" />
                         )}
                         
@@ -708,8 +909,8 @@ export default function GalleryPage() {
                           src={displayImage.photoUrl}
                           alt={displayImage.title}
                           fill
-                          className={`object-cover transition-opacity duration-1000 ${!loadedImages[displayImage.id] ? 'opacity-0' : 'opacity-100'}`}
-                          onLoadingComplete={() => handleImageLoad(displayImage.id)}
+                          className={`object-cover transition-opacity duration-1000 ${!loadedImages[`carousel-${displayImage.id}`] ? 'opacity-0' : 'opacity-100'}`}
+                          onLoad={() => handleImageLoad(displayImage.id, true)}
                           sizes={isCenter ? "450px" : "300px"}
                           priority={isCenter}
                           quality={isCenter ? 90 : 75}
@@ -756,7 +957,6 @@ export default function GalleryPage() {
                   })}
                 </div>
                 
-                {/* Navigation buttons - Hidden on mobile until interaction */}
                 <AnimatePresence>
                   {(showNavButtons || !isMobile) && (
                     <>
@@ -811,7 +1011,6 @@ export default function GalleryPage() {
                   )}
                 </AnimatePresence>
 
-                {/* Mobile double-tap hint - Only show once per minute */}
                 <AnimatePresence>
                   {showMobileHint && isMobile && (
                     <motion.div
@@ -893,7 +1092,9 @@ export default function GalleryPage() {
                 ))}
               </div>
             ) : (
-              categories.map((category, categoryIndex) => (
+              categories
+                .filter(category => categoryImages[category]?.length > 0)
+                .map((category, categoryIndex) => (
                 <motion.section 
                   key={category} 
                   id={category.toLowerCase()}
@@ -932,41 +1133,29 @@ export default function GalleryPage() {
                     )}
                   </div>
                   
-                  {categoryImages[category]?.length > 0 ? (
-                    <motion.div 
-                      className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6"
-                      initial={{ opacity: 0 }}
-                      whileInView={{ opacity: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.3, duration: 0.5 }}
-                    >
-                      {categoryImages[category].slice(0, 8).map((image, imageIndex) => (
-                        <motion.div
-                          key={image.id}
-                          initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                          whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                          viewport={{ once: true, margin: "-20px" }}
-                          transition={{ 
-                            delay: imageIndex * 0.03,
-                            duration: 0.4,
-                            ease: "easeOut"
-                          }}
-                        >
-                          <GalleryImage image={image} onClick={openImageModal} />
-                        </motion.div>
-                      ))}
-                    </motion.div>
-                  ) : (
-                    <motion.div 
-                      className="py-12 text-center bg-[#8617C0]/10 rounded-xl border border-[#8617C0]/20 backdrop-blur-sm"
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.3, duration: 0.4 }}
-                    >
-                      <p className="text-purple-300">No images available in this category</p>
-                    </motion.div>
-                  )}
+                  <motion.div 
+                    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6"
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.3, duration: 0.5 }}
+                  >
+                    {categoryImages[category].slice(0, 8).map((image, imageIndex) => (
+                      <motion.div
+                        key={image.id}
+                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-20px" }}
+                        transition={{ 
+                          delay: imageIndex * 0.03,
+                          duration: 0.4,
+                          ease: "easeOut"
+                        }}
+                      >
+                        <GalleryImage image={image} onClick={openImageModal} />
+                      </motion.div>
+                    ))}
+                  </motion.div>
                 </motion.section>
               ))
             )}
