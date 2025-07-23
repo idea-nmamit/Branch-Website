@@ -2,6 +2,34 @@
 
 @plugin "tailwindcss-animate";
 
+.will-change-transform {
+  will-change: transform;
+}
+
+.carousel-container {
+  contain: layout style paint;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.gallery-grid {
+  contain: layout style;
+}
+
+.gallery-image {
+  contain: layout style paint;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.carousel-transition {
+  transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.aspect-square {
+  aspect-ratio: 1 / 1;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
