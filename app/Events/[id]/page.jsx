@@ -149,7 +149,7 @@ export default function EventPage() {
       {/* Mobile Layout */}
       <div className="lg:hidden">
         {/* Mobile Header */}
-        <div className="w-full bg-white/8 backdrop-blur-xl border-b border-white/10 p-4 sticky top-0 z-50">
+        <div className="w-full bg-white/8 backdrop-blur-xl border-b border-white/10 p-4 sticky top-0 z-40">
           <h1 className="text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#E0AFFF] to-[#FFC0CB] text-center mb-3 leading-tight px-2">
             {event.name}
           </h1>
