@@ -7,12 +7,14 @@ import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 
+
 const Page = () => {
-  const [selectedCategory, setSelectedCategory] = useState('Upcoming');
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [upcoming, setUpcoming] = useState(true);
-  const [complete, setComplete] = useState(false);
+  const [upcoming, setUpcoming] = useState(null);
+  const [complete, setComplete] = useState(null);
+
 
   useEffect(() => {
     setLoading(true);
@@ -20,6 +22,20 @@ const Page = () => {
       .then((res) => res.json())
       .then((data) => {
         setEvents(data);
+        
+        const today = new Date().toISOString().split("T")[0];
+        const upcomingEvents = data.filter((event) => event.date >= today);
+        
+        if (upcomingEvents.length > 0) {
+          setSelectedCategory('Upcoming');
+          setUpcoming(true);
+          setComplete(false);
+        } else {
+          setSelectedCategory('Completed');
+          setUpcoming(false);
+          setComplete(true);
+        }
+        
         setLoading(false);
       })
       .catch((error) => {
@@ -28,79 +44,56 @@ const Page = () => {
       });
   }, []);
 
+
   const today = new Date().toISOString().split("T")[0];
   const upcomingEvents = events
     .filter((event) => event.date >= today)
-    .sort((a, b) => new Date(a.date) - new Date(b.date)); // Earliest upcoming first
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
   const completedEvents = events
     .filter((event) => event.date < today)
-    .sort((a, b) => new Date(b.date) - new Date(a.date)); // Latest completed first
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+
 
   return (
     <div className="bg-gradient-to-br from-[#17003A] to-[#370069] p-8 min-h-screen">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className="flex items-center justify-center mb-8">
           <h2 className="pl-4 text-5xl font-extrabold text-white justify-center flex items-center">
           Events</h2>
         </div>
 
-        {/* Category Selection Tabs */}
-                <motion.div
-                  className="flex justify-center mb-10 md:mb-14"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, delay: 0.3 }}
-                >
-                  <div className="bg-black/30 backdrop-blur-md rounded-full p-1.5 flex shadow-xl">
-                    <motion.button
-                      className={`text-base md:text-lg font-medium px-5 md:px-8 py-2.5 rounded-full transition-all duration-300 ${selectedCategory === 'Upcoming'
-                        ? 'bg-white text-purple-900 shadow-lg'
-                        : 'text-white/80 hover:text-white hover:bg-white/10'
-                        }`}
-                      onClick={() => {setUpcoming(true); setComplete(false); setSelectedCategory('Upcoming')}}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      Upcoming
-                    </motion.button>
-                    <motion.button
-                      className={`text-base md:text-lg font-medium px-5 md:px-8 py-2.5 rounded-full transition-all duration-300 ${selectedCategory === 'Completed'
-                        ? 'bg-white text-purple-900 shadow-lg'
-                        : 'text-white/80 hover:text-white hover:bg-white/10'
-                        }`}
-                      onClick={() => {setComplete(true); setUpcoming(false); setSelectedCategory('Completed')}}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      Completed
-                    </motion.button>
-                  </div>
-                </motion.div>
+        <motion.div
+          className="flex justify-center mb-10 md:mb-14"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          <div className="bg-black/30 backdrop-blur-md rounded-full p-1.5 flex shadow-xl">
+            <motion.button
+              className={`text-base md:text-lg font-medium px-5 md:px-8 py-2.5 rounded-full transition-all duration-300 ${selectedCategory === 'Upcoming'
+                ? 'bg-white text-purple-900 shadow-lg'
+                : 'text-white/80 hover:text-white hover:bg-white/10'
+                }`}
+              onClick={() => {setUpcoming(true); setComplete(false); setSelectedCategory('Upcoming')}}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Upcoming
+            </motion.button>
+            <motion.button
+              className={`text-base md:text-lg font-medium px-5 md:px-8 py-2.5 rounded-full transition-all duration-300 ${selectedCategory === 'Completed'
+                ? 'bg-white text-purple-900 shadow-lg'
+                : 'text-white/80 hover:text-white hover:bg-white/10'
+                }`}
+              onClick={() => {setComplete(true); setUpcoming(false); setSelectedCategory('Completed')}}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Completed
+            </motion.button>
+          </div>
+        </motion.div>
 
-        {/* Toggle Buttons for Upcoming & Completed
-        <div className="flex flex-row gap-2 sm:gap-5 justify-center text-white mb-6 sm:mb-10">
-          <Button
-            variant="ghost"
-            className={`text-lg sm:text-xl md:text-2xl px-2 ${
-              upcoming ? "text-purple-400" : "text-gray-300"
-            }`}
-            onClick={() => {setUpcoming(true); setComplete(false);}}
-          >
-            Upcoming ({upcomingEvents.length})
-          </Button>
-          <Button
-            variant="ghost"
-            className={`text-lg sm:text-xl md:text-2xl px-2 ${
-              complete ? "text-purple-400" : "text-gray-300"
-            }`}
-            onClick={() => {setComplete(true); setUpcoming(false);}}
-          >
-            Completed ({completedEvents.length})
-          </Button>
-        </div>*/}
-
-        {/* Events Section */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 auto-rows-fr">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
@@ -157,7 +150,7 @@ const Page = () => {
   );
 };
 
-// Enhanced Event Card Component - Clean Modern Design with Subtle Effects
+
 const EventCard = ({ event }) => {
   const formatEventType = (type) => {
     if (!type) return "";
@@ -166,6 +159,7 @@ const EventCard = ({ event }) => {
       .toLowerCase()
       .replace(/\b\w/g, (char) => char.toUpperCase());
   };
+
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -176,7 +170,9 @@ const EventCard = ({ event }) => {
     };
   };
 
+
   const dateInfo = formatDate(event.date);
+
 
   return (
     <motion.div 
@@ -186,15 +182,11 @@ const EventCard = ({ event }) => {
       transition={{ duration: 0.4 }}
       whileHover={{ y: -6 }}
     >
-      {/* Subtle Background Glow */}
       <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600/30 via-pink-600/30 to-blue-600/30 rounded-2xl blur opacity-0 group-hover:opacity-60 transition-all duration-500"></div>
       
-      {/* Main Card Container */}
       <div className="relative h-full bg-gradient-to-br from-white/15 via-white/10 to-white/5 backdrop-blur-xl rounded-2xl border border-white/30 overflow-hidden shadow-xl transition-all duration-500 group-hover:shadow-purple-500/25 group-hover:border-purple-400/50 flex flex-col">
         
-        {/* Enhanced Image Container */}
         <div className="relative h-64 overflow-hidden rounded-t-2xl flex-shrink-0">
-          {/* Image with Subtle Effects */}
           <div className="relative w-full h-full">
             <img
               src={event?.image || "/placeholder.jpg"}
@@ -202,12 +194,10 @@ const EventCard = ({ event }) => {
               className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 filter group-hover:brightness-105"
             />
             
-            {/* Gradient Overlays */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-60"></div>
             <div className="absolute inset-0 bg-gradient-to-br from-purple-900/10 via-transparent to-pink-900/10 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
           </div>
           
-          {/* Event Type Badge */}
           {event.type && (
             <motion.div 
               className="absolute top-4 right-4"
@@ -221,7 +211,6 @@ const EventCard = ({ event }) => {
             </motion.div>
           )}
           
-          {/* Date Badge */}
           <motion.div 
             className="absolute top-4 left-4 bg-gradient-to-br from-white/95 to-white/85 backdrop-blur-sm rounded-xl p-3 text-center min-w-[4rem] shadow-lg border border-white/20 group-hover:shadow-xl transition-all duration-300"
             initial={{ opacity: 0 }}
@@ -234,15 +223,13 @@ const EventCard = ({ event }) => {
           </motion.div>
         </div>
 
-        {/* Content Section */}
+
         <div className="relative p-6 flex flex-col flex-grow">
           <div className="relative z-10 flex-grow">
-            {/* Event Title */}
             <h3 className="text-xl font-bold text-white mb-4 leading-tight group-hover:text-purple-200 transition-colors duration-300 line-clamp-2">
               {event?.name || "Event Name"}
             </h3>
             
-            {/* Event Info with Icons */}
             <div className="space-y-3 mb-6">
               {event.venue && (
                 <div className="flex items-start text-white/90 text-sm group-hover:text-purple-200 transition-colors duration-300">
@@ -272,7 +259,7 @@ const EventCard = ({ event }) => {
             </div>
           </div>
 
-          {/* CTA Button */}
+
           <Link href={`/Events/${event.id}`} className="block relative z-10 mt-auto">
             <motion.button
               className="w-full bg-gradient-to-r from-purple-600 via-purple-700 to-pink-600 hover:from-purple-700 hover:via-purple-800 hover:to-pink-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-purple-500/30 flex items-center justify-center group/btn"
@@ -285,18 +272,20 @@ const EventCard = ({ event }) => {
           </Link>
         </div>
 
-        {/* Subtle Hover Glow Effect */}
+
         <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-600/0 via-pink-600/0 to-blue-600/0 group-hover:from-purple-600/5 group-hover:via-pink-600/5 group-hover:to-blue-600/5 transition-all duration-500 pointer-events-none"></div>
       </div>
     </motion.div>
   );
 };
 
-// No Events Message
+
 const NoEvents = (message) => (
-  <div className="col-span-full text-center py-20 px-50 bg-white/5 backdrop-blur-sm rounded-lg">
+  <div className="col-span-full text-center py-20 px-6 sm:px-12 bg-white/5 backdrop-blur-sm rounded-lg max-w-full overflow-hidden">
     <h3 className="text-2xl font-bold text-white mb-2">{message}</h3>
   </div>
 );
+
+
 
 export default Page;
