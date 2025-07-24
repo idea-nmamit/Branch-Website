@@ -7,6 +7,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Calendar } from 'lucide-react';
 
+// This would typically be in a separate metadata file for client components
+// For now, we'll handle metadata in the parent layout or use a wrapper
+
 const Page = () => {
   const [selectedCategory, setSelectedCategory] = useState('OFFICE_BEARERS');
   const [selectedYear, setSelectedYear] = useState('2024-25');

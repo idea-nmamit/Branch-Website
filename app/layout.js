@@ -1,11 +1,9 @@
 
-"use client";
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Toaster } from '@/components/ui/sonner';
-import SSRLoader from '@/components/SSRLoader';
-import React, { useState } from 'react';
-import { usePathname } from 'next/navigation';
+import StructuredData from '@/components/StructuredData';
+import { siteConfig, structuredDataTemplates, generatePageMetadata } from '@/lib/seo';
 
 import { Inter, Montserrat, Poppins } from 'next/font/google';
 import './globals.css';
@@ -26,39 +24,24 @@ const poppins = Poppins({
 });
 
 
-export default function RootLayout({ children }) {
-  const [hydrated, setHydrated] = useState(false);
-  const pathname = usePathname();
-  
-  // Check if current route is maintenance page
-  const isMaintenancePage = pathname === '/maintenance';
-  
-  React.useEffect(() => {
-    setHydrated(true);
-  }, []);
+// Generate metadata for the root layout
+export const metadata = generatePageMetadata({
+  title: siteConfig.title,
+  description: siteConfig.description,
+});
 
+export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${montserrat.variable} ${poppins.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${montserrat.variable} ${poppins.variable}`}>
       <head>
-        {isMaintenancePage && (
-          <>
-            <title>Maintenance - IDEA NMAMIT</title>
-            <meta name="description" content="Website is currently under maintenance. We'll be back soon!" />
-            <meta name="robots" content="noindex, nofollow" />
-          </>
-        )}
+        <StructuredData data={structuredDataTemplates.organization} />
+        <StructuredData data={structuredDataTemplates.website} />
       </head>
-      <body suppressHydrationWarning className={inter.className}>
-        {!hydrated ? (
-          <SSRLoader />
-        ) : (
-          <>
-            {!isMaintenancePage && <Navbar />}
-            {isMaintenancePage ? children : <main>{children}</main>}
-            {!isMaintenancePage && <Footer />}
-            <Toaster />
-          </>
-        )}
+      <body className={inter.className}>
+        <Navbar />
+        <main>{children}</main>
+        <Footer />
+        <Toaster />
       </body>
     </html>
   );

@@ -1,7 +1,7 @@
 "use client"
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import OptimizedImage from './OptimizedImage';
 import gsap from 'gsap';
 import NeuralNetwork from "./NeuralNetwork";
 import PageLoader from "./PageLoader";
@@ -137,12 +137,13 @@ const HomePage = () => {
             <div className="w-full max-w-6xl text-center">
               <div ref={logoRef} className="text-white flex items-center justify-center mb-6 sm:mb-8 md:mb-10">
                 <div className="relative w-64 h-24 sm:w-72 sm:h-28 md:w-96 md:h-40 lg:w-[450px] lg:h-48">
-                  <Image
+                  <OptimizedImage
                     src={logoSrc}
-                    alt="IDEA"
+                    alt="IDEA NMAMIT Logo - Intelligence and Data Science Engineers' Association"
                     fill
                     className="object-contain"
                     priority
+                    sizes="(max-width: 640px) 256px, (max-width: 768px) 288px, (max-width: 1024px) 384px, 450px"
                   />
                 </div>
               </div>
@@ -199,12 +200,13 @@ const HomePage = () => {
         <div className="w-full max-w-6xl text-center">
           <div ref={logoRef} className="text-white flex items-center justify-center mb-6 sm:mb-8 md:mb-10">
             <div className="relative w-64 h-24 sm:w-72 sm:h-28 md:w-96 md:h-40 lg:w-[450px] lg:h-48">
-              <Image
+              <OptimizedImage
                 src={logoSrc}
-                alt="IDEA"
+                alt="IDEA NMAMIT Logo - Intelligence and Data Science Engineers' Association"
                 fill
                 className="object-contain"
                 priority
+                sizes="(max-width: 640px) 256px, (max-width: 768px) 288px, (max-width: 1024px) 384px, 450px"
               />
             </div>
           </div>

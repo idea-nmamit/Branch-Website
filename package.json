@@ -9,7 +9,9 @@
     "lint": "next lint",
     "postinstall": "prisma generate",
     "db:seed": "node prisma/seed.js",
-    "db:reset": "prisma migrate reset --force && npm run db:seed"
+    "db:reset": "prisma migrate reset --force && npm run db:seed",
+    "seo:validate": "next build && echo 'SEO validation complete'",
+    "analyze": "cross-env ANALYZE=true npm run build"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",

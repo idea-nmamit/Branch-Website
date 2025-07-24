@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
+import OptimizedImage from "./OptimizedImage";
 
 const GalleryGrid = React.memo(({ 
   categories, 
@@ -59,14 +59,13 @@ const GalleryGrid = React.memo(({
             </div>
           </div>
         ) : (
-          <Image 
+          <OptimizedImage 
             src={image.photoUrl} 
-            alt={image.title} 
+            alt={image.title || `Gallery image from ${image.category || 'event'}`}
             fill
             className={`object-cover transition-opacity duration-700 ${!isLoaded ? 'opacity-0' : 'opacity-100'}`}
-            onLoad={handleLocalImageLoad}
-            onError={handleImageError}
-            loading="lazy"
+            onLoadComplete={handleLocalImageLoad}
+            priority={false}
             sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
             quality={75}
           />

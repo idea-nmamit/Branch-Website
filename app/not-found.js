@@ -6,6 +6,9 @@ import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { ArrowLeft, RefreshCw } from 'lucide-react';
 
+// Note: This is a 404 page with client-side interactivity
+// SEO metadata is handled by Next.js automatically for 404 pages
+
 export default function NotFound() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const containerRef = useRef(null);
