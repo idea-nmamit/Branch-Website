@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -16,7 +16,35 @@ import {
   Database
 } from "lucide-react"
 
-const AdminDashboard = ({ activeTab, setActiveTab, onLogout, stats = {} }) => {  const tabs = [
+const AdminDashboard = ({ activeTab, setActiveTab, onLogout, stats = {} }) => {
+  const [maintenance, setMaintenance] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch current maintenance mode
+  useEffect(() => {
+    fetch('/api/settings')
+      .then(res => res.json())
+      .then(data => setMaintenance(data.maintenanceMode))
+      .catch(() => setMaintenance(false));
+  }, []);
+
+  // Toggle maintenance mode
+  const handleToggle = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ maintenanceMode: !maintenance })
+      });
+      const data = await res.json();
+      setMaintenance(data.maintenanceMode);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const tabs = [
     { 
       id: 'events', 
       label: 'Events', 
@@ -80,14 +108,26 @@ const AdminDashboard = ({ activeTab, setActiveTab, onLogout, stats = {} }) => { 
           <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-blue-800 bg-clip-text text-transparent mb-2">Admin Dashboard</h1>
           <p className="text-slate-600">Manage your website content and data</p>
         </div>
-        <Button 
-          onClick={onLogout}
-          variant="outline"
-          className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 hover:border-red-300"
-        >
-          <LogOut className="h-4 w-4" />
-          Logout
-        </Button>
+        <div className="flex flex-col gap-2 items-end">
+          <Button
+            onClick={handleToggle}
+            variant={maintenance ? 'destructive' : 'outline'}
+            className={maintenance ? 'bg-red-600 text-white hover:bg-red-700' : ''}
+            disabled={loading}
+          >
+            {maintenance ? 'Disable Maintenance' : 'Enable Maintenance'}
+            <Activity className="ml-2 h-4 w-4" />
+          </Button>
+          <span className={`text-xs font-semibold ${maintenance ? 'text-red-600' : 'text-green-600'}`}>Maintenance Mode: {maintenance ? 'ON' : 'OFF'}</span>
+          <Button 
+            onClick={onLogout}
+            variant="outline"
+            className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 hover:border-red-300 mt-2"
+          >
+            <LogOut className="h-4 w-4" />
+            Logout
+          </Button>
+        </div>
       </div>      {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {quickStats.map((stat, index) => {
