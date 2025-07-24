@@ -50,7 +50,7 @@ export default function OptimizedImage({
   }
 
   return (
-    <div className={cn('relative overflow-hidden', className)}>
+    <>
       <Image
         src={src}
         alt={imageAlt}
@@ -60,19 +60,20 @@ export default function OptimizedImage({
         priority={priority}
         sizes={sizes}
         quality={quality}
-        placeholder={placeholder}
-        blurDataURL={blurDataURL}
+        placeholder={priority ? 'empty' : placeholder}
+        blurDataURL={priority ? undefined : blurDataURL}
         onLoad={handleLoadComplete}
         onError={handleError}
         className={cn(
           'transition-opacity duration-300',
-          isLoading ? 'opacity-0' : 'opacity-100'
+          isLoading && !priority ? 'opacity-0' : 'opacity-100',
+          className
         )}
         {...props}
       />
-      {isLoading && (
+      {isLoading && !priority && (
         <div className="absolute inset-0 bg-gray-100 animate-pulse" />
       )}
-    </div>
+    </>
   );
 }

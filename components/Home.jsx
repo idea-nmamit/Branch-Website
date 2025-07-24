@@ -18,11 +18,9 @@ const HomePage = () => {
   const titleText = "Intelligence and Data Science Engineers' Association";
   const titleWords = titleText.split(' ');
   
-  // Always use light logo
   const logoSrc = "/Logo-Light.png";
 
   useEffect(() => {
-    // Check if this is the initial home page load
     if (typeof window !== 'undefined') {
       const hasHomeLoaded = sessionStorage.getItem('homePageLoaded');
       if (!hasHomeLoaded) {

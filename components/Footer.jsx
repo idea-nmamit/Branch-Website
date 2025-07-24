@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
+import OptimizedImage from "./OptimizedImage";
 import { 
   Linkedin, 
   Github, 
@@ -104,13 +104,13 @@ const Footer = () => {
                     transition={{ type: "spring", stiffness: 300 }}
                   >
                     <Link href="/" aria-label="Go to homepage">
-                      <Image
+                      <OptimizedImage
                         src="/Logo-Light.png"
-                        alt="IDEA Logo"
+                        alt="IDEA NMAMIT Logo - Intelligence and Data Science Engineers' Association"
                         fill
                         sizes="10rem"
                         className="object-contain drop-shadow-2xl"
-                        priority
+                        priority={false}
                       />
                     </Link>
                   </motion.div>
