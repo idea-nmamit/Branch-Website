@@ -678,7 +678,7 @@ const PageLoader = ({ children, finishLoading }) => {
                     }}
                     className="text-white text-xl md:text-2xl text-center font-light italic px-4"
                   >
-                    "{quote}"
+                    &quot;{quote}&quot;
                   </motion.p>
                 </AnimatePresence>
               </div>

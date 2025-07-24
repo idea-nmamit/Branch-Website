@@ -84,7 +84,15 @@ const HomePage = () => {
     }, "-=0.5");
 
     return () => {
-      gsap.killTweensOf([logoRef.current, badgeRef.current, ...wordsRefs.current]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      const logo = logoRef.current;
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      const badge = badgeRef.current;
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      const words = wordsRefs.current;
+      if (logo || badge || words) {
+        gsap.killTweensOf([logo, badge, ...(words || [])].filter(Boolean));
+      }
     };
   }, [shouldShowLoader, isLoading]);
 

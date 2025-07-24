@@ -1,5 +1,6 @@
 'use client'
 import React from 'react'
+import Image from 'next/image'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Github, Linkedin, Instagram, Globe } from "lucide-react"
 
@@ -24,10 +25,11 @@ const TeamList = ({ teamMembers }) => {
           {teamMembers.map((member) => (
             <Card key={member.id} className="overflow-hidden">
               <div className="aspect-square relative">
-                <img 
+                <Image 
                   src={member.photoUrl} 
                   alt={member.name} 
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
                 />
               </div>
               <CardContent className="p-4">
@@ -36,7 +38,7 @@ const TeamList = ({ teamMembers }) => {
                 <p className="text-xs mt-1">Category: {member.category}</p>
                 <p className="text-xs">Year: {member.year}</p>
                 {member.quote && (
-                  <p className="text-sm italic mt-2">"{member.quote}"</p>
+                  <p className="text-sm italic mt-2">&quot;{member.quote}&quot;</p>
                 )}
                 
                 {/* Social Media Links */}

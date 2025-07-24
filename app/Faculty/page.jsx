@@ -1,13 +1,14 @@
 "use client"
 import React from 'react';
 import styled from 'styled-components';
+import Image from 'next/image';
 
 // Individual Card Component
 const Card = ({ name, title, linkedinUrl, imageUrl }) => {
   return (
     <div className="card">
       <div className="card-photo">
-        <img src={imageUrl} alt={`${name} profile`} />
+        <Image src={imageUrl} alt={`${name} profile`} width={200} height={200} />
       </div>
       <div className="card-title">{name}<br />
         <span className="font-semibold">{title}</span>

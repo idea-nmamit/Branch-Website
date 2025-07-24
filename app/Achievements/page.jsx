@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
+import Image from 'next/image';
 import {
   GithubIcon,
   InstagramIcon,
@@ -357,9 +358,11 @@ const Page = () => {
                             >
                               <div className="flex items-center gap-4 mb-4">
                                 <div className="relative">
-                                  <img 
+                                  <Image 
                                     src={currentMember.photoUrl || getDefaultAvatar(currentMember.name, currentMemberIndex[achievement.id] || 0)} 
                                     alt={currentMember.name}
+                                    width={56}
+                                    height={56}
                                     className="w-14 h-14 rounded-full object-cover border-2 border-white/40 shadow-xl"
                                   />
                                 </div>

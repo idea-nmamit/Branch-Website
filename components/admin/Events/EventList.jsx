@@ -1,4 +1,5 @@
 import React from 'react'
+import Image from 'next/image'
 import { format } from "date-fns"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
@@ -25,10 +26,11 @@ const EventList = ({ events }) => {
               <Card key={index} className="overflow-hidden">
                 {event.image && (
                   <div className="w-full h-40 relative">
-                    <img 
+                    <Image 
                       src={event.image} 
                       alt={event.name} 
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
                     />
                   </div>
                 )}

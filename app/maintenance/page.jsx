@@ -27,7 +27,7 @@ const MaintenancePage = () => {
 
           {/* Main Title */}
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent mb-2 sm:mb-3 md:mb-4 font-montserrat">
-            We'll Be Back Soon!
+            We&apos;ll Be Back Soon!
           </h1>
 
           {/* Subtitle */}
@@ -45,7 +45,7 @@ const MaintenancePage = () => {
             </div>
             <div className="bg-gradient-to-r from-[#f6014e]/20 to-[#f6014e]/10 p-3 sm:p-4 md:p-6 rounded-xl border border-[#f6014e]/30 backdrop-blur-sm">
               <ArrowLeft className="h-5 w-5 sm:h-6 sm:w-6 text-[#f6014e] mx-auto mb-1 sm:mb-2" />
-              <h3 className="font-semibold text-white text-sm sm:text-base mb-1 font-montserrat">What's Coming</h3>
+              <h3 className="font-semibold text-white text-sm sm:text-base mb-1 font-montserrat">What&apos;s Coming</h3>
               <p className="text-xs sm:text-sm text-gray-300 font-poppins">Enhanced features</p>
             </div>
           </div>
@@ -74,7 +74,7 @@ const MaintenancePage = () => {
           {/* Footer */}
           <div className="pt-3 sm:pt-4 border-t border-white/10 mt-auto">
             <p className="text-xs text-gray-500 font-poppins">
-              © {new Date().getFullYear()} Intelligence and Data Science Engineers' Association.
+              © {new Date().getFullYear()} Intelligence and Data Science Engineers&apos; Association.
             </p>
           </div>
         </CardContent>

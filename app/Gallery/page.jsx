@@ -248,23 +248,23 @@ export default function GalleryPage() {
     document.body.style.overflow = 'auto';
   };
 
-  const navigateToPrevImage = (e) => {
+  const navigateToPrevImage = useCallback((e) => {
     e.stopPropagation();
     if (!currentCategory || currentImageIndex <= 0) return;
     setModalImageLoaded(false);
     const newIndex = currentImageIndex - 1;
     setCurrentImageIndex(newIndex);
     setSelectedImage(categoryImages[currentCategory][newIndex]);
-  };
+  }, [currentCategory, currentImageIndex, categoryImages]);
 
-  const navigateToNextImage = (e) => {
+  const navigateToNextImage = useCallback((e) => {
     e.stopPropagation();
     if (!currentCategory || currentImageIndex >= categoryImages[currentCategory].length - 1) return;
     setModalImageLoaded(false);
     const newIndex = currentImageIndex + 1;
     setCurrentImageIndex(newIndex);
     setSelectedImage(categoryImages[currentCategory][newIndex]);
-  };
+  }, [currentCategory, currentImageIndex, categoryImages]);
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -297,7 +297,7 @@ export default function GalleryPage() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedImage, currentImageIndex, currentCategory]);
+  }, [selectedImage, currentImageIndex, currentCategory, categoryImages, navigateToNextImage, navigateToPrevImage]);
 
   const toggleDropdown = () => {
     if (!dropdownOpen) {
@@ -588,7 +588,7 @@ export default function GalleryPage() {
           <div className="flex justify-between items-center mb-6">
             <div>
               <h2 className="text-xl sm:text-2xl font-bold text-purple-300">
-                Search Results for "{searchTerm}"
+                Search Results for &quot;{searchTerm}&quot;
               </h2>
               {searchResults.length > 0 && !isSearching && (
                 <p className="text-sm text-purple-400 mt-1">

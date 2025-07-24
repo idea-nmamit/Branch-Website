@@ -4,6 +4,7 @@ import Footer from '@/components/Footer';
 import { Toaster } from '@/components/ui/sonner';
 import StructuredData from '@/components/StructuredData';
 import { siteConfig, structuredDataTemplates, generatePageMetadata } from '@/lib/seo';
+import ConditionalLayout from '@/components/ConditionalLayout';
 
 import { Inter, Montserrat, Poppins } from 'next/font/google';
 import './globals.css';
@@ -23,8 +24,6 @@ const poppins = Poppins({
   variable: '--font-poppins',
 });
 
-
-// Generate metadata for the root layout
 export const metadata = generatePageMetadata({
   title: siteConfig.title,
   description: siteConfig.description,
@@ -32,15 +31,17 @@ export const metadata = generatePageMetadata({
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${montserrat.variable} ${poppins.variable}`}>
+    <html suppressHydrationWarning lang="en" className={`${montserrat.variable} ${poppins.variable}`}>
       <head>
         <StructuredData data={structuredDataTemplates.organization} />
         <StructuredData data={structuredDataTemplates.website} />
       </head>
       <body className={inter.className}>
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
+        <ConditionalLayout>
+          <Navbar />
+          <main>{children}</main>
+          <Footer />
+        </ConditionalLayout>
         <Toaster />
       </body>
     </html>

@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -188,10 +189,11 @@ const EventCard = ({ event }) => {
         
         <div className="relative h-64 overflow-hidden rounded-t-2xl flex-shrink-0">
           <div className="relative w-full h-full">
-            <img
+            <Image
               src={event?.image || "/placeholder.jpg"}
               alt={event?.name || "Event Image"}
-              className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 filter group-hover:brightness-105"
+              fill
+              className="object-cover transition-all duration-700 group-hover:scale-110 filter group-hover:brightness-105"
             />
             
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-60"></div>

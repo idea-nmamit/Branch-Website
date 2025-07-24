@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
 import { useAdminAuth } from '@/hooks/useAdminAuth'
 import AdminLogin from '@/components/admin/AdminLogin'
@@ -47,11 +47,12 @@ const AdminPage = () => {
     }
   }
 
-  const fetchEvents = () => fetchWithErrorHandling('/api/events', setEvents, 'events')
-  const fetchTeamMembers = () => fetchWithErrorHandling('/api/Team', setTeamMembers, 'team members')
-  const fetchAchievements = () => fetchWithErrorHandling('/api/achievements', setAchievements, 'achievements')
-  const fetchGallery = () => fetchWithErrorHandling('/api/gallery', setGallery, 'gallery items')
-  const fetchDataForTab = async (tab) => {
+  const fetchEvents = useCallback(() => fetchWithErrorHandling('/api/events', setEvents, 'events'), [])
+  const fetchTeamMembers = useCallback(() => fetchWithErrorHandling('/api/Team', setTeamMembers, 'team members'), [])
+  const fetchAchievements = useCallback(() => fetchWithErrorHandling('/api/achievements', setAchievements, 'achievements'), [])
+  const fetchGallery = useCallback(() => fetchWithErrorHandling('/api/gallery', setGallery, 'gallery items'), [])
+  
+  const fetchDataForTab = useCallback(async (tab) => {
     setLoading(true)
     try {
       switch (tab) {
@@ -73,13 +74,13 @@ const AdminPage = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [fetchEvents, fetchTeamMembers, fetchAchievements, fetchGallery])
 
   useEffect(() => {
     if (isAuthenticated) {
       fetchDataForTab(activeTab)
     }
-  }, [activeTab, isAuthenticated])
+  }, [activeTab, isAuthenticated, fetchDataForTab])
 
   // Update stats when data changes
   useEffect(() => {
@@ -200,6 +201,7 @@ const AdminPage = () => {
           <Card className="bg-white shadow-lg border-slate-200">
             <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-slate-200">
               <CardTitle className="text-slate-800 flex items-center gap-2">
+                {/* eslint-disable-next-line jsx-a11y/alt-text */}
                 <Image className="h-5 w-5 text-purple-600" />
                 Gallery Management
               </CardTitle>

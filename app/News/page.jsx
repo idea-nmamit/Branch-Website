@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import Image from 'next/image';
 import { ExternalLink, Clock, TrendingUp } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -42,7 +43,7 @@ const NewsPage = () => {
 
   const REFRESH_INTERVAL = 1000 * 60 * 60 * 3;
 
-  const fetchNewsFromAPI = async (forceRefresh = false, selectedCategory = null) => {
+  const fetchNewsFromAPI = useCallback(async (forceRefresh = false, selectedCategory = null) => {
     try {
       setError(null);
       setLoading(true);
@@ -180,7 +181,7 @@ const NewsPage = () => {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [lastFetchTime, CATEGORIES, REFRESH_INTERVAL]);
 
   useEffect(() => {
     const initialFetch = async () => {
@@ -200,7 +201,7 @@ const NewsPage = () => {
     }, REFRESH_INTERVAL);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [REFRESH_INTERVAL, fetchNewsFromAPI, newsItems.length]);
 
   // Handle scroll for back to top button
   useEffect(() => {
@@ -393,12 +394,13 @@ const NewsPage = () => {
                   )}
                 </div>
                 <div className="lg:flex gap-8">
-                  <div className="w-full lg:w-2/3 overflow-hidden rounded-xl relative group">
+                  <div className="w-full lg:w-2/3 overflow-hidden rounded-xl relative group h-[300px] sm:h-[400px]">
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-[1]"></div>
-                    <img
+                    <Image
                       src={uniqueFilteredNews[0].photoUrl || '/placeholder-news.jpg'}
                       alt={uniqueFilteredNews[0].title}
-                      className="w-full h-[300px] sm:h-[400px] object-cover rounded-xl group-hover:scale-105 transition-transform duration-700"
+                      fill
+                      className="object-cover rounded-xl group-hover:scale-105 transition-transform duration-700"
                       onError={(e) => {
                         e.target.src = '/placeholder-news.jpg';
                       }}
@@ -449,12 +451,13 @@ const NewsPage = () => {
                     key={`${item.link}-${item.title}-${index}`}
                     className="group neo-card transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-purple-500/10 relative"
                   >
-                    <div className="overflow-hidden rounded-xl relative">
+                    <div className="overflow-hidden rounded-xl relative h-48">
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-[1]"></div>
-                      <img
+                      <Image
                         src={item.photoUrl || '/placeholder-news.jpg'}
                         alt={item.title}
-                        className="w-full h-48 object-cover rounded-xl transform transition-transform duration-700 group-hover:scale-105"
+                        fill
+                        className="object-cover rounded-xl transform transition-transform duration-700 group-hover:scale-105"
                         onError={(e) => {
                           e.target.src = '/placeholder-news.jpg';
                         }}

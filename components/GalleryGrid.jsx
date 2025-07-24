@@ -23,12 +23,12 @@ const GalleryGrid = React.memo(({
       if (loadedImages[imageKey]) {
         setIsLoaded(true);
       }
-    }, [loadedImages, imageKey]);
+    }, [imageKey]);
     
     const handleLocalImageLoad = useCallback(() => {
       setIsLoaded(true);
       onImageLoad(`gallery-${image.id}`, false);
-    }, [image.id, onImageLoad]);
+    }, [image.id]);
     
     const handleImageError = useCallback(() => {
       setHasError(true);
@@ -106,6 +106,8 @@ const GalleryGrid = React.memo(({
       prevProps.onClick === nextProps.onClick
     );
   });
+
+  GalleryImage.displayName = 'GalleryImage';
 
   if (galleryLoading || !placeholderLoaded) {
     return (
