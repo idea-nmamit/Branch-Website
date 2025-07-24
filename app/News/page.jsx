@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import { ExternalLink, Clock, TrendingUp } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -40,14 +40,16 @@ const NewsPage = () => {
   const [lastFetchTime, setLastFetchTime] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [categoryLoading, setCategoryLoading] = useState(false);
 
   const REFRESH_INTERVAL = 1000 * 60 * 60 * 3;
 
   const fetchNewsFromAPI = useCallback(async (forceRefresh = false, selectedCategory = null) => {
     try {
       setError(null);
-      setLoading(true);
-
+      if (!forceRefresh) {
+        setLoading(true);
+      }
 
       // Check rate limiting
       const canFetch = Date.now() - lastFetchTime > 3000;
@@ -181,14 +183,20 @@ const NewsPage = () => {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [lastFetchTime, CATEGORIES, REFRESH_INTERVAL]);
+  }, [lastFetchTime]);
 
   useEffect(() => {
+    let mounted = true;
+    let hasInitialFetch = false;
+    
     const initialFetch = async () => {
+      if (!mounted || hasInitialFetch) return;
+      hasInitialFetch = true;
+      
       await fetchNewsFromAPI();
 
-      // If still empty after initial fetch, force refresh
-      if (newsItems.length === 0) {
+      // Only check for empty if this is truly the first load
+      if (mounted && newsItems.length === 0) {
         console.log("Database empty, forcing refresh");
         await fetchNewsFromAPI(true);
       }
@@ -197,11 +205,31 @@ const NewsPage = () => {
     initialFetch();
 
     const interval = setInterval(() => {
-      fetchNewsFromAPI(true);
+      if (mounted) {
+        fetchNewsFromAPI(true);
+      }
     }, REFRESH_INTERVAL);
 
-    return () => clearInterval(interval);
-  }, [REFRESH_INTERVAL, fetchNewsFromAPI, newsItems.length]);
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
+  }, [fetchNewsFromAPI, REFRESH_INTERVAL]);
+
+  // Debounced category change handler
+  const handleCategoryChange = useCallback((categoryValue) => {
+    setActiveCategory(categoryValue);
+    setCategoryLoading(true);
+    
+    // Debounce the API call
+    const timeoutId = setTimeout(() => {
+      fetchNewsFromAPI(false, categoryValue).finally(() => {
+        setCategoryLoading(false);
+      });
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [fetchNewsFromAPI]);
 
   // Handle scroll for back to top button
   useEffect(() => {
@@ -266,24 +294,29 @@ const NewsPage = () => {
     return names[category] || category;
   };
 
-  const filteredNews = activeCategory === 'all'
-    ? newsItems
-    : newsItems.filter(item => item.category === activeCategory);
+  // Memoize filtered news to prevent unnecessary recalculations
+  const filteredNews = useMemo(() => {
+    return activeCategory === 'all'
+      ? newsItems
+      : newsItems.filter(item => item.category === activeCategory);
+  }, [newsItems, activeCategory]);
 
-  // Remove duplicates from display - final filter before showing to user
-  const uniqueFilteredNews = filteredNews.filter((item, index, self) => {
-    // More robust duplicate detection
-    const normalizeTitle = (title) => title.toLowerCase().trim().replace(/[^\w\s]/g, '');
-    const normalizeLink = (link) => link.toLowerCase().trim();
+  // Memoize unique filtered news to prevent unnecessary recalculations
+  const uniqueFilteredNews = useMemo(() => {
+    return filteredNews.filter((item, index, self) => {
+      // More robust duplicate detection
+      const normalizeTitle = (title) => title.toLowerCase().trim().replace(/[^\w\s]/g, '');
+      const normalizeLink = (link) => link.toLowerCase().trim();
 
-    return index === self.findIndex(news => {
-      const isSameTitle = normalizeTitle(news.title) === normalizeTitle(item.title);
-      const isSameLink = normalizeLink(news.link) === normalizeLink(item.link);
+      return index === self.findIndex(news => {
+        const isSameTitle = normalizeTitle(news.title) === normalizeTitle(item.title);
+        const isSameLink = normalizeLink(news.link) === normalizeLink(item.link);
 
-      // Consider it a duplicate if either title matches exactly or link matches exactly
-      return isSameTitle || isSameLink;
+        // Consider it a duplicate if either title matches exactly or link matches exactly
+        return isSameTitle || isSameLink;
+      });
     });
-  });
+  }, [filteredNews]);
 
   // Debug logging
   console.log(`Category: ${activeCategory}, Original: ${filteredNews.length}, After dedup: ${uniqueFilteredNews.length}`);
@@ -298,82 +331,80 @@ const NewsPage = () => {
           <div className="absolute top-[40%] right-[15%] w-72 h-72 rounded-full bg-white/5 blur-3xl animate-blob animation-delay-2000"></div>
           <div className="absolute bottom-[20%] left-[35%] w-80 h-80 rounded-full bg-white/5 blur-3xl animate-blob animation-delay-4000"></div>
         </div>
-      </div>      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 relative z-10">
+      </div>      <main className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 pt-12 sm:pt-16 relative z-10">
         {/* Page Header - Now integrated with main content */}
-        <div className="py-6 flex flex-col items-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight text-center mb-2">
+        <div className="py-4 sm:py-6 flex flex-col items-center mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight text-center mb-2 px-2">
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300">
               Education News
             </span>
           </h1>
-          <div className="h-1 w-24 bg-gradient-to-r from-white to-gray-300 rounded-full my-2"></div>
-          <p className="text-white/80 text-center max-w-2xl">
+          <div className="h-1 w-16 sm:w-24 bg-gradient-to-r from-white to-gray-300 rounded-full my-2"></div>
+          <p className="text-white/80 text-center max-w-2xl text-sm sm:text-base px-4">
             Stay updated with the latest trends and insights in education
           </p>
         </div>
 
         {/* Category Filter Buttons */}
-        <div className="pb-8 flex items-center justify-center space-x-1 overflow-x-auto hide-scrollbar">
+        <div className="pb-6 sm:pb-8 flex items-center justify-start sm:justify-center space-x-1 overflow-x-auto hide-scrollbar px-1">
           {CATEGORIES.map((category) => (
             <button
               key={category.value}
-              onClick={() => {
-                setActiveCategory(category.value);
-                fetchNewsFromAPI(false, category.value);
-              }}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap ${activeCategory === category.value
+              onClick={() => handleCategoryChange(category.value)}
+              disabled={categoryLoading}
+              className={`px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${activeCategory === category.value
                 ? 'bg-gradient-to-r from-gray-600 to-gray-700 text-white'
                 : 'bg-white/10 text-white/70 hover:bg-white/20'
-                }`}
+                } ${categoryLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               {category.label}
             </button>
           ))}
         </div>
         {error && (
-          <div className="bg-red-500/20 text-red-100 p-4 rounded-lg mb-8 border border-red-500/30 backdrop-blur-md">
+          <div className="bg-red-500/20 text-red-100 p-3 sm:p-4 rounded-lg mb-6 sm:mb-8 border border-red-500/30 backdrop-blur-md text-sm sm:text-base">
             {error}
           </div>
         )}
 
-        {loading ? (
-          <div className="space-y-12">
+        {(loading || categoryLoading) ? (
+          <div className="space-y-8 sm:space-y-12">
             <div className="neo-card">
-              <div className="lg:flex gap-8">
-                <Skeleton className="w-full lg:w-2/3 h-[300px] rounded-xl" />
-                <div className="w-full lg:w-1/3 mt-6 lg:mt-0 space-y-4">
-                  <Skeleton className="h-8 w-32" />
-                  <Skeleton className="h-10 w-full" />
-                  <Skeleton className="h-6 w-24" />
-                  <Skeleton className="h-32 w-full" />
+              <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
+                <Skeleton className="w-full lg:w-2/3 h-[200px] sm:h-[300px] rounded-lg sm:rounded-xl" />
+                <div className="w-full lg:w-1/3 mt-4 lg:mt-0 space-y-3 sm:space-y-4">
+                  <Skeleton className="h-6 sm:h-8 w-24 sm:w-32" />
+                  <Skeleton className="h-8 sm:h-10 w-full" />
+                  <Skeleton className="h-4 sm:h-6 w-20 sm:w-24" />
+                  <Skeleton className="h-24 sm:h-32 w-full" />
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
               {Array(6).fill().map((_, index) => (
                 <div key={index} className="neo-card">
-                  <Skeleton className="w-full h-48 rounded-xl mb-4" />
-                  <Skeleton className="h-6 w-24 mb-2" />
-                  <Skeleton className="h-8 w-full mb-3" />
-                  <Skeleton className="h-24 w-full rounded-md mb-4" />
+                  <Skeleton className="w-full h-40 sm:h-48 rounded-lg sm:rounded-xl mb-3 sm:mb-4" />
+                  <Skeleton className="h-4 sm:h-6 w-20 sm:w-24 mb-2" />
+                  <Skeleton className="h-6 sm:h-8 w-full mb-2 sm:mb-3" />
+                  <Skeleton className="h-20 sm:h-24 w-full rounded-md mb-3 sm:mb-4" />
                 </div>
               ))}
             </div>
           </div>
         ) : (
           <div className="space-y-12">
-            <div className="w-full bg-black/50 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden mb-6">
+            <div className="w-full bg-black/50 backdrop-blur-md border border-white/10 rounded-lg sm:rounded-xl overflow-hidden mb-4 sm:mb-6">
               <div className="flex items-center">
-                <div className="bg-gradient-to-r from-red-600 to-red-800 p-2 text-white font-bold flex items-center gap-1 whitespace-nowrap">
-                  <TrendingUp size={14} /> TRENDING
+                <div className="bg-gradient-to-r from-red-600 to-red-800 p-1.5 sm:p-2 text-white font-bold flex items-center gap-1 whitespace-nowrap text-xs sm:text-sm">
+                  <TrendingUp size={12} className="sm:w-3.5 sm:h-3.5" /> TRENDING
                 </div>
-                <div className="py-2 px-4 relative overflow-hidden w-full">
+                <div className="py-2 px-2 sm:px-4 relative overflow-hidden w-full">
                   <div className="ticker-tape">
                     {newsItems.slice(0, 5).map((item, index) => (
-                      <span key={index} className="ticker-item">
+                      <span key={index} className="ticker-item text-xs sm:text-sm">
                         {item.title}
-                        <span className="mx-6 text-gray-500">•</span>
+                        <span className="mx-3 sm:mx-6 text-gray-500">•</span>
                       </span>
                     ))}
                   </div>
@@ -383,52 +414,53 @@ const NewsPage = () => {
 
             {uniqueFilteredNews.length > 0 && (
               <div className="neo-card featured-news transform transition-all duration-300 overflow-hidden">
-                <div className="absolute top-4 left-4 z-10">
-                  <div className="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full text-xs font-bold tracking-wider shadow-lg">
+                <div className="absolute top-2 sm:top-4 left-2 sm:left-4 z-10">
+                  <div className="px-2 sm:px-3 py-1 sm:py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full text-xs font-bold tracking-wider shadow-lg">
                     FEATURED
                   </div>
                   {uniqueFilteredNews[0].category && (
-                    <div className={`mt-2 px-3 py-1.5 bg-gradient-to-r ${getCategoryColor(uniqueFilteredNews[0].category)} text-white rounded-full text-xs font-bold tracking-wider shadow-lg`}>
+                    <div className={`mt-1 sm:mt-2 px-2 sm:px-3 py-1 sm:py-1.5 bg-gradient-to-r ${getCategoryColor(uniqueFilteredNews[0].category)} text-white rounded-full text-xs font-bold tracking-wider shadow-lg`}>
                       {getCategoryName(uniqueFilteredNews[0].category).toUpperCase()}
                     </div>
                   )}
                 </div>
-                <div className="lg:flex gap-8">
-                  <div className="w-full lg:w-2/3 overflow-hidden rounded-xl relative group h-[300px] sm:h-[400px]">
+                <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
+                  <div className="w-full lg:w-2/3 overflow-hidden rounded-lg sm:rounded-xl relative group h-[200px] sm:h-[300px] lg:h-[400px]">
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-[1]"></div>
                     <Image
                       src={uniqueFilteredNews[0].photoUrl || '/placeholder-news.jpg'}
                       alt={uniqueFilteredNews[0].title}
                       fill
-                      className="object-cover rounded-xl group-hover:scale-105 transition-transform duration-700"
+                      className="object-cover rounded-lg sm:rounded-xl group-hover:scale-105 transition-transform duration-700"
+                      unoptimized={uniqueFilteredNews[0].photoUrl && uniqueFilteredNews[0].photoUrl.startsWith('http')}
                       onError={(e) => {
                         e.target.src = '/placeholder-news.jpg';
                       }}
                     />
-                    <div className="absolute bottom-4 left-4 z-20">
-                      <div className="flex items-center text-white/80 text-sm bg-black/50 backdrop-blur-sm px-3 py-1 rounded-full">
-                        <Clock size={14} className="mr-2" /> {getTimeAgo(uniqueFilteredNews[0].date)}
+                    <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 z-20">
+                      <div className="flex items-center text-white/80 text-xs sm:text-sm bg-black/50 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full">
+                        <Clock size={12} className="mr-1 sm:mr-2 sm:w-3.5 sm:h-3.5" /> {getTimeAgo(uniqueFilteredNews[0].date)}
                       </div>
                     </div>
                   </div>
-                  <div className="w-full lg:w-1/3 mt-6 lg:mt-0">
-                    <div className="flex items-center gap-3 mb-4">
-                      <span className="text-purple-200 text-sm">
+                  <div className="w-full lg:w-1/3 mt-2 sm:mt-4 lg:mt-0">
+                    <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                      <span className="text-purple-200 text-xs sm:text-sm">
                         {formatDate(uniqueFilteredNews[0].date)}
                       </span>
                     </div>
-                    <h2 className="text-2xl lg:text-3xl font-bold text-white mb-4 hover:text-purple-200 transition-colors">
+                    <h2 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-white mb-3 sm:mb-4 hover:text-purple-200 transition-colors leading-tight">
                       {uniqueFilteredNews[0].title}
                     </h2>
-                    <p className="text-gray-300 mb-6 line-clamp-4">{uniqueFilteredNews[0].description}</p>
+                    <p className="text-gray-300 mb-4 sm:mb-6 line-clamp-3 sm:line-clamp-4 text-sm sm:text-base">{uniqueFilteredNews[0].description}</p>
                     {uniqueFilteredNews[0].link && (
                       <a
                         href={uniqueFilteredNews[0].link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white py-2 px-5 rounded-full transition-all transform hover:translate-y-[-2px] hover:shadow-lg"
+                        className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white py-2 px-4 sm:px-5 rounded-full transition-all transform hover:translate-y-[-2px] hover:shadow-lg text-sm sm:text-base"
                       >
-                        Read Full Story <ExternalLink size={16} />
+                        Read Full Story <ExternalLink size={14} className="sm:w-4 sm:h-4" />
                       </a>
                     )}
                   </div>
@@ -438,49 +470,50 @@ const NewsPage = () => {
             )}
 
             <div>
-              <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-200 to-pink-200">Latest Updates</h2>
-                <div className="px-3 py-1 rounded-full bg-white/5 text-purple-200 text-sm backdrop-blur-sm border border-white/10">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 sm:mb-8 gap-3 sm:gap-0">
+                <h2 className="text-xl sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-200 to-pink-200">Latest Updates</h2>
+                <div className="px-3 py-1 rounded-full bg-white/5 text-purple-200 text-xs sm:text-sm backdrop-blur-sm border border-white/10 self-start sm:self-auto">
                   {uniqueFilteredNews.length} stories
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
                 {uniqueFilteredNews.slice(1).map((item, index) => (
                   <div
                     key={`${item.link}-${item.title}-${index}`}
                     className="group neo-card transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-purple-500/10 relative"
                   >
-                    <div className="overflow-hidden rounded-xl relative h-48">
+                    <div className="overflow-hidden rounded-lg sm:rounded-xl relative h-40 sm:h-48">
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-[1]"></div>
                       <Image
                         src={item.photoUrl || '/placeholder-news.jpg'}
                         alt={item.title}
                         fill
-                        className="object-cover rounded-xl transform transition-transform duration-700 group-hover:scale-105"
+                        className="object-cover rounded-lg sm:rounded-xl transform transition-transform duration-700 group-hover:scale-105"
+                        unoptimized={item.photoUrl && item.photoUrl.startsWith('http')}
                         onError={(e) => {
                           e.target.src = '/placeholder-news.jpg';
                         }}
                       />
                       {item.category && (
-                        <div className="absolute top-3 left-3 z-10">
-                          <div className={`px-2 py-1 bg-gradient-to-r ${getCategoryColor(item.category)} text-white text-xs rounded-md font-semibold`}>
+                        <div className="absolute top-2 sm:top-3 left-2 sm:left-3 z-10">
+                          <div className={`px-1.5 sm:px-2 py-0.5 sm:py-1 bg-gradient-to-r ${getCategoryColor(item.category)} text-white text-xs rounded-md font-semibold`}>
                             {getCategoryName(item.category)}
                           </div>
                         </div>
                       )}
-                      <div className="absolute bottom-3 right-3 z-10">
-                        <div className="flex items-center gap-1 bg-black/60 backdrop-blur-md text-white/80 text-xs px-2 py-1 rounded-md">
-                          <Clock size={12} /> {getTimeAgo(item.date)}
+                      <div className="absolute bottom-2 sm:bottom-3 right-2 sm:right-3 z-10">
+                        <div className="flex items-center gap-1 bg-black/60 backdrop-blur-md text-white/80 text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md">
+                          <Clock size={10} className="sm:w-3 sm:h-3" /> {getTimeAgo(item.date)}
                         </div>
                       </div>
                     </div>
-                    <h2 className="text-xl font-bold text-white group-hover:text-purple-200 transition-colors line-clamp-2 mt-4">
+                    <h2 className="text-base sm:text-lg lg:text-xl font-bold text-white group-hover:text-purple-200 transition-colors line-clamp-2 mt-3 sm:mt-4 leading-tight">
                       {item.title}
                     </h2>
-                    <p className="text-gray-300 text-sm mt-2 line-clamp-3">{item.description}</p>
+                    <p className="text-gray-300 text-xs sm:text-sm mt-2 line-clamp-3">{item.description}</p>
                     {item.link && (
-                      <div className="mt-4 pt-3 border-t border-white/10 flex justify-between items-center">
+                      <div className="mt-3 sm:mt-4 pt-3 border-t border-white/10 flex justify-between items-center">
                         <span className={`text-xs font-medium ${getCategoryTextColor(item.category)}`}>
                           {formatDate(item.date)}
                         </span>
@@ -488,9 +521,9 @@ const NewsPage = () => {
                           href={item.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-purple-300 hover:text-purple-100 transition-colors text-sm"
+                          className="flex items-center gap-1 sm:gap-2 text-purple-300 hover:text-purple-100 transition-colors text-xs sm:text-sm"
                         >
-                          Read More <ExternalLink size={14} className="group-hover:translate-x-1 transition-transform" />
+                          Read More <ExternalLink size={12} className="sm:w-3.5 sm:h-3.5 group-hover:translate-x-1 transition-transform" />
                         </a>
                       </div>
                     )}
@@ -504,10 +537,10 @@ const NewsPage = () => {
 
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className={`fixed bottom-6 right-6 z-50 p-3 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg transition-opacity duration-300 hover:shadow-purple-500/50 ${showBackToTop ? 'opacity-100' : 'opacity-0'
+        className={`fixed bottom-4 sm:bottom-6 right-4 sm:right-6 z-50 p-2.5 sm:p-3 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg transition-opacity duration-300 hover:shadow-purple-500/50 ${showBackToTop ? 'opacity-100' : 'opacity-0'
           }`}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
         </svg>
       </button>
@@ -517,12 +550,19 @@ const NewsPage = () => {
           background: rgba(15, 15, 25, 0.6);
           backdrop-filter: blur(16px);
           border: 1px solid rgba(255, 255, 255, 0.05);
-          border-radius: 1rem;
-          padding: 1.5rem;
+          border-radius: 0.75rem;
+          padding: 1rem;
           transition: all 0.3s ease;
           position: relative;
           overflow: hidden;
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (min-width: 640px) {
+          .neo-card {
+            border-radius: 1rem;
+            padding: 1.5rem;
+          }
         }
 
         .neo-card:hover {
@@ -587,6 +627,13 @@ const NewsPage = () => {
           }
           100% {
             transform: translateX(-100%);
+          }
+        }
+
+        /* Mobile-specific ticker adjustments */
+        @media (max-width: 640px) {
+          .ticker-tape {
+            animation-duration: 40s;
           }
         }
 

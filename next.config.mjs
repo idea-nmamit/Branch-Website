@@ -8,25 +8,63 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: '*.gnews.io',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.news-medical.net',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.pixabay.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.amazonaws.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.googleusercontent.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '',
+        pathname: '/**',
+      },
     ],
-    // Enable modern image formats for better performance
+
     formats: ['image/webp', 'image/avif'],
-    // Optimize images for better loading
-    minimumCacheTTL: 31536000, // 1 year
+
+    minimumCacheTTL: 31536000,
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
-  
-  // Enable compression
+
   compress: true,
-  
-  // Enable experimental features for better performance
+
   experimental: {
-    // Enable modern bundling
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
-  
-  // Headers for better caching and security
+
   async headers() {
     return [
       {
@@ -47,7 +85,6 @@ const nextConfig = {
         ],
       },
       {
-        // Cache static assets
         source: '/public/(.*)',
         headers: [
           {
