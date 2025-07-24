@@ -210,17 +210,27 @@ export default function GalleryPage() {
     
     const groupedImages = {...initialCategories};
     
-    groupedImages["ALL_IMAGES"] = [...data];
+    // Sort all images by id in ascending order (oldest first)
+    const sortedData = [...data].sort((a, b) => a.id - b.id);
     
-    data.forEach(image => {
+    groupedImages["ALL_IMAGES"] = sortedData;
+    
+    sortedData.forEach(image => {
       if (image.category && groupedImages.hasOwnProperty(image.category)) {
         groupedImages[image.category].push(image);
       }
     });
     
+    // Ensure each category is also sorted by id in ascending order
+    Object.keys(groupedImages).forEach(category => {
+      if (category !== "ALL_IMAGES") {
+        groupedImages[category].sort((a, b) => a.id - b.id);
+      }
+    });
+    
     setLoadedImages(prev => {
       const newStates = { ...prev };
-      data.forEach(image => {
+      sortedData.forEach(image => {
         if (!newStates.hasOwnProperty(`gallery-${image.id}`)) {
           newStates[`gallery-${image.id}`] = false;
           newStates[`modal-${image.id}`] = false;
@@ -230,7 +240,7 @@ export default function GalleryPage() {
     });
     
     setCategoryImages(groupedImages);
-    setAllImages(data);
+    setAllImages(sortedData);
     setGalleryLoading(false);
   };
 
