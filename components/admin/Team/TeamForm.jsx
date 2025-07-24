@@ -149,46 +149,48 @@ const TeamForm = ({ onTeamMemberAdded }) => {
   }
 
   return (
-    <Card className="mb-8">
-      <CardHeader>
-        <CardTitle>Add New Team Member</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {error && (
-          <Alert variant="destructive" className="mb-6">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+    <div className="space-y-6">
+      {error && (
+        <Alert variant="destructive" className="border-red-200 bg-red-50">
+          <AlertDescription className="text-red-700">{error}</AlertDescription>
+        </Alert>
+      )}
 
-        {successMessage && (          <Alert className="mb-6 border-green-600">
-            <AlertDescription className="text-green-600">{successMessage}</AlertDescription>
-          </Alert>
-        )}
+      {successMessage && (
+        <Alert className="border-green-200 bg-green-50">
+          <AlertDescription className="text-green-700">{successMessage}</AlertDescription>
+        </Alert>
+      )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Full Name</Label>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-3">
+            <Label htmlFor="name" className="text-gray-700 font-medium">Full Name</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
+              className="h-12 border-gray-200 focus:border-[#34006e] focus:ring-[#34006e] rounded-xl"
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="role">Role</Label>
+          <div className="space-y-3">
+            <Label htmlFor="role" className="text-gray-700 font-medium">Role</Label>
             <Input
               id="role"
               value={role}
               onChange={(e) => setRole(e.target.value)}
               placeholder="e.g. President, Web Developer, etc."
               required
+              className="h-12 border-gray-200 focus:border-[#34006e] focus:ring-[#34006e] rounded-xl"
             />
           </div>
+        </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="role">Index</Label>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="space-y-3">
+            <Label htmlFor="index" className="text-gray-700 font-medium">Index</Label>
             <Input
               id="index"
               value={index}
@@ -196,136 +198,156 @@ const TeamForm = ({ onTeamMemberAdded }) => {
               placeholder="e.g. 1, 2, 3, etc."
               type="number"
               required
+              className="h-12 border-gray-200 focus:border-[#34006e] focus:ring-[#34006e] rounded-xl"
             />
           </div>
 
-          {/* Category Dropdown */}
-          <div className="space-y-2">
-            <Label htmlFor="category">Category</Label>
+          <div className="space-y-3">
+            <Label htmlFor="category" className="text-gray-700 font-medium">Category</Label>
             <Select
               value={category}
               onValueChange={setCategory}
               required
               defaultValue="OFFICE_BEARERS"
             >
-          
-              <SelectTrigger id="category" className="w-full">
-                <SelectValue placeholder="Select team category" />
+              <SelectTrigger id="category" className="h-12 border-gray-200 focus:border-[#34006e] focus:ring-[#34006e] rounded-xl">
+                <SelectValue placeholder="Select category" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="OFFICE_BEARERS">OFFICE BEARERS</SelectItem>
-                <SelectItem value="DEV_TEAM">DEV TEAM</SelectItem>
+              <SelectContent className="rounded-xl">
+                <SelectItem value="OFFICE_BEARERS">Office Bearers</SelectItem>
+                <SelectItem value="TECH_TEAM">Tech Team</SelectItem>
+                <SelectItem value="DESIGN_TEAM">Design Team</SelectItem>
+                <SelectItem value="CONTENT_TEAM">Content Team</SelectItem>
+                <SelectItem value="MANAGEMENT_TEAM">Management Team</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="photo">Profile Photo</Label>
-            <Input
-              id="photo"
-              type="file"
-              accept="image/*"
-              onChange={(e) => setSelectedPhoto(e.target.files[0])}
-              required
-            />
-            {selectedPhoto && (
-              <p className="text-sm text-primary">Photo ready to upload on submit.</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="year">Academic Year</Label>
+          <div className="space-y-3">
+            <Label htmlFor="year" className="text-gray-700 font-medium">Year</Label>
             <Select
               value={year}
               onValueChange={setYear}
               required
               defaultValue="2024-25"
             >
-              <SelectTrigger id="year" className="w-full">
-                <SelectValue placeholder="Select academic year" />
+              <SelectTrigger id="year" className="h-12 border-gray-200 focus:border-[#34006e] focus:ring-[#34006e] rounded-xl">
+                <SelectValue placeholder="Select year" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="rounded-xl">
                 <SelectItem value="2023-24">2023-24</SelectItem>
                 <SelectItem value="2024-25">2024-25</SelectItem>
                 <SelectItem value="2025-26">2025-26</SelectItem>
               </SelectContent>
             </Select>
           </div>
+        </div>
 
-          {/* Social Media URLs */}
-          <div className="space-y-2">
-            <Label htmlFor="linkedinUrl">
-              <Linkedin className="inline mr-2 h-4 w-4" />
-              LinkedIn URL
-            </Label>
-            <Input
-              id="linkedinUrl"
-              value={linkedinUrl}
-              onChange={(e) => setLinkedinUrl(e.target.value)}
-              placeholder="https://linkedin.com/in/username (optional)"
-            />
+        <div className="space-y-3">
+          <Label htmlFor="photo" className="text-gray-700 font-medium">Team Member Photo</Label>
+          <Input
+            id="photo"
+            type="file"
+            accept="image/*"
+            onChange={(e) => setSelectedPhoto(e.target.files[0])}
+            required
+            className="h-12 border-gray-200 focus:border-[#34006e] focus:ring-[#34006e] rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-[#34006e]/10 file:text-[#34006e] hover:file:bg-[#34006e]/20"
+          />
+          {selectedPhoto && (
+            <p className="text-sm text-[#34006e] bg-[#34006e]/10 p-3 rounded-lg">Photo ready to upload on submit.</p>
+          )}
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Social Links (Optional)</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-3">
+              <Label htmlFor="linkedinUrl" className="text-gray-700 font-medium flex items-center gap-2">
+                <Linkedin className="h-4 w-4 text-blue-600" />
+                LinkedIn URL
+              </Label>
+              <Input
+                id="linkedinUrl"
+                value={linkedinUrl}
+                onChange={(e) => setLinkedinUrl(e.target.value)}
+                placeholder="https://linkedin.com/in/username"
+                className="h-12 border-gray-200 focus:border-[#34006e] focus:ring-[#34006e] rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-3">
+              <Label htmlFor="githubUrl" className="text-gray-700 font-medium flex items-center gap-2">
+                <Github className="h-4 w-4 text-gray-800" />
+                GitHub URL
+              </Label>
+              <Input
+                id="githubUrl"
+                value={githubUrl}
+                onChange={(e) => setGithubUrl(e.target.value)}
+                placeholder="https://github.com/username"
+                className="h-12 border-gray-200 focus:border-[#34006e] focus:ring-[#34006e] rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-3">
+              <Label htmlFor="instagramUrl" className="text-gray-700 font-medium flex items-center gap-2">
+                <Instagram className="h-4 w-4 text-pink-600" />
+                Instagram URL
+              </Label>
+              <Input
+                id="instagramUrl"
+                value={instagramUrl}
+                onChange={(e) => setInstagramUrl(e.target.value)}
+                placeholder="https://instagram.com/username"
+                className="h-12 border-gray-200 focus:border-[#34006e] focus:ring-[#34006e] rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-3">
+              <Label htmlFor="portfolioUrl" className="text-gray-700 font-medium flex items-center gap-2">
+                <Globe className="h-4 w-4 text-green-600" />
+                Portfolio URL
+              </Label>
+              <Input
+                id="portfolioUrl"
+                value={portfolioUrl}
+                onChange={(e) => setPortfolioUrl(e.target.value)}
+                placeholder="https://yourportfolio.com"
+                className="h-12 border-gray-200 focus:border-[#34006e] focus:ring-[#34006e] rounded-xl"
+              />
+            </div>
           </div>
+        </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="githubUrl">
-              <Github className="inline mr-2 h-4 w-4" />
-              GitHub URL
-            </Label>
-            <Input
-              id="githubUrl"
-              value={githubUrl}
-              onChange={(e) => setGithubUrl(e.target.value)}
-              placeholder="https://github.com/username (optional)"
-            />
-          </div>
+        <div className="space-y-3">
+          <Label htmlFor="quote" className="text-gray-700 font-medium">Personal Quote</Label>
+          <Textarea
+            id="quote"
+            value={quote}
+            onChange={(e) => setQuote(e.target.value)}
+            placeholder="A short, inspiring quote (optional)"
+            rows={3}
+            className="border-gray-200 focus:border-[#34006e] focus:ring-[#34006e] rounded-xl"
+          />
+        </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="instagramUrl">
-              <Instagram className="inline mr-2 h-4 w-4" />
-              Instagram URL
-            </Label>
-            <Input
-              id="instagramUrl"
-              value={instagramUrl}
-              onChange={(e) => setInstagramUrl(e.target.value)}
-              placeholder="https://instagram.com/username (optional)"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="portfolioUrl">
-              <Globe className="inline mr-2 h-4 w-4" />
-              Portfolio URL
-            </Label>
-            <Input
-              id="portfolioUrl"
-              value={portfolioUrl}
-              onChange={(e) => setPortfolioUrl(e.target.value)}
-              placeholder="https://yourportfolio.com (optional)"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="quote">Personal Quote</Label>
-            <Textarea
-              id="quote"
-              value={quote}
-              onChange={(e) => setQuote(e.target.value)}
-              placeholder="A short, inspiring quote (optional)"
-              rows={2}
-            />
-          </div>
-
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={loading}
-          >
-            {loading ? "Submitting..." : "Add Team Member"}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+        <Button
+          type="submit"
+          className="w-full bg-gradient-to-r from-[#17003A] to-[#34006e] hover:from-[#1a0040] hover:to-[#3a0077] text-white font-medium shadow-lg h-12 rounded-xl text-lg transition-all duration-300"
+          disabled={loading}
+        >
+          {loading ? (
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+              Submitting...
+            </div>
+          ) : (
+            'Add Team Member'
+          )}
+        </Button>
+      </form>
+    </div>
   )
 }
 

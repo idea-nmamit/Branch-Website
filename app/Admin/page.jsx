@@ -145,25 +145,26 @@ const AdminPage = () => {
 
     switch (activeTab) {
       case 'events':        return (
-          <div className="space-y-6">
-            <Card className="bg-white shadow-lg border-slate-200">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-slate-200">
-                <CardTitle className="text-slate-800 flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-blue-600" />
+          <div className="space-y-8">
+            <Card className="bg-white/95 backdrop-blur-sm shadow-xl border-0 rounded-2xl overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-[#17003A] to-[#34006e] text-white">
+                <CardTitle className="text-white flex items-center gap-3 text-xl">
+                  <Calendar className="h-6 w-6" />
                   Add New Event
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-6">
+              <CardContent className="p-8 bg-white">
                 <EventForm onEventAdded={handleEventAdded} />
               </CardContent>
             </Card>
-            <Card className="bg-white shadow-lg border-slate-200">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-slate-200">
-                <CardTitle className="text-slate-800 flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-blue-600" />
+            <Card className="bg-white/95 backdrop-blur-sm shadow-xl border-0 rounded-2xl overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-[#17003A] to-[#34006e] text-white">
+                <CardTitle className="text-white flex items-center gap-3 text-xl">
+                  <Calendar className="h-6 w-6" />
                   Events List ({events.length})
-                </CardTitle>              </CardHeader>
-              <CardContent className="p-6">
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-8 bg-white">
                 <EventList events={events} />
               </CardContent>
             </Card>
@@ -171,42 +172,43 @@ const AdminPage = () => {
         )
       case 'achievements':
         return (
-          <Card className="bg-white shadow-lg border-slate-200">
-            <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50 border-b border-slate-200">
-              <CardTitle className="text-slate-800 flex items-center gap-2">
-                <Trophy className="h-5 w-5 text-amber-600" />
+          <Card className="bg-white/95 backdrop-blur-sm shadow-xl border-0 rounded-2xl overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-[#17003A] to-[#34006e] text-white">
+              <CardTitle className="text-white flex items-center gap-3 text-xl">
+                <Trophy className="h-6 w-6" />
                 Add New Achievement
               </CardTitle>
-            </CardHeader>            <CardContent className="p-6">
+            </CardHeader>
+            <CardContent className="p-8 bg-white">
               <AchievementsForm onAchievementAdded={handleAchievementAdded} />
             </CardContent>
           </Card>
         )
       case 'team':
         return (
-          <Card className="bg-white shadow-lg border-slate-200">
-            <CardHeader className="bg-gradient-to-r from-emerald-50 to-green-50 border-b border-slate-200">
-              <CardTitle className="text-slate-800 flex items-center gap-2">
-                <Users className="h-5 w-5 text-emerald-600" />
+          <Card className="bg-white/95 backdrop-blur-sm shadow-xl border-0 rounded-2xl overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-[#17003A] to-[#34006e] text-white">
+              <CardTitle className="text-white flex items-center gap-3 text-xl">
+                <Users className="h-6 w-6" />
                 Add Team Member
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6">
+            <CardContent className="p-8 bg-white">
               <TeamForm onTeamMemberAdded={handleTeamMemberAdded} />
             </CardContent>
           </Card>
         )
       case 'gallery':
         return (
-          <Card className="bg-white shadow-lg border-slate-200">
-            <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-slate-200">
-              <CardTitle className="text-slate-800 flex items-center gap-2">
+          <Card className="bg-white/95 backdrop-blur-sm shadow-xl border-0 rounded-2xl overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-[#17003A] to-[#34006e] text-white">
+              <CardTitle className="text-white flex items-center gap-3 text-xl">
                 {/* eslint-disable-next-line jsx-a11y/alt-text */}
-                <Image className="h-5 w-5 text-purple-600" />
+                <Image className="h-6 w-6" />
                 Gallery Management
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6">
+            <CardContent className="p-8 bg-white">
               <GalleryAdmin onGalleryUpdated={handleGalleryUpdated} />
             </CardContent>
           </Card>
@@ -225,7 +227,7 @@ const AdminPage = () => {
     return <AdminLogin onLogin={handleLogin} />
   }
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-[#17003A] to-[#370069]">
       <div className="container mx-auto px-4 py-6 max-w-7xl">
         <AdminDashboard 
           activeTab={activeTab}

@@ -216,24 +216,20 @@ const AchievementsForm = ({ onAchievementAdded }) => {
   };
 
   return (
-    <Card className="mb-8">
-      <CardHeader>
-        <CardTitle>Add Achievement</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {error && (
-          <Alert variant="destructive" className="mb-6">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+    <div className="space-y-6">
+      {error && (
+        <Alert variant="destructive" className="border-red-200 bg-red-50">
+          <AlertDescription className="text-red-700">{error}</AlertDescription>
+        </Alert>
+      )}
 
-        {successMessage && (
-          <Alert className="mb-6 border-green-600">
-            <AlertDescription className="text-green-600">{successMessage}</AlertDescription>
-          </Alert>
-        )}
+      {successMessage && (
+        <Alert className="border-green-200 bg-green-50">
+          <AlertDescription className="text-green-700">{successMessage}</AlertDescription>
+        </Alert>
+      )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-8">
           {/* Basic Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Basic Information</h3>
@@ -500,12 +496,22 @@ const AchievementsForm = ({ onAchievementAdded }) => {
             ))}
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Submitting..." : "Submit Achievement"}
+          <Button 
+            type="submit" 
+            className="w-full bg-gradient-to-r from-[#17003A] to-[#34006e] hover:from-[#1a0040] hover:to-[#3a0077] text-white font-medium shadow-lg h-12 rounded-xl text-lg transition-all duration-300" 
+            disabled={loading}
+          >
+            {loading ? (
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                Submitting...
+              </div>
+            ) : (
+              'Submit Achievement'
+            )}
           </Button>
         </form>
-      </CardContent>
-    </Card>
+      </div>
   );
 };
 

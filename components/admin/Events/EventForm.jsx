@@ -139,79 +139,79 @@ const EventForm = ({ onEventAdded }) => {
   }
 
   return (
-    <Card className="mb-8">
-      <CardHeader>
-        <CardTitle>Add New Event</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {error && (
-          <Alert variant="destructive" className="mb-6">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+    <div className="space-y-6">
+      {error && (
+        <Alert variant="destructive" className="border-red-200 bg-red-50">
+          <AlertDescription className="text-red-700">{error}</AlertDescription>
+        </Alert>
+      )}
 
-        {successMessage && (
-          <Alert className="mb-6 border-green-600">
-            <AlertDescription className="text-green-600">{successMessage}</AlertDescription>
-          </Alert>
-        )}
+      {successMessage && (
+        <Alert className="border-green-200 bg-green-50">
+          <AlertDescription className="text-green-700">{successMessage}</AlertDescription>
+        </Alert>
+      )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Event Name</Label>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-3">
+            <Label htmlFor="name" className="text-gray-700 font-medium">Event Name</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
+              className="h-12 border-gray-200 focus:border-[#34006e] focus:ring-[#34006e] rounded-xl"
             />
           </div>
 
-          {/* Type Dropdown */}
-          <div className="space-y-2">
-            <Label htmlFor="type">Type</Label>
+          <div className="space-y-3">
+            <Label htmlFor="type" className="text-gray-700 font-medium">Type</Label>
             <Select
               value={type}
               onValueChange={setType}
               required
               defaultValue="TECHNICAL"
             >
-              <SelectTrigger id="type" className="w-full">
+              <SelectTrigger id="type" className="h-12 border-gray-200 focus:border-[#34006e] focus:ring-[#34006e] rounded-xl">
                 <SelectValue placeholder="Select event type" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="rounded-xl">
                 <SelectItem value="TECHNICAL">TECHNICAL</SelectItem>
                 <SelectItem value="NON_TECHNICAL">NON-TECHNICAL</SelectItem>
               </SelectContent>
             </Select>
           </div>
+        </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="venue">Venue</Label>
-            <Input
-              id="venue"
-              value={venue}
-              onChange={(e) => setVenue(e.target.value)}
-              required
-            />
-          </div>
+        <div className="space-y-3">
+          <Label htmlFor="venue" className="text-gray-700 font-medium">Venue</Label>
+          <Input
+            id="venue"
+            value={venue}
+            onChange={(e) => setVenue(e.target.value)}
+            required
+            className="h-12 border-gray-200 focus:border-[#34006e] focus:ring-[#34006e] rounded-xl"
+          />
+        </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="date">Date</Label>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-3">
+            <Label htmlFor="date" className="text-gray-700 font-medium">Date</Label>
             <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   className={cn(
-                    "w-full justify-start text-left font-normal",
+                    "w-full h-12 justify-start text-left font-normal border-gray-200 hover:border-[#34006e] rounded-xl",
                     !date && "text-muted-foreground"
                   )}
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  <CalendarIcon className="mr-3 h-5 w-5" />
                   {date ? format(new Date(date), "PPP") : "Select date"}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
+              <PopoverContent className="w-auto p-0 rounded-xl">
                 <Calendar
                   mode="single"
                   selected={selectedDate}
@@ -225,71 +225,80 @@ const EventForm = ({ onEventAdded }) => {
             </Popover>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="time">Time</Label>
+          <div className="space-y-3">
+            <Label htmlFor="time" className="text-gray-700 font-medium">Time</Label>
             <div className="relative">
-              <Clock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Clock className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
               <Input
                 id="time"
                 type="time"
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
-                className="pl-10"
+                className="h-12 pl-12 border-gray-200 focus:border-[#34006e] focus:ring-[#34006e] rounded-xl"
                 required
               />
             </div>
           </div>
+        </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="attendees">Number of Attendees</Label>
-            <div className="relative">
-              <Users className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="attendees"
-                type="number"
-                min="0"
-                value={attendees}
-                onChange={(e) => setAttendees(e.target.value)}
-                className="pl-10"
-                placeholder="Enter expected number of attendees"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="image">Event Image</Label>
+        <div className="space-y-3">
+          <Label htmlFor="attendees" className="text-gray-700 font-medium">Number of Attendees</Label>
+          <div className="relative">
+            <Users className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
             <Input
-              id="image"
-              type="file"
-              onChange={(e) => setSelectedImage(e.target.files[0])}
-              required
-            />
-            {selectedImage && (
-              <p className="text-sm text-primary">Image ready to upload on submit.</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={4}
-              required
+              id="attendees"
+              type="number"
+              min="0"
+              value={attendees}
+              onChange={(e) => setAttendees(e.target.value)}
+              className="h-12 pl-12 border-gray-200 focus:border-[#34006e] focus:ring-[#34006e] rounded-xl"
+              placeholder="Enter expected number of attendees"
             />
           </div>
+        </div>
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={loading}
-          >
-            {loading ? "Submitting..." : "Submit Event"}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+        <div className="space-y-3">
+          <Label htmlFor="image" className="text-gray-700 font-medium">Event Image</Label>
+          <Input
+            id="image"
+            type="file"
+            onChange={(e) => setSelectedImage(e.target.files[0])}
+            required
+            className="h-12 border-gray-200 focus:border-[#34006e] focus:ring-[#34006e] rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-[#34006e]/10 file:text-[#34006e] hover:file:bg-[#34006e]/20"
+          />
+          {selectedImage && (
+            <p className="text-sm text-[#34006e] bg-[#34006e]/10 p-3 rounded-lg">Image ready to upload on submit.</p>
+          )}
+        </div>
+
+        <div className="space-y-3">
+          <Label htmlFor="description" className="text-gray-700 font-medium">Description</Label>
+          <Textarea
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={4}
+            required
+            className="border-gray-200 focus:border-[#34006e] focus:ring-[#34006e] rounded-xl"
+          />
+        </div>
+
+        <Button
+          type="submit"
+          className="w-full bg-gradient-to-r from-[#17003A] to-[#34006e] hover:from-[#1a0040] hover:to-[#3a0077] text-white font-medium shadow-lg h-12 rounded-xl text-lg transition-all duration-300"
+          disabled={loading}
+        >
+          {loading ? (
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+              Submitting...
+            </div>
+          ) : (
+            'Submit Event'
+          )}
+        </Button>
+      </form>
+    </div>
   )
 }
 

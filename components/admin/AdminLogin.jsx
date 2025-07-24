@@ -30,19 +30,19 @@ const AdminLogin = ({ onLogin }) => {
     setLoading(false)
   }
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-4">
-      <Card className="w-full max-w-md shadow-2xl border-0 bg-white/80 backdrop-blur-sm">
-        <CardHeader className="text-center">
-          <div className="mx-auto w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mb-4 shadow-lg">
-            <Lock className="h-6 w-6 text-white" />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#17003A] to-[#370069] p-4">
+      <Card className="w-full max-w-md shadow-2xl border-0 bg-white/95 backdrop-blur-sm rounded-2xl overflow-hidden">
+        <CardHeader className="text-center bg-gradient-to-r from-[#17003A] to-[#34006e] text-white py-8">
+          <div className="mx-auto w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-4 shadow-lg">
+            <Lock className="h-8 w-8 text-white" />
           </div>
-          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Admin Access</CardTitle>
-          <p className="text-slate-600">Enter password to access admin dashboard</p>
+          <CardTitle className="text-3xl font-bold text-white">Admin Access</CardTitle>
+          <p className="text-white/80 mt-2">Enter password to access admin dashboard</p>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+        <CardContent className="p-8 bg-white">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-3">
+              <Label htmlFor="password" className="text-gray-700 font-medium">Password</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -51,33 +51,43 @@ const AdminLogin = ({ onLogin }) => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter admin password"
                   required
-                  className="pr-10"
-                />                <Button
+                  className="pr-12 h-12 border-gray-200 focus:border-[#34006e] focus:ring-[#34006e] rounded-xl"
+                />
+                <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-blue-50"
+                  className="absolute right-0 top-0 h-full px-4 py-2 hover:bg-gray-50 rounded-r-xl"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-slate-400" />
+                    <EyeOff className="h-5 w-5 text-gray-400" />
                   ) : (
-                    <Eye className="h-4 w-4 text-slate-400" />
+                    <Eye className="h-5 w-5 text-gray-400" />
                   )}
                 </Button>
               </div>
             </div>
 
             {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
+              <Alert variant="destructive" className="border-red-200 bg-red-50">
+                <AlertDescription className="text-red-700">{error}</AlertDescription>
               </Alert>
-            )}            <Button
+            )}
+
+            <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium shadow-lg"
+              className="w-full bg-gradient-to-r from-[#17003A] to-[#34006e] hover:from-[#1a0040] hover:to-[#3a0077] text-white font-medium shadow-lg h-12 rounded-xl text-lg transition-all duration-300"
               disabled={loading || !password.trim()}
             >
-              {loading ? 'Authenticating...' : 'Access Dashboard'}
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                  Authenticating...
+                </div>
+              ) : (
+                'Access Dashboard'
+              )}
             </Button>
           </form>
         </CardContent>
