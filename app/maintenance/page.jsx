@@ -1,12 +1,20 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Wrench, Clock, ArrowLeft, Settings } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import Image from 'next/image'
 
 const MaintenancePage = () => {
+  useEffect(() => {
+    const interval = setInterval(() => {
+      window.location.href = '/';
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+  
   return (
     <div className="h-screen bg-gradient-to-br from-[#17003A] to-[#34006e] flex items-center justify-center p-2 sm:p-4 relative overflow-hidden">
       {/* Background decorative elements */}

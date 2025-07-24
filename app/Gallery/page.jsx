@@ -473,7 +473,27 @@ export default function GalleryPage() {
     setShareError(false);
     
     try {
-      if (navigator.share) {
+      if (navigator.share && navigator.canShare) {
+        try {
+          const response = await fetch(image.photoUrl);
+          const blob = await response.blob();
+          
+          const file = new File([blob], `${image.title.replace(/[^a-z0-9]/gi, '_')}.jpg`, {
+            type: blob.type || 'image/jpeg'
+          });
+
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              title: image.title,
+              text: image.description || 'Check out this image from our gallery!',
+              files: [file]
+            });
+            return;
+          }
+        } catch (fetchError) {
+          console.log('Failed to fetch image for sharing, falling back to URL sharing:', fetchError);
+        }
+        
         await navigator.share({
           title: image.title,
           text: image.description || 'Check out this image from our gallery!',
