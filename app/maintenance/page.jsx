@@ -64,7 +64,7 @@ const MaintenancePage = () => {
             
             {/* Refresh Button */}
             <Button 
-              onClick={() => window.location.reload()} 
+              onClick={() => window.location.href = '/'} 
               className="bg-gradient-to-r from-[#f6014e] to-[#ff4895] hover:from-[#d4013e] hover:to-[#e6407a] text-white px-6 sm:px-8 py-2 sm:py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 font-montserrat font-medium text-sm sm:text-base"
             >
               Check Again
