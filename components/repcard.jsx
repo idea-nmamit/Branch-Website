@@ -2,13 +2,16 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
+
 const Card = ({ name, imageUrl, designation, linkedin, github, instagram, portfolio }) => {
   const [isClient, setIsClient] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
+
   useEffect(() => {
     setIsClient(true);
   }, []);
+
 
   const handleMouseMove = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -19,6 +22,7 @@ const Card = ({ name, imageUrl, designation, linkedin, github, instagram, portfo
       y: (e.clientY - rect.top - centerY) / centerY
     });
   };
+
 
   return (
     <div className="relative w-full max-w-sm mx-auto">
@@ -62,7 +66,7 @@ const Card = ({ name, imageUrl, designation, linkedin, github, instagram, portfo
               transition={{ type: "spring", stiffness: 400, damping: 25 }}
             >
               {/* Image container with elegant border */}
-              <div className="relative w-32 h-32 sm:w-28 sm:h-28 md:w-24 md:h-24">
+              <div className="relative w-32 h-32 sm:w-28 sm:h-28 md:w-24 md:h-24 lg:w-36 lg:h-36">
                 {/* Animated border ring */}
                 <motion.div
                   className="absolute -inset-2 rounded-full"
@@ -90,6 +94,7 @@ const Card = ({ name, imageUrl, designation, linkedin, github, instagram, portfo
                 </div>
               </div>
             </motion.div>
+
 
             {/* Name and title */}
             <div className="text-center mb-8">
@@ -155,6 +160,7 @@ const Card = ({ name, imageUrl, designation, linkedin, github, instagram, portfo
             </motion.div>
           </div>
 
+
           {/* Subtle corner decorations */}
           <div className="absolute top-4 right-4 w-8 h-8 border-t border-r border-white/10 rounded-tr-lg" />
           <div className="absolute bottom-4 left-4 w-8 h-8 border-b border-l border-white/10 rounded-bl-lg" />
@@ -164,6 +170,7 @@ const Card = ({ name, imageUrl, designation, linkedin, github, instagram, portfo
   );
 };
 
+
 // Clean, minimal social icons
 const InstagramIcon = ({ size = 24 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -171,11 +178,13 @@ const InstagramIcon = ({ size = 24 }) => (
   </svg>
 );
 
+
 const GithubIcon = ({ size = 24 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
     <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
   </svg>
 );
+
 
 const LinkedinIcon = ({ size = 24 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -183,10 +192,12 @@ const LinkedinIcon = ({ size = 24 }) => (
   </svg>
 );
 
+
 const PortfolioIcon = ({ size = 24 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
     <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm1 16.057v-3.057h2.994c-.059 1.143-.212 2.24-.456 3.279-.823-.12-1.674-.188-2.538-.222zm1.957 2.162c-.499 1.33-1.159 2.497-1.957 3.456v-3.62c.666.028 1.329.081 1.957.164zm-1.957-7.219v-3.015c.868-.034 1.721-.103 2.548-.224.238 1.027.389 2.111.446 3.239h-2.994zm0-5.014v-3.661c.806.969 1.471 2.15 1.971 3.496-.642.084-1.3.137-1.971.165zm2.703-3.267c1.237.496 2.354 1.228 3.29 2.146-.642.234-1.311.442-2.019.607-.394-.966-.893-1.893-1.271-2.753zm-.388 8.217c-.178.643-.390 1.289-.691 1.936-.861-.601-1.615-1.314-2.24-2.117.304-.032.615-.064.931-.064.667 0 1.325.081 2 .245zm-2.703-8.217c-.378.86-.877 1.787-1.271 2.753-.708-.165-1.377-.373-2.019-.607.936-.918 2.053-1.65 3.29-2.146zm-5.991 11.856c-.705-.673-1.299-1.461-1.771-2.343.357-.064.718-.115 1.080-.157.179.787.414 1.566.691 2.5zm-.805-10.553c.357.042.718.093 1.080.157-.705.673-1.299 1.461-1.771 2.343-.277-.934-.512-1.713-.691-2.5zm1.958 2.162c.499-1.33 1.159-2.497 1.957-3.456v3.62c-.666-.028-1.329-.081-1.957-.164zm1.957 7.219v3.015c-.868.034-1.721.103-2.548.224-.238-1.027-.389-2.111-.446-3.239h2.994zm0 5.014v3.661c-.806-.969-1.471-2.15-1.971-3.496.642-.084 1.3-.137 1.971-.165zm-2.703 3.267c-1.237-.496-2.354-1.228-3.29-2.146.642-.234 1.311-.442 2.019-.607.394.966.893 1.893 1.271 2.753zm.388-8.217c.178-.643.390-1.289.691-1.936.861.601 1.615 1.314 2.24 2.117-.304.032-.615.064-.931.064-.667 0-1.325-.081-2-.245zm2.703 8.217c.378-.86.877-1.787 1.271-2.753.708.165 1.377.373 2.019.607-.936.918-2.053 1.65-3.29 2.146zm5.991-11.856c.705.673 1.299 1.461 1.771 2.343-.357.064-.718.115-1.080.157-.179-.787-.414-1.566-.691-2.5zm.805 10.553c-.357-.042-.718-.093-1.080-.157.705-.673 1.299-1.461 1.771-2.343.277.934.512 1.713.691 2.5z"/>
   </svg>
 );
+
 
 export default Card;
